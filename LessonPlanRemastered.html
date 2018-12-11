@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>Redoing Lesson Plan</title>
+		<link rel="stylesheet" href="stylesheet.css">
+		<script src="Tools.js" defer></script>
+		<script
+		  src="https://code.jquery.com/jquery-3.3.1.min.js"
+		  integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+		  crossorigin="anonymous"></script>
+	</head>
+	<body onload="recreatePage1()">
+		<div id="masterDiv">
+			<div id="page1">
+				<div class="section">
+					<p>Title</p>
+					<div contenteditable class="inputDiv" onkeyup="divToInput(this)" onkeypress="divToInput(this)"></div>
+					<input class="rightMenuBlock" onkeyup="setActualValue(this)" onkeypress="setActualValue(this)" id="titleInput" type="text" />
+					<p>Paragraph</p>
+					<div contenteditable class="inputDiv" onkeyup="divToInput(this)" onkeypress="divToInput(this)"></div>
+					<textarea onkeyup="setActualValue()" onkeypress="setActualValue()" id="paragraphTextarea"></textarea>
+				</div>
+				<br>
+				<div class="mainSection section">
+					<div class="lessonTitle section">
+						<p>Lesson Title</p>
+						<div contenteditable class="inputDiv" onkeyup="divToInput(this)" onkeypress="divToInput(this)"></div>
+						<input onkeyup="setActualValue()" onkeypress="setActualValue()" class="lessonTitleInput" type="text" />
+						<p>Lesson Subtitle</p>
+						<div contenteditable class="inputDiv" onkeyup="divToInput(this)" onkeypress="divToInput(this)"></div>
+						<input onkeyup="setActualValue()" onkeypress="setActualValue()" class="lessonSubtitleInput" type="text" />
+					</div>
+					<br>
+					<div class="section contentDivDiv">
+						<div class="leftDiv">
+							<p>Lecture/Practical/something</p>
+							<div contenteditable class="inputDiv" onkeyup="divToInput(this)" onkeypress="divToInput(this)"></div>
+							<input type="text" />
+							<input type="color" />
+						</div>
+						<div class="flex rightDiv">
+							<div class="page1Content">
+								<p>Content Title</p>
+								<div contenteditable class="inputDiv" onkeyup="divToInput(this)" onkeypress="divToInput(this)"></div>
+								<input type="text" />
+								<p>Content List</p>
+								<div contenteditable class="inputDiv" onkeyup="divToInput(this)" onkeypress="divToInput(this)"></div>
+								<textarea class="contentListTextarea"></textarea>
+							</div>
+						</div>
+						<div class="closeImg" onclick="removeLessonContent(this)">
+							<img src="grass 2.jpg" alt="Add button" width="30" height="30" />
+						</div>
+					</div>
+					<div class="section contentDivDiv">
+						<div class="leftDiv">
+							<p>Lecture/Practical/something</p>
+							<div contenteditable class="inputDiv" onkeyup="divToInput(this)" onkeypress="divToInput(this)"></div>
+							<input type="text" />
+							<input type="color" />
+						</div>
+						<div class="flex rightDiv">
+							<div class="page1Content">
+								<p>Content Title</p>
+								<div contenteditable class="inputDiv" onkeyup="divToInput(this)" onkeypress="divToInput(this)"></div>
+								<input type="text" />
+								<p>Content List</p>
+								<div contenteditable class="inputDiv" onkeyup="divToInput(this)" onkeypress="divToInput(this)"></div>
+								<textarea></textarea>
+							</div>
+						</div>
+						<div class="closeImg" onclick="removeLessonContent(this)">
+							<img src="grass 2.jpg" alt="Add button" width="30" height="30" />
+						</div>
+					</div>
+					<div class="addLessonContent" onclick="addLessonContent(this)">
+						<img src="grass 2.jpg" alt="Add button" width="30" height="30" />
+					</div>
+					<div class="closeImg" onclick="removeLessonContent(this)">
+						<img src="grass 2.jpg" alt="Add button" width="30" height="30" />
+					</div>
+				</div>
+				<div class="addLessonContent" onclick="addLessonSection(this)">
+					<img src="grass 2.jpg" alt="Add button" width="30" height="30" />
+				</div>
+				<div class="section">
+					<p>Footer</p>
+					<div contenteditable class="inputDiv" onkeyup="divToInput(this)" onkeypress="divToInput(this)"></div>
+					<input type="text" onkeypress="setActualValue()" onkeyup="setActualValue()" id="lessonPlanFooter">
+				</div>
+				<button onclick="generateHTML()">Generate HTML</button>
+				<button onclick="showAllInput()">Show All</button>
+			</div>
+			<div id="page2">
+				<div id="lessonPlanTemplate">
+					<p class="bold underline">Instructors</p>
+					<div id="instructorsDetails">
+						<p>
+						Module Leader: Leow Zhen Zhen (<a href="mailto:leow_zhen_zhen@nyp.edu.sg">leow_zhen_zhen@nyp.edu.sg</a>)
+						</p>
+						<p>
+						Tutor: Benjamin Tan (<a href="mailto:benjamin_tan@nyp.edu.sg">benjamin_tan@nyp.edu.sg</a>)
+						</p>
+					</div>
+					<div class="lesson">
+						<div class="lessonHeader">
+							<p class="bold">Lesson 1 (25 Jun 2018)</p>
+							<p class="em">Instructor: Leow Zhen Zhen</p>
+						</div>
+						<div class="lecPracHeader">
+							<div class="lecPracDiv">
+								<p class="bold">L</p>
+							</div>
+							<div class="lessonPlanContent">
+								<p class="lessonPlanContentP"><a href="https://polymall.polytechnic.edu.sg/bbcswebdav/pid-3221088-dt-content-rid-9486481_1/xid-9486481_1" target="_blank">Universal Platform and Controls - Introduction to Windows 10</a></p>
+								<ul>
+									<li>Universal Windows Platform</li>
+									<li>Development Tools</li>
+									<li>Layouts and Controls</li>
+								</ul>
+							</div>
+						</div>
+						<div class="lecPracHeader">
+							<div class="lecPracDiv">
+								<p class="bold">P</p>
+							</div>
+							<div class="lessonPlanContent">
+								<p class="lessonPlanContentP">Platform and Controls</p>
+								<ul>
+									<li>Development Tools</li>
+									<li>Layout and Controls</li>
+									<li>C# Programming Basics</li>
+								</ul>
+							</div>
+						</div>
+					</div>
+					<div class="lesson">
+						<div class="lessonHeader">
+							<p class="bold">Lesson 2 (27 Jun 18)</p>
+							<p class="em">Instructor: Leow Zhen Zhen</p>
+						</div>
+						<div class="lecPracHeader">
+							<div class="lecPracDiv">
+								<p class="bold">L</p>
+							</div>
+							<div class="lessonPlanContent">
+								<p class="lessonPlanContentP">Page Controls and Navigation</p>
+								<ul>
+									<li>Page and Navigation</li>
+									<li>App bar and Status bar</li>
+									<li>Styles and Themes</li>
+									<li>Hub and Pivot</li>
+								</ul>
+							</div>
+						</div>
+						<div class="lecPracHeader">
+							<div class="lecPracDiv">
+								<p class="bold">P</p>
+							</div>
+							<div class="lessonPlanContent">
+								<p class="lessonPlanContentP">Page Controls and Navigation</p>
+								<ul>
+									<li>Page and Navigation</li>
+									<li>App bar and Status bar</li>
+									<li>Hub and Pivot</li>
+									<li>Practical Assignment Walkthrough</li>
+								</ul>
+							</div>
+						</div>
+						<div class="lecPracHeader">
+							<div class="lecPracDiv" style="background-color:#fa8072">
+								<p class="bold">ICA</p>
+							</div>
+							<div class="lessonPlanContent">
+								<ul>
+									<li>Proposal Submission(10%)</li>
+								</ul>
+							</div>
+						</div>
+					</div>
+					<p class="sub">L=Lecture           P=Practical         ICA=In Course Assessment</p>
+				</div>
+			</div>
+			
+			<div id="popupDiv">
+				<div id="popup">
+					<p>Copy the code</p>
+					<textarea readonly></textarea>
+					<button onclick="copyToClipboard()">Copy to Clipboard</button>
+					<button onclick="closePopup()">Close</button>
+					<p style="color: red;display:none">Copied to clipboard.</p>
+				</div>
+			</div>
+			
+			<div id="rightClickMenu">
+				<ul>
+					<li onclick="promptLink()">Link</li>
+					<hr>
+					<li onclick="copyCommand()">Copy</li>
+				</ul>
+			</div>
+			
+			<div id="linkBoxDiv">
+				<div id="linkBox">
+					<p>Enter your link</p>
+					<input id="linkInput" type="text" />
+					<button onclick="hideLinkBox()">Cancel</button>
+					<button onclick="convertToLink()">Done</button>
+				</div>
+			</div>
+			
+		</div>
+	</body>
+</html>
