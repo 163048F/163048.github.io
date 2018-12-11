@@ -10,9 +10,78 @@
 		  src="https://code.jquery.com/jquery-3.3.1.min.js"
 		  integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
 		  crossorigin="anonymous"></script>
+			<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+			<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+			<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
 	</head>
-	<body onload="recreatePage1()">
+	
+	<body>
 		<div id="masterDiv">
+			<div id="startupDiv" class="bg-dark">
+				<div id="carousel" class="carousel slide">
+				  <div class="carousel-inner">
+
+						<div class="carousel-item active">
+							<div id="startupDivPage1">
+								<div id="startupLeftDiv">
+									<div onclick="createNew()" class="bg-light">
+										<img src="grass 2.jpg" width="150" height="150" />
+										<p>
+											Create New
+										</p>
+									</div>
+								</div>
+								<div id="startupRightDiv">
+									<div onclick="goPage2()" class="bg-light">
+										<img src="grass 2.jpg" width="150" height="150" />
+										<p>
+											Import Existing
+										</p>
+									</div>
+								</div>
+							</div>
+				    </div>
+
+				    <div class="carousel-item">
+							<div id="startupDivPage2" class="bg-light">
+								<div>
+									<p>
+										<b>Paste html codes here</b> or <br /><b>Drag and drop a html or text file onto the textarea</b>
+									</p>
+									<textarea id="importTextarea" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="removeDragCSS()">
+									</textarea>
+									<br />
+									<div class="clearfix">
+										<button class="btn btn-primary" onclick="checkTextIsCorrect()">Confirm</button>
+										<button class="btn" onclick="clearImportTextarea()">Clear</button>
+									</div>
+								</div>
+							</div>
+				    </div>
+
+						<div class="carousel-item">
+							<div id="startupDivPage3" class="bg-light">
+								<div>
+									<p>
+										<b>Preview</b>
+									</p>
+									<hr />
+									<div id="importPage3Preview">
+									</div>
+									<br />
+									<div class="clearfix">
+										<button class="btn btn-primary" onclick="hideStartupDiv()">Confirm</button>
+									</div>
+								</div>
+							</div>
+				    </div>
+				  </div>
+				  <a class="carousel-control-prev" href="#carousel" role="button" onclick="goBack()">
+				    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+				  </a>
+				</div>
+			</div>
+
 			<div id="page1">
 				<div class="section">
 					<p>Title</p>
@@ -91,11 +160,12 @@
 					<input type="text" onkeypress="setActualValue()" onkeyup="setActualValue()" id="lessonPlanFooter">
 				</div>
 				<button onclick="generateHTML()">Generate HTML</button>
-				<button onclick="showAllInput()">Show All</button>
+				<button onclick="showAllInput(this)">Show All</button>
 			</div>
+
 			<div id="page2">
 				<div id="lessonPlanTemplate">
-					<p class="bold underline">Instructors</p>
+					<p class="bold underline">Instructors Details</p>
 					<div id="instructorsDetails">
 						<p>
 						Module Leader: Leow Zhen Zhen (<a href="mailto:leow_zhen_zhen@nyp.edu.sg">leow_zhen_zhen@nyp.edu.sg</a>)
@@ -183,17 +253,19 @@
 					<p class="sub">L=Lecture           P=Practical         ICA=In Course Assessment</p>
 				</div>
 			</div>
-			
+
 			<div id="popupDiv">
 				<div id="popup">
 					<p>Copy the code</p>
-					<textarea readonly></textarea>
-					<button onclick="copyToClipboard()">Copy to Clipboard</button>
-					<button onclick="closePopup()">Close</button>
+					<textarea readonly onclick="selectAll(this)"></textarea><br />
+					<div>
+						<button class="btn" onclick="closePopup()">Close</button>
+						<button class="btn btn-primary" onclick="copyToClipboard()">Copy to Clipboard</button>
+					</div>
 					<p style="color: red;display:none">Copied to clipboard.</p>
 				</div>
 			</div>
-			
+
 			<div id="rightClickMenu">
 				<ul>
 					<li onclick="promptLink()">Link</li>
@@ -201,16 +273,17 @@
 					<li onclick="copyCommand()">Copy</li>
 				</ul>
 			</div>
-			
+
 			<div id="linkBoxDiv">
 				<div id="linkBox">
 					<p>Enter your link</p>
 					<input id="linkInput" type="text" />
+					<br />
 					<button onclick="hideLinkBox()">Cancel</button>
 					<button onclick="convertToLink()">Done</button>
 				</div>
 			</div>
-			
+
 		</div>
 	</body>
 </html>

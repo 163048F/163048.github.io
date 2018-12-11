@@ -1,10 +1,121 @@
 var selectedText = "";
 var focusedInput;
 var startIndex;
+var shouldGoBackHide = 0;
+
+$(".carousel-control-prev").css("display", "none");
+
+function goPage2() {
+	$("#carousel").carousel('next');
+	$("#carousel").carousel('pause');
+	$(".carousel-control-prev").css("display", "flex");
+	shouldGoBackHide++;
+}
+
+function goPage3(lessonPlanTemplateDiv) {
+	$("#carousel").carousel('next');
+	$("#carousel").carousel('pause');
+	$(".carousel-control-prev").css("display", "flex");
+	shouldGoBackHide++;
+
+	$("#importPage3Preview").empty();
+	$("#importPage3Preview").append(lessonPlanTemplateDiv);
+}
+
+function goBack() {
+	$("#carousel").carousel('prev');
+	$("#carousel").carousel('pause');
+	shouldGoBackHide--;
+	if(shouldGoBackHide <= 0){
+		$(".carousel-control-prev").css("display", "none");
+	}
+}
+
+function createNew() {
+	$("#startupDiv").css("display", "none");
+
+	$("#masterDiv").css("overflow", "auto");
+	$("#masterDiv").css("height", "unset");
+	recreatePage1();
+}
+
+function checkTextIsCorrect() {
+	// Checking if textarea is empty
+	var textareaValue = $("#importTextarea").val().trim();
+	if(textareaValue) {
+		// Checking if text include #lessonPlanTemplate
+		var tempDiv = $(document.createElement("div"));
+		tempDiv.html(textareaValue);
+		var checkText = tempDiv.find("#lessonPlanTemplate").html().trim();
+		if(checkText && checkText.length > 0) {
+			// Creating #lessonPlanTemplate
+			var lessonPlanTemplateDiv = document.createElement("div");
+			lessonPlanTemplateDiv.id = "lessonPlanTemplate";
+			$(lessonPlanTemplateDiv).html(checkText);
+
+			// Go to page3
+			goPage3(lessonPlanTemplateDiv);
+		}else {
+			alert("'id=#lessonPlanTemplate' div missing. Make sure you entered/uploaded correctly");
+		}
+	}else {
+		alert("Make sure you entered/uploaded something")
+	}
+}
+
+function hideStartupDiv() {
+	// Appending Preview to Page2
+	$("#page2").empty();
+	$("#page2").html($("#importPage3Preview").html());
+
+	// Close the startup div
+	createNew();
+}
+
+function allowDrop(ev) {
+	if(window.File && window.FileReader && window.FileList && window.Blob) {
+		$("#importTextarea").css("border", "5px dashed grey");
+		$("#importTextarea").css("border-radius", "20px");
+		ev.preventDefault();
+	}else {
+		// Sorry not supported
+	}
+}
+
+// Remove the border on mouse exit
+function removeDragCSS() {
+	$("#importTextarea").css("border", "");
+	$("#importTextarea").css("border-radius", "");
+}
+
+function drop(ev) {
+  ev.preventDefault();
+	// Remove drag css border
+	removeDragCSS();
+
+	// Get the first file
+  var file = ev.dataTransfer.files[0];
+	var fileReader = new FileReader();
+
+	// Make sure only .html and .txt is accepted
+	if(file.type.match('text/plain') || file.type.match('text/html')) {
+		fileReader.onload = function() {
+			$("#importTextarea").val(fileReader.result);
+		};
+	}else {
+		alert("Only .html & .txt accepted format");
+	}
+
+	fileReader.readAsText(file);
+}
+
+function clearImportTextarea() {
+	$("#importTextarea").val("");
+}
 
 function removeLessonContent(closeImg) {
 	$(closeImg).parent().remove();
-	
+
 	// Rebuilt Page2
 	recreatePage2();
 }
@@ -43,7 +154,7 @@ function addLessonContent(addLessonDiv) {
 	leftDivTextInput.setAttribute("type", "text");
 	leftDivColorInput.setAttribute("type", "color");
 	page1ContentTitleTextInput.setAttribute("type", "text");
-	
+
 	leftDivTextInput.setAttribute("onkeyup", "inputToDiv(this)");
 	leftDivTextInput.setAttribute("onkeydown", "inputToDiv(this)");
 	leftDivColorInput.setAttribute("onchange", "setActualValue()");
@@ -51,7 +162,7 @@ function addLessonContent(addLessonDiv) {
 	page1ContentTitleTextInput.setAttribute("onkeydown", "inputToDiv(this)");
 	page1ContentListTextarea.setAttribute("onkeyup", "inputToDiv(this)");
 	page1ContentListTextarea.setAttribute("onkeydown", "inputToDiv(this)");
-	
+
 	leftDivTextInputDiv.contentEditable = "true";
 	leftDivTextInputDiv.className = "inputDiv contenteditableBr";
 	leftDivTextInputDiv.setAttribute("onkeyup", "divToInput(this)");
@@ -64,7 +175,7 @@ function addLessonContent(addLessonDiv) {
 	page1ContentListTextareaDiv.className = "inputDiv";
 	page1ContentListTextareaDiv.setAttribute("onkeyup", "divToInput(this)");
 	page1ContentListTextareaDiv.setAttribute("onkeydown", "divToInput(this)");
-	
+
 	$(page1ContentListTextareaDiv).html("<li><br></li>");
 	// Prevent backspace
 	$(page1ContentListTextareaDiv).keydown(function(e) {
@@ -76,14 +187,14 @@ function addLessonContent(addLessonDiv) {
 			}
 		}
 	});
-	
+
 	$(leftDivTextInput).css("display", "none"); // Hiding real input
 	$(page1ContentTitleTextInput).css("display", "none"); // Hiding real input
 	$(page1ContentListTextarea).css("display", "none"); // Hiding real input
-	
+
 	$(page1ContentListTextarea).html("<li></li>");
 	$(page1ContentListTextarea).text("<li></li>");
-	
+
 	leftDivP.appendChild(document.createTextNode("Lecture/Practical/something"));
 	leftDiv.appendChild(leftDivP);
 	leftDiv.appendChild(leftDivTextInputDiv);
@@ -106,12 +217,17 @@ function addLessonContent(addLessonDiv) {
 	contentDivDiv.appendChild(rightDiv);
 	contentDivDiv.appendChild(closeImg);
 
-
 	$(addLessonDiv).before(contentDivDiv);
-	
+
+	// Showing all input and Textarea if notClicked
+	if(!notClicked) {
+		$(".inputDiv").next().css("display", "block");
+		$("textarea").css("display", "block");
+	}
+
 	// Prevent creating div on enter
 	contentEditableBr();
-	
+
 	// Rebuilt Page2
 	recreatePage2();
 }
@@ -185,7 +301,7 @@ function addLessonSection(addSectionDiv) {
 	leftDivTextInput.setAttribute("type", "text");
 	leftDivColorInput.setAttribute("type", "color");
 	page1ContentTitleTextInput.setAttribute("type", "text");
-	
+
 	lessonTitleTextInput.setAttribute("onkeyup", "inputToDiv(this)");
 	lessonTitleTextInput.setAttribute("onkeydown", "inputToDiv(this)");
 	lessonSubtitleTextInput.setAttribute("onkeyup", "inputToDiv(this)");
@@ -197,7 +313,7 @@ function addLessonSection(addSectionDiv) {
 	page1ContentTitleTextInput.setAttribute("onkeydown", "inputToDiv(this)");
 	page1ContentListTextarea.setAttribute("onkeyup", "inputToDiv(this)");
 	page1ContentListTextarea.setAttribute("onkeydown", "inputToDiv(this)");
-	
+
 	lessonTitleTextInputDiv.contentEditable = "true";
 	lessonTitleTextInputDiv.className = "inputDiv contenteditableBr";
 	lessonTitleTextInputDiv.setAttribute("onkeyup", "divToInput(this)");
@@ -218,7 +334,7 @@ function addLessonSection(addSectionDiv) {
 	page1ContentListTextareaDiv.className = "inputDiv";
 	page1ContentListTextareaDiv.setAttribute("onkeyup", "divToInput(this)");
 	page1ContentListTextareaDiv.setAttribute("onkeydown", "divToInput(this)");
-	
+
 	$(page1ContentListTextareaDiv).html("<li><br></li>");
 	// Prevent backspace
 	$(page1ContentListTextareaDiv).keydown(function(e) {
@@ -230,13 +346,13 @@ function addLessonSection(addSectionDiv) {
 			}
 		}
 	});
-	
+
 	$(lessonTitleTextInput).css("display", "none"); // Hiding real input
 	$(lessonSubtitleTextInput).css("display", "none"); // Hiding real input
 	$(leftDivTextInput).css("display", "none"); // Hiding real input
 	$(page1ContentTitleTextInput).css("display", "none"); // Hiding real input
 	$(page1ContentListTextarea).css("display", "none"); // Hiding real input
-	
+
 	lessonTitleP.appendChild(document.createTextNode("Lesson Title"));
 	lessonSubtitleP.appendChild(document.createTextNode("Subtitle Title"));
 	lessonSection.appendChild(lessonTitleP);
@@ -277,10 +393,16 @@ function addLessonSection(addSectionDiv) {
 	mainSection.appendChild(closeImg2);
 
 	$(addSectionDiv).before(mainSection);
-	
+
+	// Showing all input and Textarea if notClicked
+	if(!notClicked) {
+		$(".inputDiv").next().css("display", "block");
+		$("textarea").css("display", "block");
+	}
+
 	// Prevent creating div on enter
 	contentEditableBr();
-	
+
 	// Rebuilt Page2
 	recreatePage2();
 }
@@ -288,35 +410,19 @@ function addLessonSection(addSectionDiv) {
 function recreatePage1(){
 	// Clear page 1
 	$("#page1").empty();
-	
+
 	// Page 1 Section
 	var page1Section = document.createElement("div");
 	page1Section.className = "section";
 	// Title
 	var page1TitleP = document.createElement("p");
-	page1TitleP.appendChild(document.createTextNode("Title"));
-	
-	var page1TitleTextInputDiv = document.createElement("div");
-	page1TitleTextInputDiv.contentEditable = "true";
-	page1TitleTextInputDiv.className = "inputDiv contenteditableBr";
-	page1TitleTextInputDiv.setAttribute("onkeyup", "divToInput(this)");
-	page1TitleTextInputDiv.setAttribute("onkeydown", "divToInput(this)");
-	var page1TitleTextInput = document.createElement("input");
-	page1TitleTextInput.setAttribute("type", "text");
-	page1TitleTextInput.id = "titleInput";
-	page1TitleTextInput.setAttribute("onkeyup", "inputToDiv(this)");
-	page1TitleTextInput.setAttribute("onkeydown", "inputToDiv(this)");
-	$(page1TitleTextInput).css("display", "none"); // Hiding real input
-	
-	// -- Title --
-	var titleText = $("#page2 > #lessonPlanTemplate > .underline.bold").html().trim();
-	$(page1TitleTextInputDiv).html(titleText);
-	$(page1TitleTextInput).val(titleText);
-	
+	page1TitleP.appendChild(document.createTextNode("Instructors Details"));
+	page1TitleP.className = "bold underline";
+
 	// Paragraph
-	var page1ParagraphP = document.createElement("p");
-	page1ParagraphP.appendChild(document.createTextNode("Paragraph"));
-	
+	//var page1ParagraphP = document.createElement("p");
+	//page1ParagraphP.appendChild(document.createTextNode("Paragraph"));
+
 	var page1ParagraphTextareaDiv = document.createElement("div");
 	page1ParagraphTextareaDiv.contentEditable = "true";
 	page1ParagraphTextareaDiv.className = "inputDiv";
@@ -327,12 +433,12 @@ function recreatePage1(){
 	page1ParagraphTextarea.setAttribute("onkeyup", "inputToDiv(this)");
 	page1ParagraphTextarea.setAttribute("onkeydown", "inputToDiv(this)");
 	$(page1ParagraphTextarea).css("display", "none"); // Hiding real input
-	
+
 	// -- Paragraph --
 	// Div
 	var paragraphInput = $("#page2 > #lessonPlanTemplate > #instructorsDetails").html().trim().replace(/\t/g, '');
 	$(page1ParagraphTextareaDiv).html(paragraphInput);
-	
+
 	// Prevent backspace
 	$(page1ParagraphTextareaDiv).keydown(function(e) {
 		// trap the return key being pressed
@@ -343,30 +449,28 @@ function recreatePage1(){
 			}
 		}
 	});
-  
+
 	$(page1ParagraphTextarea).val(paragraphInput);
-	
+
 	// Appending Title and paragraph
 	page1Section.appendChild(page1TitleP);
-	page1Section.appendChild(page1TitleTextInputDiv);
-	page1Section.appendChild(page1TitleTextInput);
-	page1Section.appendChild(page1ParagraphP);
+	//page1Section.appendChild(page1ParagraphP);
 	page1Section.appendChild(page1ParagraphTextareaDiv);
 	page1Section.appendChild(page1ParagraphTextarea);
-	
+
 	// Page1 append section
 	$("#page1").append(page1Section);
-	
+
 	// Main Section
 	$(".lesson").each(function() {
 		// Creating mainSection
 		var mainSection = document.createElement("div");
 		mainSection.className = "mainSection section";
-		
+
 		// Creating lessonTitle section
 		var lessonSection = document.createElement("div");
 		lessonSection.className = "lessonTitle section";
-		
+
 		// Creating Lesson Title
 		var lessonTitleP = document.createElement("p");
 		lessonTitleP.appendChild(document.createTextNode("Lesson Title"));
@@ -382,7 +486,7 @@ function recreatePage1(){
 		$(lessonTitleTextInputDiv).html($(this).find(".lessonHeader").children().eq(0).html());
 		$(lessonTitleTextInput).val($(this).find(".lessonHeader").children().eq(0).html());
 		$(lessonTitleTextInput).css("display", "none"); // Hiding real input
-	
+
 		// Creating Lesson Subtitle
 		var lessonSubtitleP = document.createElement("p");
 		lessonSubtitleP.appendChild(document.createTextNode("Lesson Subtitle"));
@@ -398,7 +502,7 @@ function recreatePage1(){
 		$(lessonSubtitleTextInputDiv).html($(this).find(".lessonHeader").children().eq(1).html());
 		$(lessonSubtitleTextInput).val($(this).find(".lessonHeader").children().eq(1).text());
 		$(lessonSubtitleTextInput).css("display", "none"); // Hiding real input
-		
+
 		// Appending lessonTitle
 		lessonSection.appendChild(lessonTitleP);
 		lessonSection.appendChild(lessonTitleTextInputDiv);
@@ -406,19 +510,19 @@ function recreatePage1(){
 		lessonSection.appendChild(lessonSubtitleP);
 		lessonSection.appendChild(lessonSubtitleTextInputDiv);
 		lessonSection.appendChild(lessonSubtitleTextInput);
-		
+
 		mainSection.appendChild(lessonSection);
-		
+
 		// ContentDivDiv
 		$(this).find(".lecPracHeader").each(function() {
 			// Creating contentDivDiv
 			var contentDivDiv = document.createElement("div");
 			contentDivDiv.className = "section contentDivDiv";
-			
+
 			// Creating leftDiv
 			var leftDiv = document.createElement("div");
 			leftDiv.className = "leftDiv";
-			
+
 			// Creating Lecture/Practical/something
 			var leftDivP = document.createElement("p");
 			leftDivP.appendChild(document.createTextNode("Lecture/Practical/something"));
@@ -447,15 +551,15 @@ function recreatePage1(){
 			leftDiv.appendChild(leftDivTextInputDiv);
 			leftDiv.appendChild(leftDivTextInput);
 			leftDiv.appendChild(leftDivColorInput);
-			
+
 			// Creating rightDiv
 			var rightDiv = document.createElement("div");
 			rightDiv.className = "flex rightDiv";
-			
+
 			// Creating page1Content
 			var page1Content = document.createElement("div");
 			page1Content.className = "page1Content";
-			
+
 			// page1Content Content Title
 			var page1ContentTitle = document.createElement("p");
 			page1ContentTitle.appendChild(document.createTextNode("Content Title"));
@@ -472,7 +576,7 @@ function recreatePage1(){
 			$(page1ContentTitleTextInputDiv).html($(this).find(".lessonPlanContent .lessonPlanContentP").html());
 			$(page1ContentTitleTextInput).val($(this).find(".lessonPlanContent .lessonPlanContentP").html());
 			$(page1ContentTitleTextInput).css("display", "none"); // Hiding real input
-			
+
 			// page1Content Content List
 			var page1ContentList = document.createElement("p");
 			page1ContentList.appendChild(document.createTextNode("Content List"));
@@ -490,7 +594,7 @@ function recreatePage1(){
 			var lessonContentText = $(this).find(".lessonPlanContent ul").html().trim().replace(/\t/g, '');
 			$(page1ContentListTextareaDiv).html(lessonContentText);
 			$(page1ContentListTextarea).val(lessonContentText);
-			
+
 			// Prevent backspace
 			$(page1ContentListTextareaDiv).keydown(function(e) {
 				// trap the return key being pressed
@@ -501,7 +605,7 @@ function recreatePage1(){
 					}
 				}
 			});
-			
+
 			// Appending rightDiv
 			page1Content.appendChild(page1ContentTitle);
 			page1Content.appendChild(page1ContentTitleTextInputDiv);
@@ -510,7 +614,7 @@ function recreatePage1(){
 			page1Content.appendChild(page1ContentListTextareaDiv);
 			page1Content.appendChild(page1ContentListTextarea);
 			rightDiv.appendChild(page1Content);
-			
+
 			// Creating closeImg
 			var closeImg = document.createElement("div");
 			closeImg.className = "closeImg";
@@ -519,15 +623,15 @@ function recreatePage1(){
 			closeImgImage.setAttribute("src", "grass 2.jpg");
 			closeImgImage.setAttribute("width", "30");
 			closeImgImage.setAttribute("height", "30");
-			
+
 			// Appending closeImg
 			closeImg.appendChild(closeImgImage);
-			
+
 			// Appending everything
 			contentDivDiv.appendChild(leftDiv);
 			contentDivDiv.appendChild(rightDiv);
 			contentDivDiv.appendChild(closeImg);
-			
+
 			// Appending contentDivDiv
 			mainSection.appendChild(contentDivDiv);
 		});
@@ -535,11 +639,11 @@ function recreatePage1(){
 		var addLessonContent = document.createElement("div");
 		addLessonContent.className = "addLessonContent";
 		var addLessonContentCloseImgImage = document.createElement("img");
-		
+
 		var closeImg2 = document.createElement("div");
 		closeImg2.className = "closeImg";
 		var closeImgImage2 = document.createElement("img");
-		
+
 		// Setting attributes
 		addLessonContent.setAttribute("onclick", "addLessonContent(this)");
 		addLessonContentCloseImgImage.setAttribute("src", "grass 2.jpg");
@@ -549,19 +653,19 @@ function recreatePage1(){
 		closeImgImage2.setAttribute("src", "grass 2.jpg");
 		closeImgImage2.setAttribute("width", "30");
 		closeImgImage2.setAttribute("height", "30");
-		
+
 		closeImg2.appendChild(closeImgImage2);
 		addLessonContent.appendChild(addLessonContentCloseImgImage);
-		
+
 		// Appending Section close and add
 		mainSection.appendChild(addLessonContent);
 		mainSection.appendChild(closeImg2);
-		
+
 		// Page1 append mainSection
 		$("#page1").append(mainSection);
-		
+
 	});
-	
+
 	// Add lesson Section
 	var addLessonSection = document.createElement("div");
 	var addLessonSectionImg = document.createElement("img");
@@ -571,10 +675,10 @@ function recreatePage1(){
 	addLessonSectionImg.setAttribute("src", "grass 2.jpg");
 	addLessonSectionImg.setAttribute("width", "30");
 	addLessonSectionImg.setAttribute("height", "30");
-	
+
 	// Appending Add Lesson
 	addLessonSection.appendChild(addLessonSectionImg);
-	
+
 	// Footer Section
 	var footerSection = document.createElement("div");
 	footerSection.className = "section";
@@ -593,28 +697,34 @@ function recreatePage1(){
 	$(footerTextInputDiv).html($("#lessonPlanTemplate .sub").html());
 	$(footerTextInput).val($("#lessonPlanTemplate .sub").html());
 	$(footerTextInput).css("display", "none"); // Hiding real input
-	
+
 	// Appending Footer
 	footerSection.appendChild(footerP);
 	footerSection.appendChild(footerTextInputDiv);
 	footerSection.appendChild(footerTextInput);
-	
+
+	// Adding br
+	var buttonBr = document.createElement("br");
+
 	// Generate Button
 	var generateHTMLButton = document.createElement("button");
 	generateHTMLButton.appendChild(document.createTextNode("Generate HTML"));
 	generateHTMLButton.setAttribute("onclick", "generateHTML()");
-	
+	generateHTMLButton.className = "btn";
+
 	// Show all input
 	var showAllButton = document.createElement("button");
 	showAllButton.appendChild(document.createTextNode("Show All"));
-	showAllButton.setAttribute("onclick", "showAllInput()");
-	
+	showAllButton.setAttribute("onclick", "showAllInput(this)");
+	showAllButton.className = "btn";
+
 	// Appending Everything
 	$("#page1").append(addLessonSection);
 	$("#page1").append(footerSection);
+	$("#page1").append(buttonBr);
 	$("#page1").append(generateHTMLButton);
 	$("#page1").append(showAllButton);
-	
+
 	// Prevent creating div on enter
 	contentEditableBr();
 }
@@ -622,28 +732,28 @@ function recreatePage1(){
 function recreatePage2() {
 	// Clear #Page2
 	$("#page2").empty();
-	
+
 	// LessonPlanTemplate
 	var lessonPlanTemplate = document.createElement("div");
 	lessonPlanTemplate.id = "lessonPlanTemplate";
-	
+
 	// Instructors
 	var instructors = document.createElement("p");
-	$(instructors).html($("#titleInput").val());
+	instructors.appendChild(document.createTextNode("Instructors Details"));
 	// Instructors Details
 	var instructorsDetails = document.createElement("div");
 	// Loop details to add
 	var instructorDetailsValue = $("#paragraphTextarea").val();
 	$(instructorsDetails).html(instructorDetailsValue);
-	
+
 	// Adding all classes
 	instructors.className = "bold underline";
 	instructorsDetails.id = "instructorsDetails";
-		
+
 	// Appending Everything
 	lessonPlanTemplate.append(instructors);
 	lessonPlanTemplate.append(instructorsDetails);
-	
+
 	// Loop MainSection
 	$(".mainSection").each(function() {
 		// Create Lesson
@@ -655,18 +765,18 @@ function recreatePage2() {
 		// Lesson Subtitle
 		var lessonSubtitle = document.createElement("p");
 		$(lessonSubtitle).html($(this).find(".lessonSubtitleInput").val());
-		
+
 		// Adding all classes
 		lesson.className = "lesson";
 		lessonHeader.className = "lessonHeader";
 		lessonTitle.className = "bold";
 		lessonSubtitle.className = "em";
-		
+
 		// Appending Lesson header before loop
 		lessonHeader.appendChild(lessonTitle);
 		lessonHeader.appendChild(lessonSubtitle);
 		lesson.appendChild(lessonHeader);
-		
+
 		// Loop All LecPracheader
 		$(this).find(".contentDivDiv").each(function() {
 			// lesPracHeader
@@ -686,38 +796,38 @@ function recreatePage2() {
 			var lessonPlanContentListUl = document.createElement("ul");
 			var lines = $(this).find(".rightDiv .page1Content :nth-child(5)").html();
 			$(lessonPlanContentListUl).html(lines);
-			
+
 			// Adding all classes
 			lecPracHeader.className = "lecPracHeader";
 			lecPracDiv.className = "lecPracDiv";
 			lecPracDivP.className = "bold";
 			lessonPlanContent.className = "lessonPlanContent";
 			lessonPlanContentTitleP.className = "lessonPlanContentP";
-			
+
 			// Appending Everything
 			lessonPlanContent.appendChild(lessonPlanContentTitleP);
 			lessonPlanContent.appendChild(lessonPlanContentListUl);
 			lecPracHeader.appendChild(lecPracDiv);
 			lecPracHeader.appendChild(lessonPlanContent);
-			
+
 			// Appending to lesson
 			lesson.appendChild(lecPracHeader);
 		});
-		
+
 		// Appending lesson to Page2
 		lessonPlanTemplate.append(lesson);
 	});
-	
+
 	// Footer
 	var lessonPlanFooter = document.createElement("p");
 	$(lessonPlanFooter).html($("#lessonPlanFooter").val());
 
 	// Adding all classes
 	lessonPlanFooter.className = "sub";
-	
+
 	// Appending Footer
 	lessonPlanTemplate.append(lessonPlanFooter);
-	
+
 	// Appending lessonPlanTemplate to Page2
 	$("#page2").append(lessonPlanTemplate);
 }
@@ -732,26 +842,22 @@ function setActualValue() {
 
 function generateHTML() {
 	$("#popupDiv").css("display", "block");
-	$("#popup").css("left", ($("#popupDiv").width() / 2) - ($("#popup").width() / 2));
-	$("#popup").css("top", ($("#popupDiv").height() / 2) - ($("#popup").height() / 2));
-	$("#popup > textarea").val($("#page2").html());
+	$("#popup > textarea").val($("#page2").html().trim());
 }
 
 function closePopup() {
 	$("#popupDiv").css("display", "none");
-	$("#popup :last-child").css("display", "none");
 }
 
 function copyToClipboard() {
 	$("#popup > textarea")[0].select();
 	document.execCommand("copy");
-	$("#popup :last-child").css("display", "block");
+	$("#popup :last-child").css("display", "block"); // Hide after showing
 }
 
 function copyCommand() {
 	var tempText = document.createElement("textarea");
 	$(tempText).text(selectedText);
-	tempText.style = "display: none";
 	$("#masterDiv").append(tempText);
 	$(tempText)[0].select();
 	document.execCommand("copy");
@@ -779,10 +885,10 @@ function convertToLink() {
 		var inputElement = focusedInput;
 		var inputValue = inputElement.html();
 		var linkA = "<a href='" + $("#linkInput").val() + "' target='_blank'>" + selectedTextBackup + "</a>";
-		
+
 		// Overriding previous startIndex. It doesnt work with multi-line div
 		startIndex = inputElement.next().val().indexOf(selectedTextBackup);
-		
+
 		// Make sure the text is not already a link
 		var regexSearch1 = escape('<a href=');
 		var regexSearch2 = escape('</a>');
@@ -797,10 +903,10 @@ function convertToLink() {
 				var afterLink = inputValue.substring(startIndex + selectedTextBackup.length);
 				var finalLink = beforeLink + linkA + afterLink;
 				focusedInput.next().val(finalLink);
-				
+
 				// Refresh div
 				focusedInput.html(focusedInput.next().val());
-				
+
 				setActualValue();
 			}else {
 				alert("Error! Make sure the text selected is not overlapping with another link.");
@@ -808,7 +914,7 @@ function convertToLink() {
 		}else {
 			alert("Error! You already made this a link.");
 		}
-		
+
 		hideLinkBox();
 	}else{
 		alert("Please enter a link.");
@@ -825,8 +931,19 @@ function inputToDiv(div) {
 	setActualValue();
 }
 
-function showAllInput() {
-	$("input, textarea").css("display", "block");
+var notClicked = true;
+function showAllInput(button) {
+	if(notClicked) {
+		$(".inputDiv").next().css("display", "block");
+		$("textarea").css("display", "block");
+		button.innerHTML = "Hide All";
+		notClicked = false;
+	}else {
+		$(".inputDiv").next().css("display", "none");
+		$("textarea").css("display", "none");
+		button.innerHTML = "Show All";
+		notClicked = true;
+	}
 }
 
 function checkEnterKey(e) {
@@ -842,17 +959,27 @@ function checkEnterKey(e) {
 function contentEditableBr() {
 	// Make sure there is only one event attached
 	$(document).off( "keydown", ".contenteditableBr", checkEnterKey);
-	
+
 	// Prevent creating div on enter
 	$(document).on( "keydown", ".contenteditableBr", checkEnterKey);
 }
 
+function selectAll(popupTextarea) {
+	popupTextarea.setSelectionRange(0, popupTextarea.value.length)
+}
 $(function() {
+	// Hiding back arrow
+	$(".carousel-control-prev").css("display", "none");
+
+	// Clear the textarea in importTextarea (For some reason it having spaces onload)
+	clearImportTextarea();
+
+	// Overriding right click menu
 	if ($(".inputDiv").addEventListener) { // IE >= 9; other browsers
 		$(".inputDiv").addEventListener('contextmenu', function(e) {
 			 // Get focused Input
 			focusedInput = $(":focus");
-			
+
 			// Getting selection offset
 			if (typeof window.getSelection != "undefined") {
 				var sel = window.getSelection();
@@ -864,26 +991,26 @@ $(function() {
 					startIndex = sel.focusOffset
 				}
 			}
-			
+
 			// Get selected text
 			 if (window.getSelection) {
 				selectedText = window.getSelection().toString();
 			} else if (document.selection && document.selection.type != "Control") {
 				selectedText = document.selection.createRange().text;
 			}
-			
+
 			// Show Menu
 			$("#rightClickMenu").css("display", "block");
-            $("#rightClickMenu").css("top", mouseY(event) + 'px');
-            $("#rightClickMenu").css("left", mouseX(event) + 'px');
-			
+      $("#rightClickMenu").css("top", mouseY(event) + 'px');
+      $("#rightClickMenu").css("left", mouseX(event) + 'px');
+
 			e.preventDefault();
 		}, false);
 	}else { // IE < 9
 		$('body').on('contextmenu', '.inputDiv', function(e) {
 			 // Get focused Input
 			focusedInput = $(":focus");
-			
+
 			// Getting selection offset
 			if (typeof window.getSelection != "undefined") {
 				var sel = window.getSelection();
@@ -895,34 +1022,34 @@ $(function() {
 					startIndex = sel.focusOffset
 				}
 			}
-			
+
 			console.log("Starting: " + startIndex);
-			
+
 			// Get selected text
 			 if (window.getSelection) {
 				selectedText = window.getSelection().toString();
 			} else if (document.selection && document.selection.type != "Control") {
 				selectedText = document.selection.createRange().text;
 			}
-			
+
 			// Show Menu
 			$("#rightClickMenu").css("display", "block");
-            $("#rightClickMenu").offset({left:e.pageX, top:e.pageY});
-			
+      $("#rightClickMenu").offset({left:e.pageX, top:e.pageY});
+
 			window.event.returnValue = false;
 		});
 	}
-	
-	 $(document).bind("click", function(event) {
-        $("#rightClickMenu").css("display", "none");
-    });
-	
+
+ 	$(document).bind("click", function(event) {
+  	$("#rightClickMenu").css("display", "none");
+  });
+
 	// Prevent creating div on enter
 	contentEditableBr();
 });
 
 // Function to convert rgb to hex so can set type=color
-var hexDigits = new Array("0","1","2","3","4","5","6","7","8","9","a","b","c","d","e","f"); 
+var hexDigits = new Array("0","1","2","3","4","5","6","7","8","9","a","b","c","d","e","f");
 
 // Function to convert rgb color to hex format
 function rgb2hex(rgb) {
