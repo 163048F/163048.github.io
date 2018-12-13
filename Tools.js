@@ -43,6 +43,8 @@ function createNew() {
 
    $("#masterDiv").css("overflow", "auto");
    $("#masterDiv").css("height", "unset");
+   // Clear Page1
+   $("#page1").empty();
    recreatePage1();
 }
 
@@ -1080,7 +1082,7 @@ function setActualValue() {
 
 function generateHTML() {
    $("#popupDiv").modal("show");
-   $("#popup .modal-body textarea").val($("#page2").html());
+   $("#popup .modal-body textarea").val($("#page2").html().trim());
 }
 
 function closePopup() {
