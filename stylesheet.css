@@ -74,35 +74,55 @@ hr {
 	flex-basis: 50%;
 	cursor: pointer;
 	padding: 30px;
+	opacity: 0.8;
+  filter: alpha(opacity=80); /* For IE8 and earlier */
+	height: 80%;
+}
+
+#startupLeftDiv:hover, #startupRightDiv:hover {
+	opacity: 1;
+	filter: alpha(opacity=100); /* For IE8 and earlier */
 }
 
 #startupLeftDiv {
-	float: left;
 	padding-right: 15px;
 }
 
 #startupRightDiv {
-	float: right;
 	padding-left: 15px;
 }
 
 #startupLeftDiv > div, #startupRightDiv > div {
-	text-align: center;
 	border: 1px solid black;
 	border-radius: 5px;
-	padding: 24px 0;
-	height: 60%;
+	padding: 24px;
 	display: flex;
-	align-items: center;
 	flex-direction: column;
 	justify-content: center;
+	align-items: center;
+	height: 100%;
 }
 
 #startupDivPage2 > div {
 	display: flex;
 	flex-direction: column;
 	flex-grow: 1;
-	padding: 30px;
+	padding: 0 30px 30px 30px;
+}
+
+#startupDivPage2P {
+	margin-top: 30px;
+}
+
+#page2Error {
+	display: none;
+	margin-bottom: 0;
+}
+
+#page2Error > p {
+	display: inline;
+	flex-grow: 1;
+	float: left;
 }
 
 #importTextarea {
@@ -110,10 +130,12 @@ hr {
 	resize: none;
 }
 
+/* dont know how
 #importTextarea::after {
 	display: block;
 	content: "Drop the file";
 }
+*/
 
 #startupDivPage2 > div > div > button {
 	float: right;
@@ -148,14 +170,18 @@ hr {
 }
 
 #startupDivPage3 {
-	padding: 10px 30px;
+	padding: 30px;
 	height: 100%;
 }
 
-#startupDivPage3 > div{
+#startupDivPage3 > div {
 	display: flex;
 	flex-direction: column;
 	height: 100%;
+}
+
+#startupDivPage3 > div > .clearfix {
+	text-align: right;
 }
 
 #importPage3Preview {
@@ -185,6 +211,7 @@ hr {
 .lecPracDiv {
 	background-color: #b0c4de;
 	flex-basis: 10%;
+	flex-grow: 1;
 	display: flex;
 	justify-content: center;
 	align-items: center;
@@ -204,7 +231,7 @@ hr {
 	flex-grow: 1;
 	padding: 10px;
 	height: auto;
-	flex-basis: 90%;
+	flex-basis: 80%;
 }
 
 .section {
@@ -240,10 +267,32 @@ hr {
 	flex-wrap: wrap;
 }
 
+.contentDivDiv {
+	position: relative;
+	display: flex;
+	flex-wrap: wrap;
+}
+
+.close.closeImg {
+	background-color: black;
+	color: white;
+	height: 26px;
+	width: 25px;
+	border-radius: 15px;
+}
+.close.closeImg > span {
+	position: relative;
+	bottom: 3px;
+}
+
+.close:not(:disabled):not(.disabled):focus, .close:not(:disabled):not(.disabled):hover {
+	color: white !important;
+}
+
 .closeImg {
 	position: absolute;
-	top: -15px;
-	right: -15px;
+	top: 0;
+	right: 0;
 }
 
 .addLessonContent {
@@ -271,6 +320,10 @@ textarea {
 #page1 {
 	flex-basis: 30%;
 	flex-grow: 1;
+}
+
+#page1 > button:last-child {
+	margin-left: 5px;
 }
 
 #page2{
@@ -304,6 +357,12 @@ textarea {
 	flex-grow: 1;
 }
 
+.generateHTMLRedText {
+	display: none;
+	color: red;
+	margin: 0;
+}
+
 #rightClickMenu {
 	position:fixed;
 	display: none;
@@ -327,6 +386,7 @@ textarea {
 	cursor: pointer;
 }
 
+/*
 #linkBoxDiv {
 	position: fixed;
 	width: 100%;
@@ -338,23 +398,38 @@ textarea {
 }
 
 #linkBox {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
 	position: absolute;
+	width: 25%;
+	height: 30%;
 	background-color: white;
 	border: 1px solid grey;
 	padding: 20px;
+}
+
+#linkBox > * {
+	width: 100%;
 }
 
 #linkBox > p {
 	margin-top: 0;
 }
 
-#linkInput > input {
-	width: 100%;
+#linkBox > div {
+	text-align: right;
+}
+*/
+
+.active.dropdown-menu {
+	color: white;
 }
 
 .inputDiv {
 	overflow: auto;
-	height: auto;
+	height: auto !important;
 	max-height: 150px;
 	border: 1px solid grey;
 	/* white-space: nowrap; */
@@ -363,9 +438,32 @@ textarea {
 @media only screen
 and (min-width:0px) and
 (max-width:736px) {
-	#startupLeftDiv. #startupRightDiv {
+	#startupLeftDiv, #startupRightDiv {
 		padding: 12px;
 		flex-basis: 100%;
+	}
+
+	#startupLeftDiv {
+		padding-bottom: 0 !important;
+	}
+
+	#startupRightDiv {
+		padding-top: 0 !important;
+	}
+
+	#startupLeftDiv img, #startupRightDiv img{
+		object-fit: scale-down;
+		margin-left: 12px;
+	}
+
+	#startupLeftDiv > div, #startupRightDiv > div {
+		flex-direction: row-reverse;
+	}
+
+	#startupLeftDiv, #startupRightDiv {
+		padding: 12px;
+		flex-basis: 100%;
+		height: 50%;
 	}
 
 	#masterDiv {
