@@ -7,12 +7,12 @@ body {
 	font-size: 1.4em;
 }
 
-a {
-	width: 100%;
+p, li, div {
+	word-break: break-all;
 }
 
 hr {
-		margin: 2px 0 !important;
+	margin: 2px 0 !important;
 }
 
 .bold {
@@ -125,6 +125,16 @@ hr {
 	float: left;
 }
 
+#linkBoxAlertError {
+	margin-bottom: 0;
+	height: 46px;
+}
+
+#linkBoxAlertError > p {
+	display: inline;
+	float: left;
+}
+
 #importTextarea {
 	flex-grow: 1;
 	resize: none;
@@ -191,7 +201,6 @@ hr {
 
 
 #page1, #page2 {
-	padding: 24px;
 	border-bottom-width: 1px;
 	border-style: dashed;
 	border-color: grey;
@@ -236,9 +245,26 @@ hr {
 
 .section {
 	position: relative;
-	border: 1px solid red;
-	padding: 10px;
-	margin-top: 10px;
+	border: 1px solid black;
+	margin: 5px 10px;
+	border-radius: 2px;
+	background-color: white;
+}
+
+.section.mainSection {
+	margin: 0 24px 24px 24px;
+}
+
+#page1 > div:first-child, .lessonTitle {
+	padding: 24px;
+}
+
+#addLessonSection, #page1 > div:last-of-type {
+	margin: 0 24px 24px 24px;
+}
+
+#page1 > button {
+	margin-left: 24px;
 }
 
 .flex {
@@ -250,27 +276,33 @@ hr {
 	flex-grow: 1;
 }
 
+.contentDivDivDraggableDiv {
+	flex-basis: 15px;
+	min-width: 15px;
+	margin: 20px 0;
+	border-radius: 0 10px 10px 0;
+	cursor: move;
+}
+
+.contentDivDiv {
+	position: relative;
+	display: flex;
+}
+
+.contentDivDivRight {
+	position: relative;
+	display: flex;
+	flex-wrap: wrap;
+	flex-grow: 1;
+}
+
 .leftDiv {
-	float: left;
-	padding: 0 10px;
+	padding: 10px 20px;
 }
 
 .rightDiv {
-	float:right;
 	flex-grow: 1;
-	padding: 0 10px;
-}
-
-.contentDivDiv {
-	position: relative;
-	display: flex;
-	flex-wrap: wrap;
-}
-
-.contentDivDiv {
-	position: relative;
-	display: flex;
-	flex-wrap: wrap;
+	padding: 10px 20px;
 }
 
 .close.closeImg {
@@ -328,39 +360,26 @@ textarea {
 
 #page2{
 	flex-basis: 50%;
-	flex-grow: 1;
-}
-
-#popupDiv{
-	position: fixed;
-	width: 100%;
-	height: 100%;
-	display: none;
-	background-color: rgba(0,0,0,0.4);
-}
-
-#popup {
-	display: flex;
-	flex-direction: column;
-	position: absolute;
-	top: 10%;
-	left: 10%;
-	width: 80%;
-	height: 80%;
-	background-color: white;
-	border: 1px solid black;
 	padding: 24px;
+	flex-grow: 1;
 }
 
-#popup > textarea {
+#popup .modal-body textarea {
 	resize: none;
-	flex-grow: 1;
+	height: 10vh;
+}
+
+#popup .modal-footer {
+	flex-wrap: wrap;
 }
 
 .generateHTMLRedText {
 	display: none;
 	color: red;
-	margin: 0;
+	font-weight: 500;
+	flex-basis: 100%;
+	text-align: right;
+	margin-bottom: 0;
 }
 
 #rightClickMenu {
@@ -423,16 +442,27 @@ textarea {
 }
 */
 
-.active.dropdown-menu {
-	color: white;
+.dropdown-item {
+	cursor: pointer;
+}
+
+.active.dropdown-item {
+	background-color: rgba(0,123,255,0.8) !important;
+	color: rgb(255,255,255) !important;
+}
+
+.active.dropdown-item:hover {
+	background-color: rgba(0,123,255,1) !important;
+}
+
+.dropdown-item:active {
+	color: rgb(255,255,255) !important;
 }
 
 .inputDiv {
 	overflow: auto;
 	height: auto !important;
 	max-height: 150px;
-	border: 1px solid grey;
-	/* white-space: nowrap; */
 }
 
 @media only screen
