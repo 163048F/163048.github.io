@@ -1080,7 +1080,7 @@ function setActualValue() {
 
 function generateHTML() {
    $("#popupDiv").modal("show");
-   $("#popup .modal-body textarea").val($("#page1").html());
+   $("#popup .modal-body textarea").val($("#page2").html());
 }
 
 function closePopup() {
