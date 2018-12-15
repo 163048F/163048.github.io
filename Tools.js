@@ -1,8 +1,12 @@
-var selectedText = "";
-var focusedInput;
-var startIndex;
-var shouldGoBackHide = 0;
+let selectedText = "";
+let focusedInput;
+let startIndex;
+let shouldGoBackHide = 0;
 
+/**
+ * Navigate to Page 2 of Startup Page.
+ * @function
+ */
 function goPage2() {
    $("#carousel").carousel("next");
    $("#carousel").carousel("pause");
@@ -10,6 +14,10 @@ function goPage2() {
    shouldGoBackHide++;
 }
 
+/**
+ * Navigate to Page 3 of Startup Page.
+ * @function
+ */
 function goPage3(lessonPlanTemplateDiv) {
    $("#carousel").carousel("next");
    $("#carousel").carousel("pause");
@@ -20,6 +28,10 @@ function goPage3(lessonPlanTemplateDiv) {
    $("#importPage3Preview").append(lessonPlanTemplateDiv);
 }
 
+/**
+ * Navigate back to the previous page of Startup Page.
+ * @function
+ */
 function goBack() {
    // Set progress bar to 0%
    $(".progress-bar").css("width", "0%");
@@ -38,6 +50,10 @@ function goBack() {
    }
 }
 
+/**
+ * Hide the startup page and regenerate page1
+ * @function
+ */
 function createNew() {
    $("#startupDiv").fadeOut();
 
@@ -48,26 +64,34 @@ function createNew() {
    recreatePage1();
 }
 
+/**
+ * Hide all alerts
+ * @function
+ */
 function closeAlert() {
    // Hiding alerts
    $(".alert").alert("close");
 }
 
+/**
+ * Checking if input value on the startup page 2 is valid. If not create an alert with error message and appending to container
+ * @function
+ */
 function checkTextIsCorrect() {
-   closeAlert()
+   closeAlert();
    // Creating alert
-   var alertBox = document.createElement("div");
+   let alertBox = document.createElement("div");
    alertBox.className = "alert alert-danger fade show";
    alertBox.id = "page2Error";
    alertBox.setAttribute("role", "alert");
-   var alertBoxP = document.createElement("p");
-   var alertBoxButtonDiv = document.createElement("div");
-   var alertBoxButtonDivButton = document.createElement("button");
+   let alertBoxP = document.createElement("p");
+   let alertBoxButtonDiv = document.createElement("div");
+   let alertBoxButtonDivButton = document.createElement("button");
    alertBoxButtonDivButton.className = "close";
    alertBoxButtonDivButton.setAttribute("type", "button");
    alertBoxButtonDivButton.setAttribute("data-dismiss", "alert");
    alertBoxButtonDivButton.setAttribute("aria-label", "Close");
-   var alertBoxButtonDivButtonSpan = document.createElement("span");
+   let alertBoxButtonDivButtonSpan = document.createElement("span");
    alertBoxButtonDivButton.setAttribute("aria-hidden", "true");
    alertBoxButtonDivButton.innerHTML = "&times;";
    // Appending alert
@@ -77,17 +101,17 @@ function checkTextIsCorrect() {
    alertBox.appendChild(alertBoxButtonDiv);
 
    // Checking if textarea is empty
-   var textareaValue = $("#importTextarea").val().trim();
+   let textareaValue = $("#importTextarea").val().trim();
    if (textareaValue) {
       // Checking if text include #lessonPlanTemplate
-      var tempDiv = $(document.createElement("div"));
+      let tempDiv = $(document.createElement("div"));
       tempDiv.html(textareaValue);
-      var checkText = tempDiv.find("#lessonPlanTemplate").html();
+      let checkText = tempDiv.find("#lessonPlanTemplate").html();
       if (checkText) {
          checkText = checkText.trim();
          if (checkText.length > 0) {
             // Creating #lessonPlanTemplate
-            var lessonPlanTemplateDiv = document.createElement("div");
+            let lessonPlanTemplateDiv = document.createElement("div");
             lessonPlanTemplateDiv.id = "lessonPlanTemplate";
             $(lessonPlanTemplateDiv).html(checkText);
 
@@ -119,22 +143,25 @@ function checkTextIsCorrect() {
    }
 }
 
-// Basically checkTextIsCorrect() without appending to preview
+/**
+ * Basically checkTextIsCorrect() without appending to preview
+ * @function
+ */
 function fileMatchesLayout(readerResult) {
-   closeAlert()
+   closeAlert();
    // Creating alert
-   var alertBox = document.createElement("div");
+   let alertBox = document.createElement("div");
    alertBox.className = "alert alert-danger fade show";
    alertBox.id = "page2Error";
    alertBox.setAttribute("role", "alert");
-   var alertBoxP = document.createElement("p");
-   var alertBoxButtonDiv = document.createElement("div");
-   var alertBoxButtonDivButton = document.createElement("button");
+   let alertBoxP = document.createElement("p");
+   let alertBoxButtonDiv = document.createElement("div");
+   let alertBoxButtonDivButton = document.createElement("button");
    alertBoxButtonDivButton.className = "close";
    alertBoxButtonDivButton.setAttribute("type", "button");
    alertBoxButtonDivButton.setAttribute("data-dismiss", "alert");
    alertBoxButtonDivButton.setAttribute("aria-label", "Close");
-   var alertBoxButtonDivButtonSpan = document.createElement("span");
+   let alertBoxButtonDivButtonSpan = document.createElement("span");
    alertBoxButtonDivButton.setAttribute("aria-hidden", "true");
    alertBoxButtonDivButton.innerHTML = "&times;";
    // Appending alert
@@ -144,12 +171,12 @@ function fileMatchesLayout(readerResult) {
    alertBox.appendChild(alertBoxButtonDiv);
 
    // Checking if file is empty
-   var textareaValue = readerResult.trim();
+   let textareaValue = readerResult.trim();
    if (textareaValue) {
       // Checking if text include #lessonPlanTemplate
-      var tempDiv = $(document.createElement("div"));
+      let tempDiv = $(document.createElement("div"));
       tempDiv.html(textareaValue);
-      var checkText = tempDiv.find("#lessonPlanTemplate").html();
+      let checkText = tempDiv.find("#lessonPlanTemplate").html();
       if (checkText) {
          checkText = checkText.trim();
          if (checkText.length > 0) {
@@ -181,6 +208,10 @@ function fileMatchesLayout(readerResult) {
    return false;
 }
 
+/**
+ * Replace page2 with imported html and hide the startup page
+ * @function
+ */
 function hideStartupDiv() {
    // Appending Preview to Page2
    $("#page2").empty();
@@ -193,6 +224,10 @@ function hideStartupDiv() {
    createNew();
 }
 
+/**
+ * I dontknow how do event. Prevent default drop and add border for visual response
+ * @event
+ */
 function allowDrop(ev) {
    if (window.File && window.FileReader && window.FileList && window.Blob) {
       $("#importTextarea").css("border", "5px dashed grey");
@@ -204,12 +239,19 @@ function allowDrop(ev) {
    }
 }
 
-// Remove the border on mouse exit
+/**
+ * Remove the border on mouse exit
+ * @function
+ */
 function removeDragCSS() {
    $("#importTextarea").css("border", "");
    $("#importTextarea").css("border-radius", "");
 }
 
+/**
+ * I dontknow how do event. On drop get the first file and if htm
+ * @event
+ */
 function drop(ev) {
    ev.preventDefault();
    // Remove drag css border
@@ -217,88 +259,88 @@ function drop(ev) {
    $(".progress-bar").css("width", "0%");
    $(".progress-bar")[0].classList.add("progress-bar-animated");
    // Get the files
-   var draggedFiles = ev.dataTransfer.files;
+   let draggedFiles = ev.dataTransfer.files;
    // Get the first file
-   var file = ev.dataTransfer.files[0];
-   var fileReader = new FileReader();
+   let file = ev.dataTransfer.files[0];
+   let fileReader = new FileReader();
    // Make sure only .html and .txt is accepted
    if (file.type.match("text/plain") || file.type.match("text/html")) {
       fileReader.onload = function () {
-         var readerResult = fileReader.result;
+         let readerResult = fileReader.result;
          if (fileMatchesLayout(readerResult)) {
             $("#importTextarea").val(readerResult);
          }
       };
       fileReader.onprogress = function (data) {
          if (data.lengthComputable) {
-            var progress = parseInt(((data.loaded / data.total) * 100), 10);
+            let progress = parseInt(((data.loaded / data.total) * 100), 10);
             $(".progress-bar").css("width", progress + "%");
             console.log(progress);
          }
-      }
+      };
       fileReader.onloadend = function () {
          $(".progress-bar")[0].classList.remove("progress-bar-animated");
-      }
+      };
    } else if (file.type.match("application/vnd.ms-excel") || file.type.match("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")) {
       dragAndDropExcel(file);
    } else {
-      alert("Only .html & .txt accepted format");
+      alert("Only .html, .txt & .xls(x) is the accepted file format");
    }
 
    fileReader.readAsText(file);
 }
 
 function dragAndDropExcel(file) {
-   var fileReader = new FileReader();
+   let fileReader = new FileReader();
    fileReader.onload = function (e) {
-      var filename = file.name;
+      let filename = file.name;
       // pre-process data
-      var binary = "";
-      var bytes = new Uint8Array(e.target.result);
-      var length = bytes.byteLength;
-      for (var i = 0; i < length; i++) {
+      let binary = "";
+      let bytes = new Uint8Array(e.target.result);
+      let length = bytes.byteLength;
+      for (let i = 0; i < length; i++) {
          binary += String.fromCharCode(bytes[i]);
       }
       // call 'xlsx' to read the file
-      var workbook = XLSX.read(binary, {
+      let workbook = XLSX.read(binary, {
          type: "binary",
          cellDates: true,
          cellStyles: true
       });
 
       // LessonPlanTemplate
-      var lessonPlanTemplate = document.createElement("div");
+      let lessonPlanTemplate = document.createElement("div");
       lessonPlanTemplate.id = "lessonPlanTemplate";
 
       // Instructors
-      var instructors = document.createElement("p");
+      let instructors = document.createElement("p");
       instructors.appendChild(document.createTextNode("Instructors Details"));
       // Instructors Details
-      var instructorsDetails = document.createElement("div");
+      let instructorsDetails = document.createElement("div");
 
       // Adding all classes
       instructors.className = "bold underline";
       instructorsDetails.id = "instructorsDetails";
 
-      workbook.SheetNames.forEach(function (sheetName) {
-         var subtitleValue = "";
-         var first = true;
+      workbook.SheetNames.forEach(sheetName => {
+         let subtitleValue = "";
+         let first = true;
 
-         var sheet = workbook.Sheets[sheetName];
-         var range = XLSX.utils.decode_range(sheet["!ref"]);
-         for (var rows = range.s.r; rows <= range.e.r; rows++) {
-            for (var columns = range.s.c; columns <= range.e.c; columns++) {
-               var rowsAt = -1;
+         let sheet = workbook.Sheets[sheetName];
+         let range = XLSX.utils.decode_range(sheet["!ref"]);
+         for (let rows = range.s.r; rows <= range.e.r; rows++) {
+            for (let columns = range.s.c; columns <= range.e.c; columns++) {
+               let rowsAt = -1;
 
-               var cellRef = XLSX.utils.encode_cell({
+               let cellRef = XLSX.utils.encode_cell({
                   c: columns,
                   r: rows
                });
                if (!sheet[cellRef]) {
                   continue;
                }
-               var cell = sheet[cellRef];
-               var x = String(cell.v);
+               let cell = sheet[cellRef];
+               let x = String(cell.v);
 
                // Processing
                if (x.indexOf("Week") !== -1) {
@@ -312,7 +354,7 @@ function dragAndDropExcel(file) {
                } else if (x.indexOf("Remark") !== -1) {
                   rowsAt = rows;
                } else {
-                  console.log(x + " is (probably) Title/Subtitle");
+                  //console.log(x + " is (probably) Title/Subtitle");
                }
 
                // If hit something
@@ -344,37 +386,36 @@ function dragAndDropExcel(file) {
 
    fileReader.onprogress = function (data) {
       if (data.lengthComputable) {
-         var progress = parseInt(((data.loaded / data.total) * 100), 10);
+         let progress = parseInt(((data.loaded / data.total) * 100), 10);
          $(".progress-bar").css("width", progress + "%");
-         console.log(progress);
       }
-   }
+   };
    fileReader.onloadend = function () {
       $(".progress-bar")[0].classList.remove("progress-bar-animated");
-   }
+   };
 
    fileReader.readAsArrayBuffer(file);
 }
 
 function getAllExcelValues(sheet, range, row, lessonPlanTemplate) {
    // Map the columns first
-   var columnMapping = {
+   let columnMapping = {
       "week": -1,
       "lecture": -1,
       "practical": -1,
       "tutorial": -1,
       "remark": -1
    };
-   for (var columns = range.s.c; columns <= range.e.c; columns++) {
-      var cellRef = XLSX.utils.encode_cell({
+   for (let columns = range.s.c; columns <= range.e.c; columns++) {
+      let cellRef = XLSX.utils.encode_cell({
          c: columns,
          r: row
       });
       if (!sheet[cellRef]) {
          continue;
       }
-      var cell = sheet[cellRef];
-      var x = String(cell.v);
+      let cell = sheet[cellRef];
+      let x = String(cell.v);
 
       if (x.indexOf("Week") !== -1) {
          columnMapping.week = columns;
@@ -387,16 +428,16 @@ function getAllExcelValues(sheet, range, row, lessonPlanTemplate) {
       }
    }
 
-   var footerSeperation = -1;
+   let footerSeperation = -1;
    // Use the mapped column and start processing
-   for (var rows = (row + 1); rows <= range.e.r; rows++) {
+   for (let rows = (row + 1); rows <= range.e.r; rows++) {
       // Create Lesson
-      var lesson = document.createElement("div");
-      var lessonHeader = document.createElement("div");
+      let lesson = document.createElement("div");
+      let lessonHeader = document.createElement("div");
       // Lesson Title
-      var lessonTitle = document.createElement("p");
+      let lessonTitle = document.createElement("p");
       // Lesson Subtitle
-      var lessonSubtitle = document.createElement("p");
+      let lessonSubtitle = document.createElement("p");
 
       // Adding all classes
       lesson.className = "lesson";
@@ -410,18 +451,18 @@ function getAllExcelValues(sheet, range, row, lessonPlanTemplate) {
       lesson.appendChild(lessonHeader);
 
       // Checking if entire row is empty
-      var isBlank = true;
-      for (var columns = range.s.c; columns <= range.e.c; columns++) {
+      let isBlank = true;
+      for (let columns = range.s.c; columns <= range.e.c; columns++) {
          //Mapping column and rows
-         var cellRef = XLSX.utils.encode_cell({
+         let cellRef = XLSX.utils.encode_cell({
             c: columns,
             r: rows
          });
          if (!sheet[cellRef]) {
             continue;
          }
-         var cell = sheet[cellRef];
-         var x = String(cell.v);
+         let cell = sheet[cellRef];
+         let x = String(cell.v);
          isBlank = false;
 
          // Checking title
@@ -430,26 +471,26 @@ function getAllExcelValues(sheet, range, row, lessonPlanTemplate) {
             // Checking whether is link
             if (cell.l) {
                if (typeof cell.v == "number") {
-                  $(lessonTitle).html("<a href='" + cell.l.target + "' target='_blank'>Week " + cell.v + "</a>");
+                  $(lessonTitle).html("<a href='" + cell.l.display + "' target='_blank'>Week " + cell.v + "</a>");
                } else {
-                  $(lessonTitle).html("<a href='" + cell.l.target + "' target='_blank'>" + cell.v + "</a>");
+                  $(lessonTitle).html("<a href='" + cell.l.display + "' target='_blank'>" + cell.v + "</a>");
                }
             } else {
                $(lessonTitle).html("Week " + x);
             }
          } else {
             // lecPracHeader
-            var lecPracHeader = document.createElement("div");
+            let lecPracHeader = document.createElement("div");
             // LecPracDiv
-            var lecPracDiv = document.createElement("div");
-            var lecPracDivP = document.createElement("p");
+            let lecPracDiv = document.createElement("div");
+            let lecPracDivP = document.createElement("p");
             lecPracDiv.appendChild(lecPracDivP);
             // Lesson Plan Content
-            var lessonPlanContent = document.createElement("div");
+            let lessonPlanContent = document.createElement("div");
             // Lesson Plan Content Title
-            var lessonPlanContentTitleP = document.createElement("p");
+            let lessonPlanContentTitleP = document.createElement("p");
             // Lesson Plan Content List
-            var lessonPlanContentListUl = document.createElement("ul");
+            let lessonPlanContentListUl = document.createElement("ul");
 
             // Adding all classes
             lecPracHeader.className = "lecPracHeader";
@@ -473,17 +514,21 @@ function getAllExcelValues(sheet, range, row, lessonPlanTemplate) {
             }
 
             // ContentList = value
-            var xArray = x.trim().split("\n");
+            let xArray = x.trim().split("\n");
+            let lines = "";
             // Checking whether is link
             if (cell.l) {
                xArray = cell.v.trim().split("\n");
-               var lines = "";
-               for (var i = 0; i < xArray.length; i++) {
-                  lines += "<li><a href='" + cell.l.target + "'>" + xArray[i] + "</a></li>";
+               for (let i = 0; i < xArray.length; i++) {
+                  if(cell.l.display) {
+                     lines += "<li><a href='" + cell.l.display + "' target='_blank'>" + xArray[i] + "</a></li>";
+                  }else {
+                     console.log("Couldn't add link to " + xArray[i] + " due to error");
+                     lines += "<li>" + xArray[i] + "</li>";
+                  }
                }
             } else {
-               var lines = "";
-               for (var i = 0; i < xArray.length; i++) {
+               for (let i = 0; i < xArray.length; i++) {
                   lines += "<li>" + xArray[i] + "</li>";
                }
             }
@@ -512,25 +557,25 @@ function getAllExcelValues(sheet, range, row, lessonPlanTemplate) {
 
    // Get footer
    if (footerSeperation > 0 && footerSeperation <= range.e.r) {
-      var first = true;
+      let first = true;
       // Footer
-      var lessonPlanFooter = document.createElement("p");
-      var footerValue = "";
+      let lessonPlanFooter = document.createElement("p");
+      let footerValue = "";
 
       // Adding all classes
       lessonPlanFooter.className = "sub";
 
-      for (var rows = footerSeperation; rows <= range.e.r; rows++) {
-         for (var columns = range.s.c; columns <= range.e.c; columns++) {
-            var cellRef = XLSX.utils.encode_cell({
+      for (let rows = footerSeperation; rows <= range.e.r; rows++) {
+         for (let columns = range.s.c; columns <= range.e.c; columns++) {
+            let cellRef = XLSX.utils.encode_cell({
                c: columns,
                r: rows
             });
             if (!sheet[cellRef]) {
                continue;
             }
-            var cell = sheet[cellRef];
-            var x = String(cell.v);
+            let cell = sheet[cellRef];
+            let x = String(cell.v);
             if (first) {
                footerValue = x;
                first = false;
@@ -562,7 +607,7 @@ function makeSortable() {
       handle: ".contentDivDivDraggableDiv",
       cancel: ".inputDiv, textarea, input, button",
       update: function () {
-         setActualValue()
+         setActualValue();
       },
       axis: "y",
       cursor: "move",
@@ -584,33 +629,33 @@ function removeLessonContent(closeImg) {
 }
 
 function addLessonContent(addLessonDiv) {
-   var contentDivDiv = document.createElement("div");
+   let contentDivDiv = document.createElement("div");
 
    // Creating contentDivDivDraggableDiv
-   var contentDivDivDraggableDiv = document.createElement("div");
+   let contentDivDivDraggableDiv = document.createElement("div");
    contentDivDivDraggableDiv.className = "contentDivDivDraggableDiv progress-bar-striped bg-success";
    contentDivDivDraggableDiv.style.opacity = "0";
 
    // Creating contentDivDivRight
-   var contentDivDivRight = document.createElement("div");
+   let contentDivDivRight = document.createElement("div");
    contentDivDivRight.className = "contentDivDivRight";
 
-   var leftDiv = document.createElement("div");
-   var leftDivP = document.createElement("p");
-   var leftDivTextInput = document.createElement("select");
-   var leftDivColorInput = document.createElement("input");
+   let leftDiv = document.createElement("div");
+   let leftDivP = document.createElement("p");
+   let leftDivTextInput = document.createElement("select");
+   let leftDivColorInput = document.createElement("input");
 
-   var rightDiv = document.createElement("div");
-   var page1Content = document.createElement("div");
-   var page1ContentTitle = document.createElement("p");
-   var page1ContentTitleTextInputDiv = document.createElement("div");
-   var page1ContentTitleTextInput = document.createElement("input");
-   var page1ContentList = document.createElement("p");
-   var page1ContentListTextareaDiv = document.createElement("div");
-   var page1ContentListTextarea = document.createElement("textarea");
+   let rightDiv = document.createElement("div");
+   let page1Content = document.createElement("div");
+   let page1ContentTitle = document.createElement("p");
+   let page1ContentTitleTextInputDiv = document.createElement("div");
+   let page1ContentTitleTextInput = document.createElement("input");
+   let page1ContentList = document.createElement("p");
+   let page1ContentListTextareaDiv = document.createElement("div");
+   let page1ContentListTextarea = document.createElement("textarea");
 
-   var closeImg = document.createElement("button");
-   var closeImgImage = document.createElement("span");
+   let closeImg = document.createElement("button");
+   let closeImgImage = document.createElement("span");
 
    contentDivDiv.className = "section contentDivDiv";
    leftDiv.className = "leftDiv";
@@ -649,12 +694,12 @@ function addLessonContent(addLessonDiv) {
    page1ContentListTextareaDiv.setAttribute("onkeyup", "divToInput(this)");
    page1ContentListTextareaDiv.setAttribute("onkeydown", "divToInput(this)");
 
-   $(page1ContentListTextareaDiv).html("<li><br></li>");
+   $(page1ContentListTextareaDiv).html("<ul><li><br></li></ul>");
    // Prevent backspace
    $(page1ContentListTextareaDiv).keydown(function (e) {
       // trap the return key being pressed
       if (e.keyCode === 8) {
-         if ($(this).html() === "<li><br></li>") {
+         if ($(this).html() === "<ul><li><br></li></ul>") {
             // prevent the default behaviour of return key pressed
             return false;
          }
@@ -668,19 +713,19 @@ function addLessonContent(addLessonDiv) {
    $(page1ContentListTextarea).text("<li></li>");
 
    // Creating options for select (Dropdown)
-   var lectureL = document.createElement("option");
+   let lectureL = document.createElement("option");
    lectureL.appendChild(document.createTextNode("Lecture"));
    lectureL.setAttribute("value", "L");
-   var practicalP = document.createElement("option");
+   let practicalP = document.createElement("option");
    practicalP.appendChild(document.createTextNode("Practical"));
    practicalP.setAttribute("value", "P");
-   var tutorialT = document.createElement("option");
+   let tutorialT = document.createElement("option");
    tutorialT.appendChild(document.createTextNode("Tutorial"));
    tutorialT.setAttribute("value", "T");
-   var remarkR = document.createElement("option");
+   let remarkR = document.createElement("option");
    remarkR.appendChild(document.createTextNode("Remark"));
    remarkR.setAttribute("value", "R");
-   var inCourseAssICA = document.createElement("option");
+   let inCourseAssICA = document.createElement("option");
    inCourseAssICA.appendChild(document.createTextNode("In Course Assessment"));
    inCourseAssICA.setAttribute("value", "ICA");
    leftDivTextInput.appendChild(lectureL);
@@ -732,48 +777,49 @@ function addLessonContent(addLessonDiv) {
 }
 
 function addLessonSection(addSectionDiv) {
-   var mainSection = document.createElement("div");
-   var lessonSection = document.createElement("div");
-   var lessonTitleP = document.createElement("p");
-   var lessonTitleTextInputDiv = document.createElement("div");
-   var lessonTitleTextInput = document.createElement("input");
-   var lessonSubtitleP = document.createElement("p");
-   var lessonSubtitleTextInputDiv = document.createElement("div");
-   var lessonSubtitleTextInput = document.createElement("input");
+   let mainSection = document.createElement("div");
+   let lessonSection = document.createElement("div");
+   let lessonTitleP = document.createElement("p");
+   let lessonTitleTextInputDiv = document.createElement("div");
+   let lessonTitleTextInput = document.createElement("input");
+   let lessonSubtitleP = document.createElement("p");
+   let lessonSubtitleTextInputDiv = document.createElement("div");
+   let lessonSubtitleTextInput = document.createElement("input");
 
-   var contentDivDiv = document.createElement("div");
+   let contentDivDiv = document.createElement("div");
 
    // Creating contentDivDivDraggableDiv
-   var contentDivDivDraggableDiv = document.createElement("div");
+   let contentDivDivDraggableDiv = document.createElement("div");
    contentDivDivDraggableDiv.className = "contentDivDivDraggableDiv progress-bar-striped bg-success";
    contentDivDivDraggableDiv.style.opacity = "0";
 
    // Creating contentDivDivRight
-   var contentDivDivRight = document.createElement("div");
+   let contentDivDivRight = document.createElement("div");
    contentDivDivRight.className = "contentDivDivRight";
 
-   var leftDiv = document.createElement("div");
-   var leftDivP = document.createElement("p");
-   var leftDivTextInput = document.createElement("select");
-   var leftDivColorInput = document.createElement("input");
+   let leftDiv = document.createElement("div");
+   let leftDivP = document.createElement("p");
+   let leftDivTextInput = document.createElement("select");
+   let leftDivColorInput = document.createElement("input");
 
-   var rightDiv = document.createElement("div");
-   var page1Content = document.createElement("div");
-   var page1ContentTitle = document.createElement("p");
-   var page1ContentTitleTextInputDiv = document.createElement("div");
-   var page1ContentTitleTextInput = document.createElement("input");
-   var page1ContentList = document.createElement("p");
-   var page1ContentListTextareaDiv = document.createElement("div");
-   var page1ContentListTextarea = document.createElement("textarea");
+   let rightDiv = document.createElement("div");
+   let page1Content = document.createElement("div");
+   let page1ContentTitle = document.createElement("p");
+   let page1ContentTitleTextInputDiv = document.createElement("div");
+   let page1ContentTitleTextInput = document.createElement("input");
+   let page1ContentList = document.createElement("p");
+   let page1ContentListTextareaDiv = document.createElement("div");
+   let page1ContentListTextareaDivUl = document.createElement("ul");
+   let page1ContentListTextarea = document.createElement("textarea");
 
-   var closeImg = document.createElement("button");
-   var closeImgImage = document.createElement("span");
+   let closeImg = document.createElement("button");
+   let closeImgImage = document.createElement("span");
 
-   var addLessonContent = document.createElement("div");
-   var addLessonContentP = document.createElement("p");
+   let addLessonContent = document.createElement("div");
+   let addLessonContentP = document.createElement("p");
 
-   var closeImg2 = document.createElement("button");
-   var closeImgImage2 = document.createElement("span");
+   let closeImg2 = document.createElement("button");
+   let closeImgImage2 = document.createElement("span");
 
    mainSection.className = "mainSection section";
    lessonSection.className = "lessonTitle";
@@ -837,12 +883,12 @@ function addLessonSection(addSectionDiv) {
    page1ContentListTextareaDiv.setAttribute("onkeyup", "divToInput(this)");
    page1ContentListTextareaDiv.setAttribute("onkeydown", "divToInput(this)");
 
-   $(page1ContentListTextareaDiv).html("<li><br></li>");
+   $(page1ContentListTextareaDiv).html("<ul><li><br></li></ul>");
    // Prevent backspace
    $(page1ContentListTextareaDiv).keydown(function (e) {
       // trap the return key being pressed
       if (e.keyCode === 8) {
-         if ($(this).html() === "<li><br></li>") {
+         if ($(this).html() === "<ul><li><br></li></ul>") {
             // prevent the default behaviour of return key pressed
             return false;
          }
@@ -864,19 +910,19 @@ function addLessonSection(addSectionDiv) {
    lessonSection.appendChild(lessonSubtitleTextInput);
 
    // Creating options for select (Dropdown)
-   var lectureL = document.createElement("option");
+   let lectureL = document.createElement("option");
    lectureL.appendChild(document.createTextNode("Lecture"));
    lectureL.setAttribute("value", "L");
-   var practicalP = document.createElement("option");
+   let practicalP = document.createElement("option");
    practicalP.appendChild(document.createTextNode("Practical"));
    practicalP.setAttribute("value", "P");
-   var tutorialT = document.createElement("option");
+   let tutorialT = document.createElement("option");
    tutorialT.appendChild(document.createTextNode("Tutorial"));
    tutorialT.setAttribute("value", "T");
-   var remarkR = document.createElement("option");
+   let remarkR = document.createElement("option");
    remarkR.appendChild(document.createTextNode("Remark"));
    remarkR.setAttribute("value", "R");
-   var inCourseAssICA = document.createElement("option");
+   let inCourseAssICA = document.createElement("option");
    inCourseAssICA.appendChild(document.createTextNode("In Course Assessment"));
    inCourseAssICA.setAttribute("value", "ICA");
    leftDivTextInput.appendChild(lectureL);
@@ -940,22 +986,22 @@ function recreatePage1() {
    $("#page1").empty();
 
    // Page 1 Section
-   var page1Section = document.createElement("div");
+   let page1Section = document.createElement("div");
    // Title
-   var page1TitleP = document.createElement("p");
+   let page1TitleP = document.createElement("p");
    page1TitleP.appendChild(document.createTextNode("Instructors Details"));
    page1TitleP.className = "bold underline";
 
    // Paragraph
-   //var page1ParagraphP = document.createElement("p");
+   //let page1ParagraphP = document.createElement("p");
    //page1ParagraphP.appendChild(document.createTextNode("Paragraph"));
 
-   var page1ParagraphTextareaDiv = document.createElement("div");
+   let page1ParagraphTextareaDiv = document.createElement("div");
    page1ParagraphTextareaDiv.contentEditable = "true";
    page1ParagraphTextareaDiv.className = "inputDiv form-control";
    page1ParagraphTextareaDiv.setAttribute("onkeyup", "divToInput(this)");
    page1ParagraphTextareaDiv.setAttribute("onkeydown", "divToInput(this)");
-   var page1ParagraphTextarea = document.createElement("textarea");
+   let page1ParagraphTextarea = document.createElement("textarea");
    page1ParagraphTextarea.id = "paragraphTextarea";
    page1ParagraphTextarea.setAttribute("onkeyup", "inputToDiv(this)");
    page1ParagraphTextarea.setAttribute("onkeydown", "inputToDiv(this)");
@@ -963,7 +1009,7 @@ function recreatePage1() {
 
    // -- Paragraph --
    // Div
-   var paragraphInput = $("#page2 > #lessonPlanTemplate > #instructorsDetails").html().trim().replace(/\t/g, "");
+   let paragraphInput = $("#page2 > #lessonPlanTemplate > #instructorsDetails").html().trim().replace(/\t/g, "");
    $(page1ParagraphTextareaDiv).html(paragraphInput);
 
    // Prevent backspace
@@ -991,22 +1037,22 @@ function recreatePage1() {
    // Main Section
    $(".lesson").each(function () {
       // Creating mainSection
-      var mainSection = document.createElement("div");
+      let mainSection = document.createElement("div");
       mainSection.className = "mainSection section";
 
       // Creating lessonTitle section
-      var lessonSection = document.createElement("div");
+      let lessonSection = document.createElement("div");
       lessonSection.className = "lessonTitle";
 
       // Creating Lesson Title
-      var lessonTitleP = document.createElement("p");
+      let lessonTitleP = document.createElement("p");
       lessonTitleP.appendChild(document.createTextNode("Lesson Title"));
-      var lessonTitleTextInputDiv = document.createElement("div");
+      let lessonTitleTextInputDiv = document.createElement("div");
       lessonTitleTextInputDiv.contentEditable = "true";
       lessonTitleTextInputDiv.className = "inputDiv contenteditableBr form-control";
       lessonTitleTextInputDiv.setAttribute("onkeyup", "divToInput(this)");
       lessonTitleTextInputDiv.setAttribute("onkeydown", "divToInput(this)");
-      var lessonTitleTextInput = document.createElement("input");
+      let lessonTitleTextInput = document.createElement("input");
       lessonTitleTextInput.setAttribute("onkeyup", "inputToDiv(this)");
       lessonTitleTextInput.setAttribute("onkeydown", "inputToDiv(this)");
       lessonTitleTextInput.className = "lessonTitleInput form-control";
@@ -1015,14 +1061,14 @@ function recreatePage1() {
       $(lessonTitleTextInput).css("display", "none"); // Hiding real input
 
       // Creating Lesson Subtitle
-      var lessonSubtitleP = document.createElement("p");
+      let lessonSubtitleP = document.createElement("p");
       lessonSubtitleP.appendChild(document.createTextNode("Lesson Subtitle"));
-      var lessonSubtitleTextInputDiv = document.createElement("div");
+      let lessonSubtitleTextInputDiv = document.createElement("div");
       lessonSubtitleTextInputDiv.contentEditable = "true";
       lessonSubtitleTextInputDiv.className = "inputDiv contenteditableBr form-control";
       lessonSubtitleTextInputDiv.setAttribute("onkeyup", "divToInput(this)");
       lessonSubtitleTextInputDiv.setAttribute("onkeydown", "divToInput(this)");
-      var lessonSubtitleTextInput = document.createElement("input");
+      let lessonSubtitleTextInput = document.createElement("input");
       lessonSubtitleTextInput.setAttribute("onkeyup", "inputToDiv(this)");
       lessonSubtitleTextInput.setAttribute("onkeydown", "inputToDiv(this)");
       lessonSubtitleTextInput.className = "lessonSubtitleInput form-control";
@@ -1043,43 +1089,43 @@ function recreatePage1() {
       // ContentDivDiv
       $(this).find(".lecPracHeader").each(function () {
          // Creating contentDivDiv
-         var contentDivDiv = document.createElement("div");
+         let contentDivDiv = document.createElement("div");
          contentDivDiv.className = "section contentDivDiv";
 
          // Creating contentDivDivDraggableDiv
-         var contentDivDivDraggableDiv = document.createElement("div");
+         let contentDivDivDraggableDiv = document.createElement("div");
          contentDivDivDraggableDiv.className = "contentDivDivDraggableDiv progress-bar-striped bg-success";
          contentDivDivDraggableDiv.style.opacity = "0";
 
          // Creating contentDivDivRight
-         var contentDivDivRight = document.createElement("div");
+         let contentDivDivRight = document.createElement("div");
          contentDivDivRight.className = "contentDivDivRight";
 
          // Creating leftDiv
-         var leftDiv = document.createElement("div");
+         let leftDiv = document.createElement("div");
          leftDiv.className = "leftDiv";
 
          // Creating Lecture/Practical/something
-         var leftDivP = document.createElement("p");
+         let leftDivP = document.createElement("p");
          leftDivP.appendChild(document.createTextNode("Lecture/Practical/something"));
          // Lecture/Practical/something
-         var leftDivTextInput = document.createElement("select");
+         let leftDivTextInput = document.createElement("select");
          leftDivTextInput.setAttribute("onchange", "setActualValue()");
          leftDivTextInput.className = "form-control";
          // Lecture select options
-         var lectureL = document.createElement("option");
+         let lectureL = document.createElement("option");
          lectureL.appendChild(document.createTextNode("Lecture"));
          lectureL.setAttribute("value", "L");
-         var practicalP = document.createElement("option");
+         let practicalP = document.createElement("option");
          practicalP.appendChild(document.createTextNode("Practical"));
          practicalP.setAttribute("value", "P");
-         var tutorialT = document.createElement("option");
+         let tutorialT = document.createElement("option");
          tutorialT.appendChild(document.createTextNode("Tutorial"));
          tutorialT.setAttribute("value", "T");
-         var remarkR = document.createElement("option");
+         let remarkR = document.createElement("option");
          remarkR.appendChild(document.createTextNode("Remark"));
          remarkR.setAttribute("value", "R");
-         var inCourseAssICA = document.createElement("option");
+         let inCourseAssICA = document.createElement("option");
          inCourseAssICA.appendChild(document.createTextNode("In Course Assessment"));
          inCourseAssICA.setAttribute("value", "ICA");
          leftDivTextInput.appendChild(lectureL);
@@ -1089,11 +1135,11 @@ function recreatePage1() {
          leftDivTextInput.appendChild(inCourseAssICA);
          $(leftDivTextInput).val($(this).find(".lecPracDiv :first-child").text());
          // Lecture Color
-         var leftDivColorInput = document.createElement("input");
+         let leftDivColorInput = document.createElement("input");
          leftDivColorInput.setAttribute("onchange", "setActualValue()");
          leftDivColorInput.setAttribute("type", "color");
          leftDivColorInput.className = "form-control";
-         var lecPracDivColor = $(this).find(".lecPracDiv").css("background-color");
+         let lecPracDivColor = $(this).find(".lecPracDiv").css("background-color");
          $(leftDivColorInput).val(rgb2hex(lecPracDivColor));
 
          // Appending leftDiv
@@ -1102,23 +1148,23 @@ function recreatePage1() {
          leftDiv.appendChild(leftDivColorInput);
 
          // Creating rightDiv
-         var rightDiv = document.createElement("div");
+         let rightDiv = document.createElement("div");
          rightDiv.className = "flex rightDiv";
 
          // Creating page1Content
-         var page1Content = document.createElement("div");
+         let page1Content = document.createElement("div");
          page1Content.className = "page1Content";
 
          // page1Content Content Title
-         var page1ContentTitle = document.createElement("p");
+         let page1ContentTitle = document.createElement("p");
          page1ContentTitle.appendChild(document.createTextNode("Content Title"));
          // page1Input
-         var page1ContentTitleTextInputDiv = document.createElement("div");
+         let page1ContentTitleTextInputDiv = document.createElement("div");
          page1ContentTitleTextInputDiv.contentEditable = "true";
          page1ContentTitleTextInputDiv.className = "inputDiv contenteditableBr form-control";
          page1ContentTitleTextInputDiv.setAttribute("onkeyup", "divToInput(this)");
          page1ContentTitleTextInputDiv.setAttribute("onkeydown", "divToInput(this)");
-         var page1ContentTitleTextInput = document.createElement("input");
+         let page1ContentTitleTextInput = document.createElement("input");
          page1ContentTitleTextInput.setAttribute("onkeyup", "inputToDiv(this)");
          page1ContentTitleTextInput.setAttribute("onkeydown", "inputToDiv(this))");
          page1ContentTitleTextInput.setAttribute("type", "text");
@@ -1127,28 +1173,30 @@ function recreatePage1() {
          $(page1ContentTitleTextInput).css("display", "none"); // Hiding real input
 
          // page1Content Content List
-         var page1ContentList = document.createElement("p");
+         let page1ContentList = document.createElement("p");
          page1ContentList.appendChild(document.createTextNode("Content List"));
          // page1Content Textarea
-         var page1ContentListTextareaDiv = document.createElement("div");
+         let page1ContentListTextareaDiv = document.createElement("div");
          page1ContentListTextareaDiv.contentEditable = "true";
          page1ContentListTextareaDiv.className = "inputDiv form-control";
          page1ContentListTextareaDiv.setAttribute("onkeyup", "divToInput(this)");
          page1ContentListTextareaDiv.setAttribute("onkeydown", "divToInput(this)");
-         var page1ContentListTextarea = document.createElement("textarea");
+         let page1ContentListTextareaDivUl = document.createElement("ul");
+         let page1ContentListTextarea = document.createElement("textarea");
          page1ContentListTextarea.setAttribute("onkeyup", "inputToDiv(this)");
          page1ContentListTextarea.setAttribute("onkeydown", "inputToDiv(this)");
          $(page1ContentListTextarea).css("display", "none"); // Hiding real input
          // Content List
-         var lessonContentText = $(this).find(".lessonPlanContent ul").html().trim().replace(/\t/g, "");
-         $(page1ContentListTextareaDiv).html(lessonContentText);
+         let lessonContentText = $(this).find(".lessonPlanContent ul").html().trim().replace(/\t/g, "");
+         $(page1ContentListTextareaDivUl).html(lessonContentText);
+         $(page1ContentListTextareaDiv).html(page1ContentListTextareaDivUl);
          $(page1ContentListTextarea).val(lessonContentText);
 
          // Prevent backspace
          $(page1ContentListTextareaDiv).keydown(function (e) {
             // trap the return key being pressed
             if (e.keyCode === 8) {
-               if ($(this).html() === "<li><br></li>") {
+               if ($(this).html() === "<ul><li><br></li></ul>") {
                   // prevent the default behaviour of return key pressed
                   return false;
                }
@@ -1165,12 +1213,12 @@ function recreatePage1() {
          rightDiv.appendChild(page1Content);
 
          // Creating closeImg
-         var closeImg = document.createElement("button");
+         let closeImg = document.createElement("button");
          closeImg.className = "closeImg close";
          closeImg.setAttribute("onclick", "removeLessonContent(this)");
          closeImg.setAttribute("type", "button");
          closeImg.setAttribute("aria-label", "Close");
-         var closeImgImage = document.createElement("span");
+         let closeImgImage = document.createElement("span");
          closeImgImage.setAttribute("aria-hidden", "true");
          closeImgImage.innerHTML = "&times;";
 
@@ -1189,17 +1237,17 @@ function recreatePage1() {
       });
 
       // Creating closeImg for entire section / "lesson"
-      var addLessonContent = document.createElement("div");
+      let addLessonContent = document.createElement("div");
       addLessonContent.className = "addLessonContent";
-      var addLessonContentCloseImgImage = document.createElement("img");
+      let addLessonContentCloseImgImage = document.createElement("img");
 
-      var closeImg2 = document.createElement("button");
+      let closeImg2 = document.createElement("button");
       closeImg2.className = "closeImg close";
-      var closeImgImage2 = document.createElement("span");
+      let closeImgImage2 = document.createElement("span");
 
       // Setting attributes
       addLessonContent.setAttribute("onclick", "addLessonContent(this)");
-      addLessonContentCloseImgImage.setAttribute("src", "grass 2.jpg");
+      addLessonContentCloseImgImage.setAttribute("src", "grass2.jpg");
       addLessonContentCloseImgImage.setAttribute("width", "30");
       addLessonContentCloseImgImage.setAttribute("height", "30");
 
@@ -1221,12 +1269,12 @@ function recreatePage1() {
    });
 
    // Add lesson Section
-   var addLessonSection = document.createElement("div");
-   var addLessonSectionImg = document.createElement("img");
+   let addLessonSection = document.createElement("div");
+   let addLessonSectionImg = document.createElement("img");
    addLessonSection.id = "addLessonSection";
    addLessonSection.className = "addLessonContent";
    addLessonSection.setAttribute("onclick", "addLessonSection(this)");
-   addLessonSectionImg.setAttribute("src", "grass 2.jpg");
+   addLessonSectionImg.setAttribute("src", "grass2.jpg");
    addLessonSectionImg.setAttribute("width", "30");
    addLessonSectionImg.setAttribute("height", "30");
 
@@ -1234,15 +1282,15 @@ function recreatePage1() {
    addLessonSection.appendChild(addLessonSectionImg);
 
    // Footer Section
-   var footerSection = document.createElement("div");
-   var footerP = document.createElement("p");
+   let footerSection = document.createElement("div");
+   let footerP = document.createElement("p");
    footerP.appendChild(document.createTextNode("Footer"));
-   var footerTextInputDiv = document.createElement("div");
+   let footerTextInputDiv = document.createElement("div");
    footerTextInputDiv.contentEditable = "true";
    footerTextInputDiv.className = "inputDiv contenteditableBr form-control";
    footerTextInputDiv.setAttribute("onkeyup", "divToInput(this)");
    footerTextInputDiv.setAttribute("onkeydown", "divToInput(this)");
-   var footerTextInput = document.createElement("input");
+   let footerTextInput = document.createElement("input");
    footerTextInput.setAttribute("type", "text");
    footerTextInput.setAttribute("onkeyup", "inputToDiv(this)");
    footerTextInput.setAttribute("onkeydown", "inputToDiv(this)");
@@ -1257,26 +1305,27 @@ function recreatePage1() {
    footerSection.appendChild(footerTextInput);
 
    // Adding br
-   var buttonBr = document.createElement("br");
+   let buttonBr = document.createElement("br");
 
    // Generate Button
-   var generateHTMLButton = document.createElement("button");
+   let generateHTMLButton = document.createElement("button");
    generateHTMLButton.appendChild(document.createTextNode("Generate HTML"));
    generateHTMLButton.setAttribute("onclick", "generateHTML()");
    generateHTMLButton.className = "btn btn-primary";
 
    // Show all input
-   var showAllButton = document.createElement("button");
+   let showAllButton = document.createElement("button");
    showAllButton.appendChild(document.createTextNode("Show All"));
    showAllButton.setAttribute("onclick", "showAllInput(this)");
    showAllButton.className = "btn";
 
    // Appending Everything
-   $("#page1").append(addLessonSection);
-   $("#page1").append(footerSection);
-   $("#page1").append(buttonBr);
-   $("#page1").append(generateHTMLButton);
-   $("#page1").append(showAllButton);
+   var page1 = document.getElementById("page1");
+   page1.appendChild(addLessonSection);
+   page1.appendChild(footerSection);
+   page1.appendChild(buttonBr);
+   page1.appendChild(generateHTMLButton);
+   page1.appendChild(showAllButton);
 
    // Prevent creating div on enter
    contentEditableBr();
@@ -1290,16 +1339,16 @@ function recreatePage2() {
    $("#page2").empty();
 
    // LessonPlanTemplate
-   var lessonPlanTemplate = document.createElement("div");
+   let lessonPlanTemplate = document.createElement("div");
    lessonPlanTemplate.id = "lessonPlanTemplate";
 
    // Instructors
-   var instructors = document.createElement("p");
+   let instructors = document.createElement("p");
    instructors.appendChild(document.createTextNode("Instructors Details"));
    // Instructors Details
-   var instructorsDetails = document.createElement("div");
+   let instructorsDetails = document.createElement("div");
    // Loop details to add
-   var instructorDetailsValue = $("#paragraphTextarea").val();
+   let instructorDetailsValue = $("#paragraphTextarea").val();
    $(instructorsDetails).html(instructorDetailsValue);
 
    // Adding all classes
@@ -1313,13 +1362,13 @@ function recreatePage2() {
    // Loop MainSection
    $(".mainSection").each(function () {
       // Create Lesson
-      var lesson = document.createElement("div");
-      var lessonHeader = document.createElement("div");
+      let lesson = document.createElement("div");
+      let lessonHeader = document.createElement("div");
       // Lesson Title
-      var lessonTitle = document.createElement("p");
+      let lessonTitle = document.createElement("p");
       $(lessonTitle).html($(this).find(".lessonTitleInput").val());
       // Lesson Subtitle
-      var lessonSubtitle = document.createElement("p");
+      let lessonSubtitle = document.createElement("p");
       $(lessonSubtitle).html($(this).find(".lessonSubtitleInput").val());
 
       // Adding all classes
@@ -1336,22 +1385,21 @@ function recreatePage2() {
       // Loop All LecPracheader
       $(this).find(".contentDivDiv").each(function () {
          // lesPracHeader
-         var lecPracHeader = document.createElement("div");
+         let lecPracHeader = document.createElement("div");
          // LecPracDiv
-         var lecPracDiv = document.createElement("div");
-         var lecPracDivP = document.createElement("p");
+         let lecPracDiv = document.createElement("div");
+         let lecPracDivP = document.createElement("p");
          $(lecPracDiv).css("background-color", $(this).find(".leftDiv input:nth-child(3)").val());
          $(lecPracDivP).html($(this).find(".leftDiv :nth-child(2)").val());
          lecPracDiv.appendChild(lecPracDivP);
          // Lesson Plan Content
-         var lessonPlanContent = document.createElement("div");
+         let lessonPlanContent = document.createElement("div");
          // Lesson Plan Content Title
-         var lessonPlanContentTitleP = document.createElement("p");
+         let lessonPlanContentTitleP = document.createElement("p");
          $(lessonPlanContentTitleP).html($(this).find(".rightDiv .page1Content :nth-child(2)").html());
          // Lesson Plan Content List
-         var lessonPlanContentListUl = document.createElement("ul");
-         var lines = $(this).find(".rightDiv .page1Content :nth-child(5)").html();
-         $(lessonPlanContentListUl).html(lines);
+         let lines = $(this).find(".rightDiv .page1Content :nth-child(5)").html();
+         $(lessonPlanContent).html(lines);
 
          // Adding all classes
          lecPracHeader.className = "lecPracHeader";
@@ -1361,8 +1409,7 @@ function recreatePage2() {
          lessonPlanContentTitleP.className = "lessonPlanContentP";
 
          // Appending Everything
-         lessonPlanContent.appendChild(lessonPlanContentTitleP);
-         lessonPlanContent.appendChild(lessonPlanContentListUl);
+         $(lessonPlanContent).prepend(lessonPlanContentTitleP);
          lecPracHeader.appendChild(lecPracDiv);
          lecPracHeader.appendChild(lessonPlanContent);
 
@@ -1375,7 +1422,7 @@ function recreatePage2() {
    });
 
    // Footer
-   var lessonPlanFooter = document.createElement("p");
+   let lessonPlanFooter = document.createElement("p");
    $(lessonPlanFooter).html($("#lessonPlanFooter").val());
 
    // Adding all classes
@@ -1413,7 +1460,7 @@ function copyToClipboard() {
 }
 
 function copyCommand() {
-   var tempText = document.createElement("textarea");
+   let tempText = document.createElement("textarea");
    $(tempText).text(selectedText);
    $("#masterDiv").append(tempText);
    $(tempText)[0].select();
@@ -1439,8 +1486,8 @@ function changeInputBoxSelection(number) {
    // Remove active class
    $(".dropdown-menu > .active.dropdown-item")[0].classList.remove("active");
 
-   var dropdownDiv = $("#linkBoxOptions");
-   var linkInput = $("#linkInput");
+   let dropdownDiv = $("#linkBoxOptions");
+   let linkInput = $("#linkInput");
    switch (number) {
    case 1:
       dropdownDiv.text("Webpage");
@@ -1451,7 +1498,7 @@ function changeInputBoxSelection(number) {
    case 2:
       dropdownDiv.text("Email");
       linkInput[0].setAttribute("placeholder", "example@nyp.edu.sg");
-      var emailRegex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+      let emailRegex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
       if (emailRegex.test(selectedText)) {
          linkInput.val(htmlEncode(selectedText));
       }
@@ -1468,18 +1515,18 @@ function changeInputBoxSelection(number) {
 
 function checkAndDisplayAlert() {
    // Creating alert
-   var alertBox = document.createElement("div");
+   let alertBox = document.createElement("div");
    alertBox.className = "alert alert-warning fade show";
    alertBox.id = "linkBoxAlertError";
    alertBox.setAttribute("role", "alert");
-   var alertBoxP = document.createElement("p");
-   var alertBoxButtonDiv = document.createElement("div");
-   var alertBoxButtonDivButton = document.createElement("button");
+   let alertBoxP = document.createElement("p");
+   let alertBoxButtonDiv = document.createElement("div");
+   let alertBoxButtonDivButton = document.createElement("button");
    alertBoxButtonDivButton.className = "close";
    alertBoxButtonDivButton.setAttribute("type", "button");
    alertBoxButtonDivButton.setAttribute("data-dismiss", "alert");
    alertBoxButtonDivButton.setAttribute("aria-label", "Close");
-   var alertBoxButtonDivButtonSpan = document.createElement("span");
+   let alertBoxButtonDivButtonSpan = document.createElement("span");
    alertBoxButtonDivButton.setAttribute("aria-hidden", "true");
    alertBoxButtonDivButton.innerHTML = "&times;";
    // Appending alert
@@ -1489,10 +1536,10 @@ function checkAndDisplayAlert() {
    alertBox.appendChild(alertBoxButtonDiv);
 
    // Checking value
-   var inputValue = $("#linkInput").val();
-   var dropdownDivText = $("#linkBoxOptions").text();
+   let inputValue = $("#linkInput").val();
+   let dropdownDivText = $("#linkBoxOptions").text();
    if (dropdownDivText === "Webpage") {
-      var urlRegex = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/
+      let urlRegex = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/;
 
       // If entered text doesnt match url regex, ask for confirmation
       if (!urlRegex.test(inputValue)) {
@@ -1503,7 +1550,7 @@ function checkAndDisplayAlert() {
          closeAlert();
       }
    } else if (dropdownDivText === "Email") {
-      var emailRegex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+      let emailRegex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 
       if (!emailRegex.test(inputValue)) {
          closeAlert();
@@ -1517,7 +1564,7 @@ function checkAndDisplayAlert() {
 }
 
 function whichLinkSelection() {
-   var dropdownDivText = $("#linkBoxOptions").text();
+   let dropdownDivText = $("#linkBoxOptions").text();
    if (dropdownDivText === "Webpage") {
       return "";
    } else if (dropdownDivText === "Email") {
@@ -1533,18 +1580,18 @@ function whichLinkSelection() {
 function convertToLink() {
    closeAlert();
    // Creating alert
-   var alertBox = document.createElement("div");
+   let alertBox = document.createElement("div");
    alertBox.className = "alert alert-danger fade show";
    alertBox.id = "linkBoxAlertError";
    alertBox.setAttribute("role", "alert");
-   var alertBoxP = document.createElement("p");
-   var alertBoxButtonDiv = document.createElement("div");
-   var alertBoxButtonDivButton = document.createElement("button");
+   let alertBoxP = document.createElement("p");
+   let alertBoxButtonDiv = document.createElement("div");
+   let alertBoxButtonDivButton = document.createElement("button");
    alertBoxButtonDivButton.className = "close";
    alertBoxButtonDivButton.setAttribute("type", "button");
    alertBoxButtonDivButton.setAttribute("data-dismiss", "alert");
    alertBoxButtonDivButton.setAttribute("aria-label", "Close");
-   var alertBoxButtonDivButtonSpan = document.createElement("span");
+   let alertBoxButtonDivButtonSpan = document.createElement("span");
    alertBoxButtonDivButton.setAttribute("aria-hidden", "true");
    alertBoxButtonDivButton.innerHTML = "&times;";
    // Appending alert
@@ -1553,12 +1600,12 @@ function convertToLink() {
    alertBox.appendChild(alertBoxP);
    alertBox.appendChild(alertBoxButtonDiv);
 
-   var linkEntered = $("#linkInput").val();
+   let linkEntered = $("#linkInput").val();
    // Checking input is not empty
    if (linkEntered) {
       // Checking if text matches url regex
       if (whichLinkSelection() === "") {
-         var urlRegex = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/
+         let urlRegex = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/;
 
          // If entered text doesnt match url regex, ask for confirmation
          if (!urlRegex.test(linkEntered) && !confirm("The URL entered does not match the format. Do you want to continue?")) {
@@ -1569,7 +1616,7 @@ function convertToLink() {
             return false;
          }
       } else if (whichLinkSelection() === "mailto:") {
-         var emailRegex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+         let emailRegex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 
          if (!emailRegex.test(selectedText) && !confirm("The email entered does not match the format. Do you want to continue?")) {
             alertBoxP.appendChild(document.createTextNode("The email entered does not match the format."));
@@ -1579,28 +1626,29 @@ function convertToLink() {
             return false;
          }
       }
-      var selectedTextBackup = htmlEncode(selectedText);
-      var inputElement = focusedInput;
-      var inputValue = inputElement.html();
+      let selectedTextBackup = htmlEncode(selectedText);
+      let inputElement = focusedInput;
+      let inputValue = inputElement.html();
+      let linkA = "";
       if (whichLinkSelection()) {
-         var linkA = "<a href='" + whichLinkSelection() + $("#linkInput").val() + "' target='_blank'>" + selectedTextBackup + "</a>";
+         linkA = "<a href='" + whichLinkSelection() + $("#linkInput").val() + "' target='_blank'>" + selectedTextBackup + "</a>";
       } else {
-         var linkA = "<a href='" + $("#linkInput").val() + "' target='_blank'>" + selectedTextBackup + "</a>";
+         linkA = "<a href='" + $("#linkInput").val() + "' target='_blank'>" + selectedTextBackup + "</a>";
       }
 
       // Overriding previous startIndex. It doesnt work with multi-line div
       startIndex = inputElement.next().val().indexOf(selectedTextBackup);
 
       // Make sure the text is not already a link
-      var regexSearch1 = escape('<a href=');
-      var regexSearch2 = escape('</a>');
-      var regExp = new RegExp('(' + regexSearch1 + ').*(' + escape(selectedTextBackup) + ').*(' + regexSearch2 + ')');
+      let regexSearch1 = escape('<a href=');
+      let regexSearch2 = escape('</a>');
+      let regExp = new RegExp('(' + regexSearch1 + ').*(' + escape(selectedTextBackup) + ').*(' + regexSearch2 + ')');
       if (!regExp.test(escape(inputElement.next().val()))) {
          if (startIndex !== -1) {
             // Replacing the html in input
-            var beforeLink = inputValue.substring(0, startIndex);
-            var afterLink = inputValue.substring(startIndex + selectedTextBackup.length);
-            var finalLink = beforeLink + linkA + afterLink;
+            let beforeLink = inputValue.substring(0, startIndex);
+            let afterLink = inputValue.substring(startIndex + selectedTextBackup.length);
+            let finalLink = beforeLink + linkA + afterLink;
             focusedInput.next().val(finalLink);
 
             // Refresh div
@@ -1633,7 +1681,7 @@ function inputToDiv(div) {
    setActualValue();
 }
 
-var notClicked = true;
+let notClicked = true;
 
 function showAllInput(button) {
    if (notClicked) {
@@ -1668,7 +1716,7 @@ function checkEnterKey(e) {
    }
 
    function selectAll(popupTextarea) {
-      popupTextarea.setSelectionRange(0, popupTextarea.value.length)
+      popupTextarea.setSelectionRange(0, popupTextarea.value.length);
    }
 
    $(function () {
@@ -1677,6 +1725,9 @@ function checkEnterKey(e) {
 
       // Clear the textarea in importTextarea (For some reason it having spaces onload)
       clearImportTextarea();
+
+      // On unfocus
+      $(window.document).on("focusout", "#linkInput", checkAndDisplayAlert);
 
       /*
       // hiding contextmenu on rightClick (Not working)
@@ -1697,21 +1748,21 @@ function checkEnterKey(e) {
 
             // Getting selection offset
             if (typeof window.getSelection != "undefined") {
-               var sel = window.getSelection();
+               let sel = window.getSelection();
                if (sel.rangeCount) {
                   startIndex = sel.focusOffset;
                }
             } else if (typeof document.selection != "undefined") {
-               if (document.selection.type == "Text") {
-                  startIndex = sel.focusOffset
+               if (window.document.selection.type == "Text") {
+                  startIndex = sel.focusOffset;
                }
             }
 
             // Get selected text
             if (window.getSelection) {
                selectedText = window.getSelection().toString();
-            } else if (document.selection && document.selection.type != "Control") {
-               selectedText = document.selection.createRange().text;
+            } else if (window.document.selection && window.document.selection.type != "Control") {
+               selectedText = window.document.selection.createRange().text;
             }
 
             // Show Menu if got value
@@ -1721,9 +1772,8 @@ function checkEnterKey(e) {
                   left: e.pageX,
                   top: e.pageY
                });
+               e.preventDefault();
             }
-
-            e.preventDefault();
          }, false);
       } else { // IE < 9
          $('body').on('contextmenu', '.inputDiv', function (e) {
@@ -1732,13 +1782,13 @@ function checkEnterKey(e) {
 
             // Getting selection offset
             if (typeof window.getSelection != "undefined") {
-               var sel = window.getSelection();
+               let sel = window.getSelection();
                if (sel.rangeCount) {
                   startIndex = sel.focusOffset;
                }
             } else if (typeof document.selection != "undefined") {
                if (document.selection.type == "Text") {
-                  startIndex = sel.focusOffset
+                  startIndex = sel.focusOffset;
                }
             }
 
@@ -1756,9 +1806,9 @@ function checkEnterKey(e) {
                   left: e.pageX,
                   top: e.pageY
                });
-            }
 
-            window.event.returnValue = false;
+               window.event.returnValue = false;
+            }
          });
       }
 
@@ -1786,7 +1836,7 @@ function checkEnterKey(e) {
    });
 
    // Function to convert rgb to hex so can set type=color
-   var hexDigits = new Array("0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e", "f");
+   let hexDigits = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e", "f"];
 
    // Function to convert rgb color to hex format
    function rgb2hex(rgb) {
@@ -1812,6 +1862,6 @@ function checkEnterKey(e) {
    // Decode html
    function htmlDecode(str) {
       return str.replace(/&#(\d+);?/g, function () {
-         return String.fromCharCode(arguments[1])
+         return String.fromCharCode(arguments[1]);
       });
    }

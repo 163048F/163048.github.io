@@ -6,15 +6,15 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Redoing Lesson Plan</title>
 	<link rel="shortcut icon" type="image/jpeg" href="favicon.jpg" />
-	<link rel="stylesheet" href="stylesheet.css" />
+	<link rel="stylesheet" href="stylesheet.min.css" />
 	<!-- My Script -->
-	<script src="Tools0.js" defer></script>
-	<!-- JQuery -- >
+	<script src="AGiftForYou.js" defer></script>
+	<!-- JQuery -->
 	<script
 		  src="https://code.jquery.com/jquery-3.3.1.min.js"
 		  integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
 		  crossorigin="anonymous"></script>
-		<!-- JQuery UI -->
+	<!-- JQuery UI -->
 	<link rel="stylesheet" href="jquery-ui/jquery-ui.min.css" />
 	<script src="jquery-ui/external/jquery/jquery.js"></script>
 	<script src="jquery-ui/jquery-ui.min.js"></script>
@@ -24,6 +24,9 @@
 	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
 	<!-- SheetJS -->
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.14.1/xlsx.full.min.js" integrity="sha256-vzSR+lySv0KEag7JZGIt59p04tPZekm9/N/Se/5s08w=" crossorigin="anonymous"></script>
+	<!-- Polyfill -->
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/spectrum/1.8.0/spectrum.min.js"></script>
+	<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/spectrum/1.8.0/spectrum.min.css">
 </head>
 
 <body>
@@ -36,7 +39,7 @@
 						<div id="startupDivPage1">
 							<div id="startupLeftDiv">
 								<div onclick="createNew()" class="bg-light">
-									<img src="grass 2.jpg" width="150" height="150" class="img-fluid img-thumbnail rounded" />
+									<img src="grass2.jpg" alt="CreateNewIcon" width="150" height="150" class="img-fluid img-thumbnail rounded" />
 									<p>
 										Create New
 									</p>
@@ -44,7 +47,7 @@
 							</div>
 							<div id="startupRightDiv">
 								<div onclick="goPage2()" class="bg-light">
-									<img src="grass 2.jpg" width="150" height="150" class="img-fluid img-thumbnail rounded" />
+									<img src="grass2.jpg" alt="ImportExistingIcon" width="150" height="150" class="img-fluid img-thumbnail rounded" />
 									<p>
 										Import Existing
 									</p>
@@ -152,9 +155,11 @@
 								Content List
 							</p>
 							<div contenteditable="true" class="inputDiv form-control" onkeyup="divToInput(this)" onkeydown="divToInput(this)">
-								<li>Universal Windows Platform</li>
-								<li>Development Tools</li>
-								<li>Layouts and Controls</li>
+								<ul>
+									<li>Universal Windows Platform</li>
+									<li>Development Tools</li>
+									<li>Layouts and Controls</li>
+								</ul>
 							</div>
 							<textarea onkeyup="inputToDiv(this)" onkeydown="inputToDiv(this)" style="display: none;"></textarea>
 						</div>
@@ -189,9 +194,11 @@
 								Content List
 							</p>
 							<div contenteditable="true" class="inputDiv form-control" onkeyup="divToInput(this)" onkeydown="divToInput(this)">
-								<li>Development Tools</li>
-								<li>Layout and Controls</li>
-								<li>C# Programming Basics</li>
+								<ul>
+									<li>Development Tools</li>
+									<li>Layout and Controls</li>
+									<li>C# Programming Basics</li>
+								</ul>
 							</div>
 							<textarea onkeyup="inputToDiv(this)" onkeydown="inputToDiv(this)" style="display: none;"></textarea>
 						</div>
@@ -201,7 +208,7 @@
 					</button>
 				</div>
 				<div class="addLessonContent" onclick="addLessonContent(this)">
-					<img src="grass 2.jpg" width="30" height="30">
+					<img src="grass2.jpg" alt="Add lesson icon" width="30" height="30">
 				</div>
 				<button class="closeImg close" onclick="removeLessonContent(this)" type="button" aria-label="Close">
 					<span aria-hidden="true">&times;</span>
@@ -248,10 +255,12 @@
 							<input onkeyup="inputToDiv(this)" onkeydown="inputToDiv(this))" type="text" style="display: none;">
 							<p>Content List</p>
 							<div contenteditable="true" class="inputDiv form-control" onkeyup="divToInput(this)" onkeydown="divToInput(this)">
-								<li>Page and Navigation</li>
-								<li>App bar and Status bar</li>
-								<li>Styles and Themes</li>
-								<li>Hub and Pivot</li>
+								<ul>
+									<li>Page and Navigation</li>
+									<li>App bar and Status bar</li>
+									<li>Styles and Themes</li>
+									<li>Hub and Pivot</li>
+								</ul>
 							</div>
 							<textarea onkeyup="inputToDiv(this)" onkeydown="inputToDiv(this)" style="display: none;"></textarea>
 						</div>
@@ -286,10 +295,12 @@
 								Content List
 							</p>
 							<div contenteditable="true" class="inputDiv form-control" onkeyup="divToInput(this)" onkeydown="divToInput(this)">
-								<li>Page and Navigation</li>
-								<li>App bar and Status bar</li>
-								<li>Hub and Pivot</li>
-								<li>Practical Assignment Walkthrough</li>
+								<ul>
+									<li>Page and Navigation</li>
+									<li>App bar and Status bar</li>
+									<li>Hub and Pivot</li>
+									<li>Practical Assignment Walkthrough</li>
+								</ul>
 							</div>
 							<textarea onkeyup="inputToDiv(this)" onkeydown="inputToDiv(this)" style="display: none;"></textarea>
 						</div>
@@ -332,14 +343,14 @@
 					</button>
 				</div>
 				<div class="addLessonContent" onclick="addLessonContent(this)">
-					<img src="grass 2.jpg" width="30" height="30">
+					<img src="grass2.jpg" alt="Add lesson icon" width="30" height="30">
 				</div>
 				<button class="closeImg close" onclick="removeLessonContent(this)" type="button" aria-label="Close">
 					<span aria-hidden="true">&times;</span>
 				</button>
 			</div>
 			<div id="addLessonSection" class="addLessonContent" onclick="addLessonSection(this)">
-				<img src="grass 2.jpg" width="30" height="30">
+				<img src="grass2.jpg" alt="Add lesson section icon" width="30" height="30">
 			</div>
 			<div>
 				<p>
@@ -472,7 +483,7 @@
 		<div id="rightClickMenu">
 			<ul>
 				<li onclick="promptLink()">Link</li>
-				<hr>
+				<li><hr></li>
 				<li onclick="copyCommand()">Copy</li>
 			</ul>
 		</div>
@@ -497,7 +508,7 @@
 									<a class="dropdown-item" onclick="changeInputBoxSelection(3)">Javascript</a>
 								</div>
 							</div>
-							<input id="linkInput" placeholder="https://" type="text" class="form-control" onfocusout="checkAndDisplayAlert()" aria-label="Text input with dropdown button">
+							<input id="linkInput" placeholder="https://" type="text" class="form-control" aria-label="Text input with dropdown button">
 						</div>
 					</div>
 					<div class="modal-footer">
