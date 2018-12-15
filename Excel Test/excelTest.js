@@ -9,7 +9,6 @@ function onChangeExcel(e) {
 
       var fileReader = new FileReader();
       fileReader.onload = function(e) {
-         console.log("Reading");
          var filename = file.name;
          // pre-process data
          var binary = "";
@@ -25,20 +24,30 @@ function onChangeExcel(e) {
             cellStyles: true
          });
 
+         // LessonPlanTemplate
+         var lessonPlanTemplate = document.createElement("div");
+         lessonPlanTemplate.id = "lessonPlanTemplate";
+
+         // Instructors
+         var instructors = document.createElement("p");
+         instructors.appendChild(document.createTextNode("Instructors Details"));
+         // Instructors Details
+         var instructorsDetails = document.createElement("div");
+
+         // Adding all classes
+         instructors.className = "bold underline";
+         instructorsDetails.id = "instructorsDetails";
+
          workbook.SheetNames.forEach(function(sheetName) {
-            var isTitle = false;
-            var titleValue = "";
             var subtitleValue = "";
             var first = true;
 
             var sheet = workbook.Sheets[sheetName];
             var range = XLSX.utils.decode_range(sheet['!ref']);
             for(var rows = range.s.r; rows <= range.e.r; rows++) {
-               for(var columns = range.s.r; columns <= range.e.c; columns++) {
+               for(var columns = range.s.c; columns <= range.e.c; columns++) {
                   var rowsAt = -1;
 
-                  console.log("Row: " + rows);
-                  console.log("Column: " + columns);
                   var cellRef = XLSX.utils.encode_cell({c:columns, r:rows});
                   if(!sheet[cellRef]) {
                      continue;
@@ -48,45 +57,41 @@ function onChangeExcel(e) {
 
                   // Processing
                   if(x.indexOf("Week") !== -1) {
-                     console.log(x + " is Week");
                      rowsAt = rows;
                   }else if(x.indexOf("Lecture") !== -1) {
-                     console.log(x + " is Lecture");
                      rowsAt = rows;
                   }else if(x.indexOf("Practical") !== -1) {
-                     console.log(x + " is Practical");
                      rowsAt = rows;
                   }else if(x.indexOf("Tutorial") !== -1) {
-                     console.log(x + " is Tutorial");
                      rowsAt = rows;
                   }else if(x.indexOf("Remark") !== -1) {
-                     console.log(x + " is Remark");
                      rowsAt = rows;
                   }else {
-                     console.log(x + " is (probably) Remark");
+                     console.log(x + " is (probably) Title/Subtitle");
                   }
 
                   // If hit something
                   if(rowsAt >= 0) {
+                     // Add title and subTitle
+                     $(instructorsDetails).html(subtitleValue);
+                     // Appending Everything
+                     lessonPlanTemplate.append(instructors);
+                     lessonPlanTemplate.append(instructorsDetails);
                      // Call function to get all things
-                     alert("Going into function");
-                     getAllExcelValues(sheet, range, rows);
+                     getAllExcelValues(sheet, range, rows, lessonPlanTemplate);
                      // Breaking loop
                      rows = range.e.r;
                      break;
                   }else {
-                     if(!isTitle && x) {
-                        titleValue = x;
-                     }else if(isTitle && x) {
+                     if(x) {
                         if(first) {
-                           subTitle += x;
+                           subtitleValue = "<p>" + x + "</p>";
+                           first = false;
                         }else {
-                           subTitle += "\n" + x;
+                           subtitleValue += "<p>" + x + "</p>";
                         }
                      }
-
                   }
-                  console.log(x);
                }
             }
          });
@@ -95,11 +100,10 @@ function onChangeExcel(e) {
    }
 }
 
-function getAllExcelValues(sheet, range, row){
+function getAllExcelValues(sheet, range, row, lessonPlanTemplate){
    // Map the columns first
    var columnMapping = {"week": -1, "lecture": -1, "practical": -1, "tutorial": -1, "remark": -1};
-   for(var columns = range.s.r; columns <= range.e.c; columns++) {
-      console.log(columns);
+   for(var columns = range.s.c; columns <= range.e.c; columns++) {
       var cellRef = XLSX.utils.encode_cell({c:columns, r:row});
       if(!sheet[cellRef]) {
          continue;
@@ -109,19 +113,16 @@ function getAllExcelValues(sheet, range, row){
 
       if(x.indexOf("Week") !== -1) {
          columnMapping.week = columns;
-         console.log("Week: " + columns);
       }else if(x.indexOf("Lecture") !== -1) {
          columnMapping.lecture = columns;
-         console.log("Lecture: " + columns);
       }else if(x.indexOf("Practical") !== -1) {
          columnMapping.practical = columns;
-         console.log("Practical: " + columns);
       }else if(x.indexOf("Tutorial") !== -1) {
          columnMapping.tutorial = columns;
-         console.log("Tutorial: " + columns);
       }
    }
 
+   var footerSeperation = -1;
    // Use the mapped column and start processing
    for(var rows = (row + 1); rows <= range.e.r; rows++) {
       // Create Lesson
@@ -143,6 +144,8 @@ function getAllExcelValues(sheet, range, row){
       lessonHeader.appendChild(lessonSubtitle);
       lesson.appendChild(lessonHeader);
 
+      // Checking if entire row is empty
+      var isBlank = true;
       for(var columns = range.s.c; columns <= range.e.c; columns++) {
          //Mapping column and rows
          var cellRef = XLSX.utils.encode_cell({c:columns, r:rows});
@@ -151,11 +154,21 @@ function getAllExcelValues(sheet, range, row){
          }
          var cell = sheet[cellRef];
          var x = String(cell.v);
+         isBlank = false;
 
          // Checking title
          if(columns === columnMapping.week) {
             // LessonTitle = week
-            $(lessonTitle).html("Week " + x);
+            // Checking whether is link
+            if(cell.l) {
+               if(typeof cell.v == "number") {
+                  $(lessonTitle).html("<a href='" + cell.l.target + "' target='_blank'>Week " + cell.v + "</a>");
+               }else {
+                  $(lessonTitle).html("<a href='" + cell.l.target + "' target='_blank'>" + cell.v + "</a>");
+               }
+            }else {
+               $(lessonTitle).html("Week " + x);
+            }
          }else{
             // lecPracHeader
             var lecPracHeader = document.createElement("div");
@@ -192,11 +205,21 @@ function getAllExcelValues(sheet, range, row){
             }
 
             // ContentList = value
-            var lines = "";
             var xArray = x.trim().split("\n");
-            for(var i = 0; i < xArray.length; i++) {
-               lines += "<li>" + xArray[i] + "</li>";
+            // Checking whether is link
+            if(cell.l) {
+               xArray = cell.v.trim().split("\n");
+               var lines = "";
+               for(var i = 0; i < xArray.length; i++) {
+                  lines += "<li><a href='" + cell.l.target + "'>" + xArray[i] + "</a></li>";
+               }
+            }else {
+               var lines = "";
+               for(var i = 0; i < xArray.length; i++) {
+                  lines += "<li>" + xArray[i] + "</li>";
+               }
             }
+
             $(lessonPlanContentListUl).html(lines);
 
             // Appending Everything
@@ -210,7 +233,47 @@ function getAllExcelValues(sheet, range, row){
          }
 
          // Appending lesson to Page2
-         $("#page2").append(lesson);
+         lessonPlanTemplate.appendChild(lesson);
+      }
+
+      if(isBlank) {
+         footerSeperation = (rows + 1);
+         break;
       }
    }
+
+   // Get footer
+   if(footerSeperation > 0 && footerSeperation <= range.e.r) {
+      var first = true;
+      // Footer
+      var lessonPlanFooter = document.createElement("p");
+      var footerValue = "";
+
+      // Adding all classes
+      lessonPlanFooter.className = "sub";
+
+      for(var rows = footerSeperation; rows <= range.e.r; rows++) {
+         for(var columns = range.s.c; columns <= range.e.c; columns++) {
+            var cellRef = XLSX.utils.encode_cell({c:columns, r:rows});
+            if(!sheet[cellRef]) {
+               continue;
+            }
+            var cell = sheet[cellRef];
+            var x = String(cell.v);
+            if(first) {
+               footerValue = x;
+               first = false;
+            }else {
+               footerValue += "<br />" + x;
+            }
+         }
+      }
+
+      // Setting footer value
+      $(lessonPlanFooter).html(footerValue);
+      // Appending Footer
+      lessonPlanTemplate.appendChild(lessonPlanFooter);
+   }
+
+   $("#outputTextarea").val(lessonPlanTemplate.outerHTML);
 }

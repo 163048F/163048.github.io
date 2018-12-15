@@ -4,15 +4,15 @@ var startIndex;
 var shouldGoBackHide = 0;
 
 function goPage2() {
-   $("#carousel").carousel('next');
-   $("#carousel").carousel('pause');
+   $("#carousel").carousel("next");
+   $("#carousel").carousel("pause");
    $(".carousel-control-prev").css("display", "flex");
    shouldGoBackHide++;
 }
 
 function goPage3(lessonPlanTemplateDiv) {
-   $("#carousel").carousel('next');
-   $("#carousel").carousel('pause');
+   $("#carousel").carousel("next");
+   $("#carousel").carousel("pause");
    $(".carousel-control-prev").css("display", "flex");
    shouldGoBackHide++;
 
@@ -28,8 +28,8 @@ function goBack() {
    closeAlert();
 
    // Previous slide
-   $("#carousel").carousel('prev');
-   $("#carousel").carousel('pause');
+   $("#carousel").carousel("prev");
+   $("#carousel").carousel("pause");
 
    // Hide back arrow when on first page
    shouldGoBackHide--;
@@ -50,7 +50,7 @@ function createNew() {
 
 function closeAlert() {
    // Hiding alerts
-   $('.alert').alert('close');
+   $(".alert").alert("close");
 }
 
 function checkTextIsCorrect() {
@@ -97,7 +97,7 @@ function checkTextIsCorrect() {
             alertBoxP.appendChild(document.createTextNode("'id=#lessonPlanTemplate' div is empty. Make sure you entered/uploaded correctly"));
             $("#startupDivPage2 > div").prepend(alertBox);
 
-            $("#page2Error").slideDown(function() {
+            $("#page2Error").slideDown(function () {
                alertBox.style.display = "flex";
             });
          }
@@ -105,7 +105,7 @@ function checkTextIsCorrect() {
          alertBoxP.appendChild(document.createTextNode("'id=#lessonPlanTemplate' div missing. Make sure you entered/uploaded correctly"));
          $("#startupDivPage2 > div").prepend(alertBox);
 
-         $("#page2Error").slideDown(function() {
+         $("#page2Error").slideDown(function () {
             alertBox.style.display = "flex";
          });
       }
@@ -113,7 +113,7 @@ function checkTextIsCorrect() {
       alertBoxP.appendChild(document.createTextNode("Make sure you entered/uploaded something"));
       $("#startupDivPage2 > div").prepend(alertBox);
 
-      $("#page2Error").slideDown(function() {
+      $("#page2Error").slideDown(function () {
          alertBox.style.display = "flex";
       });
    }
@@ -158,7 +158,7 @@ function fileMatchesLayout(readerResult) {
             alertBoxP.appendChild(document.createTextNode("'id=#lessonPlanTemplate' div is empty. Make sure you entered/uploaded correctly"));
             $("#startupDivPage2 > div").prepend(alertBox);
 
-            $("#page2Error").slideDown(function() {
+            $("#page2Error").slideDown(function () {
                alertBox.style.display = "flex";
             });
          }
@@ -166,7 +166,7 @@ function fileMatchesLayout(readerResult) {
          alertBoxP.appendChild(document.createTextNode("'id=#lessonPlanTemplate' div missing. Make sure you entered/uploaded correctly"));
          $("#startupDivPage2 > div").prepend(alertBox);
 
-         $("#page2Error").slideDown(function() {
+         $("#page2Error").slideDown(function () {
             alertBox.style.display = "flex";
          });
       }
@@ -174,7 +174,7 @@ function fileMatchesLayout(readerResult) {
       alertBoxP.appendChild(document.createTextNode("Make sure you entered/uploaded something"));
       $("#startupDivPage2 > div").prepend(alertBox);
 
-      $("#page2Error").slideDown(function() {
+      $("#page2Error").slideDown(function () {
          alertBox.style.display = "flex";
       });
    }
@@ -222,28 +222,331 @@ function drop(ev) {
    var file = ev.dataTransfer.files[0];
    var fileReader = new FileReader();
    // Make sure only .html and .txt is accepted
-   if (file.type.match('text/plain') || file.type.match('text/html')) {
-      fileReader.onload = function() {
+   if (file.type.match("text/plain") || file.type.match("text/html")) {
+      fileReader.onload = function () {
          var readerResult = fileReader.result;
          if (fileMatchesLayout(readerResult)) {
             $("#importTextarea").val(readerResult);
          }
       };
-      fileReader.onprogress = function(data) {
+      fileReader.onprogress = function (data) {
          if (data.lengthComputable) {
             var progress = parseInt(((data.loaded / data.total) * 100), 10);
             $(".progress-bar").css("width", progress + "%");
             console.log(progress);
          }
       }
-      fileReader.onloadend = function() {
+      fileReader.onloadend = function () {
          $(".progress-bar")[0].classList.remove("progress-bar-animated");
       }
+   } else if (file.type.match("application/vnd.ms-excel") || file.type.match("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")) {
+      dragAndDropExcel(file);
    } else {
       alert("Only .html & .txt accepted format");
    }
 
    fileReader.readAsText(file);
+}
+
+function dragAndDropExcel(file) {
+   var fileReader = new FileReader();
+   fileReader.onload = function (e) {
+      var filename = file.name;
+      // pre-process data
+      var binary = "";
+      var bytes = new Uint8Array(e.target.result);
+      var length = bytes.byteLength;
+      for (var i = 0; i < length; i++) {
+         binary += String.fromCharCode(bytes[i]);
+      }
+      // call 'xlsx' to read the file
+      var workbook = XLSX.read(binary, {
+         type: "binary",
+         cellDates: true,
+         cellStyles: true
+      });
+
+      // LessonPlanTemplate
+      var lessonPlanTemplate = document.createElement("div");
+      lessonPlanTemplate.id = "lessonPlanTemplate";
+
+      // Instructors
+      var instructors = document.createElement("p");
+      instructors.appendChild(document.createTextNode("Instructors Details"));
+      // Instructors Details
+      var instructorsDetails = document.createElement("div");
+
+      // Adding all classes
+      instructors.className = "bold underline";
+      instructorsDetails.id = "instructorsDetails";
+
+      workbook.SheetNames.forEach(function (sheetName) {
+         var subtitleValue = "";
+         var first = true;
+
+         var sheet = workbook.Sheets[sheetName];
+         var range = XLSX.utils.decode_range(sheet["!ref"]);
+         for (var rows = range.s.r; rows <= range.e.r; rows++) {
+            for (var columns = range.s.c; columns <= range.e.c; columns++) {
+               var rowsAt = -1;
+
+               var cellRef = XLSX.utils.encode_cell({
+                  c: columns,
+                  r: rows
+               });
+               if (!sheet[cellRef]) {
+                  continue;
+               }
+               var cell = sheet[cellRef];
+               var x = String(cell.v);
+
+               // Processing
+               if (x.indexOf("Week") !== -1) {
+                  rowsAt = rows;
+               } else if (x.indexOf("Lecture") !== -1) {
+                  rowsAt = rows;
+               } else if (x.indexOf("Practical") !== -1) {
+                  rowsAt = rows;
+               } else if (x.indexOf("Tutorial") !== -1) {
+                  rowsAt = rows;
+               } else if (x.indexOf("Remark") !== -1) {
+                  rowsAt = rows;
+               } else {
+                  console.log(x + " is (probably) Title/Subtitle");
+               }
+
+               // If hit something
+               if (rowsAt >= 0) {
+                  // Add title and subTitle
+                  $(instructorsDetails).html(subtitleValue);
+                  // Appending Everything
+                  lessonPlanTemplate.append(instructors);
+                  lessonPlanTemplate.append(instructorsDetails);
+                  // Call function to get all things
+                  getAllExcelValues(sheet, range, rows, lessonPlanTemplate);
+                  // Breaking loop
+                  rows = range.e.r;
+                  break;
+               } else {
+                  if (x) {
+                     if (first) {
+                        subtitleValue = "<p>" + x + "</p>";
+                        first = false;
+                     } else {
+                        subtitleValue += "<p>" + x + "</p>";
+                     }
+                  }
+               }
+            }
+         }
+      });
+   };
+
+   fileReader.onprogress = function (data) {
+      if (data.lengthComputable) {
+         var progress = parseInt(((data.loaded / data.total) * 100), 10);
+         $(".progress-bar").css("width", progress + "%");
+         console.log(progress);
+      }
+   }
+   fileReader.onloadend = function () {
+      $(".progress-bar")[0].classList.remove("progress-bar-animated");
+   }
+
+   fileReader.readAsArrayBuffer(file);
+}
+
+function getAllExcelValues(sheet, range, row, lessonPlanTemplate) {
+   // Map the columns first
+   var columnMapping = {
+      "week": -1,
+      "lecture": -1,
+      "practical": -1,
+      "tutorial": -1,
+      "remark": -1
+   };
+   for (var columns = range.s.c; columns <= range.e.c; columns++) {
+      var cellRef = XLSX.utils.encode_cell({
+         c: columns,
+         r: row
+      });
+      if (!sheet[cellRef]) {
+         continue;
+      }
+      var cell = sheet[cellRef];
+      var x = String(cell.v);
+
+      if (x.indexOf("Week") !== -1) {
+         columnMapping.week = columns;
+      } else if (x.indexOf("Lecture") !== -1) {
+         columnMapping.lecture = columns;
+      } else if (x.indexOf("Practical") !== -1) {
+         columnMapping.practical = columns;
+      } else if (x.indexOf("Tutorial") !== -1) {
+         columnMapping.tutorial = columns;
+      }
+   }
+
+   var footerSeperation = -1;
+   // Use the mapped column and start processing
+   for (var rows = (row + 1); rows <= range.e.r; rows++) {
+      // Create Lesson
+      var lesson = document.createElement("div");
+      var lessonHeader = document.createElement("div");
+      // Lesson Title
+      var lessonTitle = document.createElement("p");
+      // Lesson Subtitle
+      var lessonSubtitle = document.createElement("p");
+
+      // Adding all classes
+      lesson.className = "lesson";
+      lessonHeader.className = "lessonHeader";
+      lessonTitle.className = "bold";
+      lessonSubtitle.className = "em";
+
+      // Appending Lesson header before loop
+      lessonHeader.appendChild(lessonTitle);
+      lessonHeader.appendChild(lessonSubtitle);
+      lesson.appendChild(lessonHeader);
+
+      // Checking if entire row is empty
+      var isBlank = true;
+      for (var columns = range.s.c; columns <= range.e.c; columns++) {
+         //Mapping column and rows
+         var cellRef = XLSX.utils.encode_cell({
+            c: columns,
+            r: rows
+         });
+         if (!sheet[cellRef]) {
+            continue;
+         }
+         var cell = sheet[cellRef];
+         var x = String(cell.v);
+         isBlank = false;
+
+         // Checking title
+         if (columns === columnMapping.week) {
+            // LessonTitle = week
+            // Checking whether is link
+            if (cell.l) {
+               if (typeof cell.v == "number") {
+                  $(lessonTitle).html("<a href='" + cell.l.target + "' target='_blank'>Week " + cell.v + "</a>");
+               } else {
+                  $(lessonTitle).html("<a href='" + cell.l.target + "' target='_blank'>" + cell.v + "</a>");
+               }
+            } else {
+               $(lessonTitle).html("Week " + x);
+            }
+         } else {
+            // lecPracHeader
+            var lecPracHeader = document.createElement("div");
+            // LecPracDiv
+            var lecPracDiv = document.createElement("div");
+            var lecPracDivP = document.createElement("p");
+            lecPracDiv.appendChild(lecPracDivP);
+            // Lesson Plan Content
+            var lessonPlanContent = document.createElement("div");
+            // Lesson Plan Content Title
+            var lessonPlanContentTitleP = document.createElement("p");
+            // Lesson Plan Content List
+            var lessonPlanContentListUl = document.createElement("ul");
+
+            // Adding all classes
+            lecPracHeader.className = "lecPracHeader";
+            lecPracDiv.className = "lecPracDiv";
+            lecPracDivP.className = "bold";
+            lessonPlanContent.className = "lessonPlanContent";
+            lessonPlanContentTitleP.className = "lessonPlanContentP";
+
+            if (columns === columnMapping.lecture) {
+               // LecPracDiv = L
+               $(lecPracDivP).html("L");
+            } else if (columns === columnMapping.practical) {
+               // LecPracDiv = P
+               $(lecPracDivP).html("P");
+            } else if (columns === columnMapping.tutorial) {
+               // LecPracDiv = T
+               $(lecPracDivP).html("T");
+            } else {
+               // LecPracDiv = R
+               $(lecPracDivP).html("R");
+            }
+
+            // ContentList = value
+            var xArray = x.trim().split("\n");
+            // Checking whether is link
+            if (cell.l) {
+               xArray = cell.v.trim().split("\n");
+               var lines = "";
+               for (var i = 0; i < xArray.length; i++) {
+                  lines += "<li><a href='" + cell.l.target + "'>" + xArray[i] + "</a></li>";
+               }
+            } else {
+               var lines = "";
+               for (var i = 0; i < xArray.length; i++) {
+                  lines += "<li>" + xArray[i] + "</li>";
+               }
+            }
+
+            $(lessonPlanContentListUl).html(lines);
+
+            // Appending Everything
+            lessonPlanContent.appendChild(lessonPlanContentTitleP);
+            lessonPlanContent.appendChild(lessonPlanContentListUl);
+            lecPracHeader.appendChild(lecPracDiv);
+            lecPracHeader.appendChild(lessonPlanContent);
+
+            // Appending to lesson
+            lesson.appendChild(lecPracHeader);
+         }
+
+         // Appending lesson to Page2
+         lessonPlanTemplate.appendChild(lesson);
+      }
+
+      if (isBlank) {
+         footerSeperation = (rows + 1);
+         break;
+      }
+   }
+
+   // Get footer
+   if (footerSeperation > 0 && footerSeperation <= range.e.r) {
+      var first = true;
+      // Footer
+      var lessonPlanFooter = document.createElement("p");
+      var footerValue = "";
+
+      // Adding all classes
+      lessonPlanFooter.className = "sub";
+
+      for (var rows = footerSeperation; rows <= range.e.r; rows++) {
+         for (var columns = range.s.c; columns <= range.e.c; columns++) {
+            var cellRef = XLSX.utils.encode_cell({
+               c: columns,
+               r: rows
+            });
+            if (!sheet[cellRef]) {
+               continue;
+            }
+            var cell = sheet[cellRef];
+            var x = String(cell.v);
+            if (first) {
+               footerValue = x;
+               first = false;
+            } else {
+               footerValue += "<br />" + x;
+            }
+         }
+      }
+
+      // Setting footer value
+      $(lessonPlanFooter).html(footerValue);
+      // Appending Footer
+      lessonPlanTemplate.appendChild(lessonPlanFooter);
+   }
+
+   $("#importTextarea").val(lessonPlanTemplate.outerHTML);
 }
 
 function clearImportTextarea() {
@@ -258,9 +561,10 @@ function makeSortable() {
       items: ".contentDivDiv",
       handle: ".contentDivDivDraggableDiv",
       cancel: ".inputDiv, textarea, input, button",
-      update: function() {
+      update: function () {
          setActualValue()
       },
+      axis: "y",
       cursor: "move",
       opacity: 0.5
    });
@@ -347,7 +651,7 @@ function addLessonContent(addLessonDiv) {
 
    $(page1ContentListTextareaDiv).html("<li><br></li>");
    // Prevent backspace
-   $(page1ContentListTextareaDiv).keydown(function(e) {
+   $(page1ContentListTextareaDiv).keydown(function (e) {
       // trap the return key being pressed
       if (e.keyCode === 8) {
          if ($(this).html() === "<li><br></li>") {
@@ -373,12 +677,16 @@ function addLessonContent(addLessonDiv) {
    var tutorialT = document.createElement("option");
    tutorialT.appendChild(document.createTextNode("Tutorial"));
    tutorialT.setAttribute("value", "T");
+   var remarkR = document.createElement("option");
+   remarkR.appendChild(document.createTextNode("Remark"));
+   remarkR.setAttribute("value", "R");
    var inCourseAssICA = document.createElement("option");
    inCourseAssICA.appendChild(document.createTextNode("In Course Assessment"));
    inCourseAssICA.setAttribute("value", "ICA");
    leftDivTextInput.appendChild(lectureL);
    leftDivTextInput.appendChild(practicalP);
    leftDivTextInput.appendChild(tutorialT);
+   leftDivTextInput.appendChild(remarkR);
    leftDivTextInput.appendChild(inCourseAssICA);
 
    leftDivP.appendChild(document.createTextNode("Lecture/Practical/something"));
@@ -531,7 +839,7 @@ function addLessonSection(addSectionDiv) {
 
    $(page1ContentListTextareaDiv).html("<li><br></li>");
    // Prevent backspace
-   $(page1ContentListTextareaDiv).keydown(function(e) {
+   $(page1ContentListTextareaDiv).keydown(function (e) {
       // trap the return key being pressed
       if (e.keyCode === 8) {
          if ($(this).html() === "<li><br></li>") {
@@ -565,12 +873,16 @@ function addLessonSection(addSectionDiv) {
    var tutorialT = document.createElement("option");
    tutorialT.appendChild(document.createTextNode("Tutorial"));
    tutorialT.setAttribute("value", "T");
+   var remarkR = document.createElement("option");
+   remarkR.appendChild(document.createTextNode("Remark"));
+   remarkR.setAttribute("value", "R");
    var inCourseAssICA = document.createElement("option");
    inCourseAssICA.appendChild(document.createTextNode("In Course Assessment"));
    inCourseAssICA.setAttribute("value", "ICA");
    leftDivTextInput.appendChild(lectureL);
    leftDivTextInput.appendChild(practicalP);
    leftDivTextInput.appendChild(tutorialT);
+   leftDivTextInput.appendChild(remarkR);
    leftDivTextInput.appendChild(inCourseAssICA);
 
    leftDivP.appendChild(document.createTextNode("Lecture/Practical/something"));
@@ -651,11 +963,11 @@ function recreatePage1() {
 
    // -- Paragraph --
    // Div
-   var paragraphInput = $("#page2 > #lessonPlanTemplate > #instructorsDetails").html().trim().replace(/\t/g, '');
+   var paragraphInput = $("#page2 > #lessonPlanTemplate > #instructorsDetails").html().trim().replace(/\t/g, "");
    $(page1ParagraphTextareaDiv).html(paragraphInput);
 
    // Prevent backspace
-   $(page1ParagraphTextareaDiv).keydown(function(e) {
+   $(page1ParagraphTextareaDiv).keydown(function (e) {
       // trap the return key being pressed
       if (e.keyCode === 8) {
          if ($(this).html() === "<p><br></p>") {
@@ -677,7 +989,7 @@ function recreatePage1() {
    $("#page1").append(page1Section);
 
    // Main Section
-   $(".lesson").each(function() {
+   $(".lesson").each(function () {
       // Creating mainSection
       var mainSection = document.createElement("div");
       mainSection.className = "mainSection section";
@@ -729,7 +1041,7 @@ function recreatePage1() {
       mainSection.appendChild(lessonSection);
 
       // ContentDivDiv
-      $(this).find(".lecPracHeader").each(function() {
+      $(this).find(".lecPracHeader").each(function () {
          // Creating contentDivDiv
          var contentDivDiv = document.createElement("div");
          contentDivDiv.className = "section contentDivDiv";
@@ -764,12 +1076,16 @@ function recreatePage1() {
          var tutorialT = document.createElement("option");
          tutorialT.appendChild(document.createTextNode("Tutorial"));
          tutorialT.setAttribute("value", "T");
+         var remarkR = document.createElement("option");
+         remarkR.appendChild(document.createTextNode("Remark"));
+         remarkR.setAttribute("value", "R");
          var inCourseAssICA = document.createElement("option");
          inCourseAssICA.appendChild(document.createTextNode("In Course Assessment"));
          inCourseAssICA.setAttribute("value", "ICA");
          leftDivTextInput.appendChild(lectureL);
          leftDivTextInput.appendChild(practicalP);
          leftDivTextInput.appendChild(tutorialT);
+         leftDivTextInput.appendChild(remarkR);
          leftDivTextInput.appendChild(inCourseAssICA);
          $(leftDivTextInput).val($(this).find(".lecPracDiv :first-child").text());
          // Lecture Color
@@ -824,12 +1140,12 @@ function recreatePage1() {
          page1ContentListTextarea.setAttribute("onkeydown", "inputToDiv(this)");
          $(page1ContentListTextarea).css("display", "none"); // Hiding real input
          // Content List
-         var lessonContentText = $(this).find(".lessonPlanContent ul").html().trim().replace(/\t/g, '');
+         var lessonContentText = $(this).find(".lessonPlanContent ul").html().trim().replace(/\t/g, "");
          $(page1ContentListTextareaDiv).html(lessonContentText);
          $(page1ContentListTextarea).val(lessonContentText);
 
          // Prevent backspace
-         $(page1ContentListTextareaDiv).keydown(function(e) {
+         $(page1ContentListTextareaDiv).keydown(function (e) {
             // trap the return key being pressed
             if (e.keyCode === 8) {
                if ($(this).html() === "<li><br></li>") {
@@ -995,7 +1311,7 @@ function recreatePage2() {
    lessonPlanTemplate.append(instructorsDetails);
 
    // Loop MainSection
-   $(".mainSection").each(function() {
+   $(".mainSection").each(function () {
       // Create Lesson
       var lesson = document.createElement("div");
       var lessonHeader = document.createElement("div");
@@ -1018,7 +1334,7 @@ function recreatePage2() {
       lesson.appendChild(lessonHeader);
 
       // Loop All LecPracheader
-      $(this).find(".contentDivDiv").each(function() {
+      $(this).find(".contentDivDiv").each(function () {
          // lesPracHeader
          var lecPracHeader = document.createElement("div");
          // LecPracDiv
@@ -1126,32 +1442,32 @@ function changeInputBoxSelection(number) {
    var dropdownDiv = $("#linkBoxOptions");
    var linkInput = $("#linkInput");
    switch (number) {
-      case 1:
-         dropdownDiv.text("Webpage");
-         linkInput[0].setAttribute("placeholder", "https://");
-         linkInput.val("");
-         $(".dropdown-menu > a:first-child")[0].classList.add("active");
-         break;
-      case 2:
-         dropdownDiv.text("Email");
-         linkInput[0].setAttribute("placeholder", "example@nyp.edu.sg");
-         var emailRegex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
-         if (emailRegex.test(selectedText)) {
-            linkInput.val(htmlEncode(selectedText));
-         }
-         $(".dropdown-menu > a:nth-child(2)")[0].classList.add("active");
-         break;
-      case 3:
-         dropdownDiv.text("Javascript");
-         linkInput[0].setAttribute("placeholder", "alert('Hello')");
-         linkInput.val("");
-         $(".dropdown-menu > a:nth-child(4)")[0].classList.add("active");
-         break;
+   case 1:
+      dropdownDiv.text("Webpage");
+      linkInput[0].setAttribute("placeholder", "https://");
+      linkInput.val("");
+      $(".dropdown-menu > a:first-child")[0].classList.add("active");
+      break;
+   case 2:
+      dropdownDiv.text("Email");
+      linkInput[0].setAttribute("placeholder", "example@nyp.edu.sg");
+      var emailRegex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+      if (emailRegex.test(selectedText)) {
+         linkInput.val(htmlEncode(selectedText));
+      }
+      $(".dropdown-menu > a:nth-child(2)")[0].classList.add("active");
+      break;
+   case 3:
+      dropdownDiv.text("Javascript");
+      linkInput[0].setAttribute("placeholder", "alert('Hello')");
+      linkInput.val("");
+      $(".dropdown-menu > a:nth-child(4)")[0].classList.add("active");
+      break;
    }
 }
 
 function checkAndDisplayAlert() {
-	// Creating alert
+   // Creating alert
    var alertBox = document.createElement("div");
    alertBox.className = "alert alert-warning fade show";
    alertBox.id = "linkBoxAlertError";
@@ -1172,30 +1488,30 @@ function checkAndDisplayAlert() {
    alertBox.appendChild(alertBoxP);
    alertBox.appendChild(alertBoxButtonDiv);
 
-	// Checking value
-	var inputValue = $("#linkInput").val();
-	var dropdownDivText = $("#linkBoxOptions").text();
+   // Checking value
+   var inputValue = $("#linkInput").val();
+   var dropdownDivText = $("#linkBoxOptions").text();
    if (dropdownDivText === "Webpage") {
-		var urlRegex = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/
+      var urlRegex = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/
 
-		// If entered text doesnt match url regex, ask for confirmation
-		if (!urlRegex.test(inputValue)) {
-			closeAlert();
-			alertBoxP.appendChild(document.createTextNode("The URL entered does not match the format."));
-			$("#linkBox > .modal-content > .modal-body").prepend(alertBox);
-		}else {
-			closeAlert();
-		}
+      // If entered text doesnt match url regex, ask for confirmation
+      if (!urlRegex.test(inputValue)) {
+         closeAlert();
+         alertBoxP.appendChild(document.createTextNode("The URL entered does not match the format."));
+         $("#linkBox > .modal-content > .modal-body").prepend(alertBox);
+      } else {
+         closeAlert();
+      }
    } else if (dropdownDivText === "Email") {
-		var emailRegex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+      var emailRegex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
 
-		if (!emailRegex.test(inputValue)) {
-			closeAlert();
-			alertBoxP.appendChild(document.createTextNode("The email entered does not match the format."));
-			$("#linkBox > .modal-content > .modal-body").prepend(alertBox);
-		}else {
-			closeAlert();
-		}
+      if (!emailRegex.test(inputValue)) {
+         closeAlert();
+         alertBoxP.appendChild(document.createTextNode("The email entered does not match the format."));
+         $("#linkBox > .modal-content > .modal-body").prepend(alertBox);
+      } else {
+         closeAlert();
+      }
    }
 
 }
@@ -1215,7 +1531,7 @@ function whichLinkSelection() {
 }
 
 function convertToLink() {
-	closeAlert();
+   closeAlert();
    // Creating alert
    var alertBox = document.createElement("div");
    alertBox.className = "alert alert-danger fade show";
@@ -1246,23 +1562,23 @@ function convertToLink() {
 
          // If entered text doesnt match url regex, ask for confirmation
          if (!urlRegex.test(linkEntered) && !confirm("The URL entered does not match the format. Do you want to continue?")) {
-				alertBoxP.appendChild(document.createTextNode("The URL entered does not match the format."));
-				alertBox.className = "alert alert-warning fade show";
-				$("#linkBox > .modal-content > .modal-body").prepend(alertBox);
-				// Break if "Doesnt Match" and "Cancel"
+            alertBoxP.appendChild(document.createTextNode("The URL entered does not match the format."));
+            alertBox.className = "alert alert-warning fade show";
+            $("#linkBox > .modal-content > .modal-body").prepend(alertBox);
+            // Break if "Doesnt Match" and "Cancel"
             return false;
          }
-      }else if(whichLinkSelection() === "mailto:") {
-			var emailRegex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+      } else if (whichLinkSelection() === "mailto:") {
+         var emailRegex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
 
-			if (!emailRegex.test(selectedText) && !confirm("The email entered does not match the format. Do you want to continue?")) {
-				alertBoxP.appendChild(document.createTextNode("The email entered does not match the format."));
-				alertBox.className = "alert alert-warning fade show";
-				$("#linkBox > .modal-content > .modal-body").prepend(alertBox);
-				// Break if "Doesnt Match" and "Cancel"
+         if (!emailRegex.test(selectedText) && !confirm("The email entered does not match the format. Do you want to continue?")) {
+            alertBoxP.appendChild(document.createTextNode("The email entered does not match the format."));
+            alertBox.className = "alert alert-warning fade show";
+            $("#linkBox > .modal-content > .modal-body").prepend(alertBox);
+            // Break if "Doesnt Match" and "Cancel"
             return false;
          }
-		}
+      }
       var selectedTextBackup = htmlEncode(selectedText);
       var inputElement = focusedInput;
       var inputValue = inputElement.html();
@@ -1292,18 +1608,18 @@ function convertToLink() {
 
             setActualValue();
          } else {
-				alertBoxP.appendChild(document.createTextNode("Error! Make sure the text selected is not overlapping with another link."));
-				$("#linkBox > .modal-content > .modal-body").prepend(alertBox);
-			}
+            alertBoxP.appendChild(document.createTextNode("Error! Make sure the text selected is not overlapping with another link."));
+            $("#linkBox > .modal-content > .modal-body").prepend(alertBox);
+         }
       } else {
-			alertBoxP.appendChild(document.createTextNode("Error! You already made this a link."));
-			$("#linkBox > .modal-content > .modal-body").prepend(alertBox);
+         alertBoxP.appendChild(document.createTextNode("Error! You already made this a link."));
+         $("#linkBox > .modal-content > .modal-body").prepend(alertBox);
       }
 
       hideLinkBox();
    } else {
-		alertBoxP.appendChild(document.createTextNode("Please enter a link."));
-		$("#linkBox > .modal-content > .modal-body").prepend(alertBox);
+      alertBoxP.appendChild(document.createTextNode("Please enter a link."));
+      $("#linkBox > .modal-content > .modal-body").prepend(alertBox);
    }
 }
 
@@ -1337,147 +1653,165 @@ function checkEnterKey(e) {
    // trap the return key being pressed
    if (e.keyCode === 13) {
       // insert 2 br tags (if only one br tag is inserted the cursor won't go to the next line)
-      document.execCommand('insertHTML', false, '<br /><br />');
-      // prevent the default behaviour of return key pressed
-      return false;
+      document.execCommand("insertHTML", false, "<br /><br />");
+         // prevent the default behaviour of return key pressed
+         return false;
+      }
    }
-}
 
-function contentEditableBr() {
-   // Make sure there is only one event attached
-   $(document).off("keydown", ".contenteditableBr", checkEnterKey);
+   function contentEditableBr() {
+      // Make sure there is only one event attached
+      $(document).off("keydown", ".contenteditableBr", checkEnterKey);
 
-   // Prevent creating div on enter
-   $(document).on("keydown", ".contenteditableBr", checkEnterKey);
-}
+      // Prevent creating div on enter
+      $(document).on("keydown", ".contenteditableBr", checkEnterKey);
+   }
 
-function selectAll(popupTextarea) {
-   popupTextarea.setSelectionRange(0, popupTextarea.value.length)
-}
-$(function() {
-   // Hiding back arrow
-   $(".carousel-control-prev").css("display", "none");
+   function selectAll(popupTextarea) {
+      popupTextarea.setSelectionRange(0, popupTextarea.value.length)
+   }
 
-   // Clear the textarea in importTextarea (For some reason it having spaces onload)
-   clearImportTextarea();
+   $(function () {
+      // Hiding back arrow
+      $(".carousel-control-prev").css("display", "none");
 
-   // Overriding right click menu
-   if ($(".inputDiv").addEventListener) { // IE >= 9; other browsers
-      $(".inputDiv").addEventListener('contextmenu', function(e) {
-         // Get focused Input
-         focusedInput = $(":focus");
+      // Clear the textarea in importTextarea (For some reason it having spaces onload)
+      clearImportTextarea();
 
-         // Getting selection offset
-         if (typeof window.getSelection != "undefined") {
-            var sel = window.getSelection();
-            if (sel.rangeCount) {
-               startIndex = sel.focusOffset;
+      /*
+      // hiding contextmenu on rightClick (Not working)
+      $(document).on('mousedown', ":not(.inputDiv)", function(e) {
+        if (e.button == 2) {
+          alert("right-click");
+          // Hide contextMenu if already showing
+          $("#rightClickMenu").css("display", "none");
+        }
+      });
+      */
+
+      // Overriding right click menu
+      if ($(".inputDiv").addEventListener) { // IE >= 9; other browsers
+         $(".inputDiv").addEventListener('contextmenu', function (e) {
+            // Get focused Input
+            focusedInput = $(":focus");
+
+            // Getting selection offset
+            if (typeof window.getSelection != "undefined") {
+               var sel = window.getSelection();
+               if (sel.rangeCount) {
+                  startIndex = sel.focusOffset;
+               }
+            } else if (typeof document.selection != "undefined") {
+               if (document.selection.type == "Text") {
+                  startIndex = sel.focusOffset
+               }
             }
-         } else if (typeof document.selection != "undefined") {
-            if (document.selection.type == "Text") {
-               startIndex = sel.focusOffset
+
+            // Get selected text
+            if (window.getSelection) {
+               selectedText = window.getSelection().toString();
+            } else if (document.selection && document.selection.type != "Control") {
+               selectedText = document.selection.createRange().text;
             }
-         }
 
-         // Get selected text
-         if (window.getSelection) {
-            selectedText = window.getSelection().toString();
-         } else if (document.selection && document.selection.type != "Control") {
-            selectedText = document.selection.createRange().text;
-         }
-
-         // Show Menu
-         $("#rightClickMenu").css("display", "block");
-         $("#rightClickMenu").css("top", mouseY(event) + 'px');
-         $("#rightClickMenu").css("left", mouseX(event) + 'px');
-
-         e.preventDefault();
-      }, false);
-   } else { // IE < 9
-      $('body').on('contextmenu', '.inputDiv', function(e) {
-         // Get focused Input
-         focusedInput = $(":focus");
-
-         // Getting selection offset
-         if (typeof window.getSelection != "undefined") {
-            var sel = window.getSelection();
-            if (sel.rangeCount) {
-               startIndex = sel.focusOffset;
+            // Show Menu if got value
+            if (selectedText) {
+               $("#rightClickMenu").css("display", "block");
+               $("#rightClickMenu").offset({
+                  left: e.pageX,
+                  top: e.pageY
+               });
             }
-         } else if (typeof document.selection != "undefined") {
-            if (document.selection.type == "Text") {
-               startIndex = sel.focusOffset
+
+            e.preventDefault();
+         }, false);
+      } else { // IE < 9
+         $('body').on('contextmenu', '.inputDiv', function (e) {
+            // Get focused Input
+            focusedInput = $(":focus");
+
+            // Getting selection offset
+            if (typeof window.getSelection != "undefined") {
+               var sel = window.getSelection();
+               if (sel.rangeCount) {
+                  startIndex = sel.focusOffset;
+               }
+            } else if (typeof document.selection != "undefined") {
+               if (document.selection.type == "Text") {
+                  startIndex = sel.focusOffset
+               }
             }
-         }
 
-         // Get selected text
-         if (window.getSelection) {
-            selectedText = window.getSelection().toString();
-         } else if (document.selection && document.selection.type != "Control") {
-            selectedText = document.selection.createRange().text;
-         }
+            // Get selected text
+            if (window.getSelection) {
+               selectedText = window.getSelection().toString();
+            } else if (document.selection && document.selection.type != "Control") {
+               selectedText = document.selection.createRange().text;
+            }
 
-         // Show Menu
-         $("#rightClickMenu").css("display", "block");
-         $("#rightClickMenu").offset({
-            left: e.pageX,
-            top: e.pageY
+            // Show Menu if got value
+            if (selectedText) {
+               $("#rightClickMenu").css("display", "block");
+               $("#rightClickMenu").offset({
+                  left: e.pageX,
+                  top: e.pageY
+               });
+            }
+
+            window.event.returnValue = false;
          });
+      }
 
-         window.event.returnValue = false;
+      $(document).bind("click", function (event) {
+         $("#rightClickMenu").css("display", "none");
+      });
+
+      $(document).on("mouseover", ".contentDivDivDraggableDiv", function () {
+         // Force stop
+         $(this).stop(true, true);
+         $(this).animate({
+            opacity: 1,
+            queue: false
+         }, 300);
+      });
+
+      $(document).on("mouseout", ".contentDivDivDraggableDiv", function () {
+         $(this).animate({
+            opacity: 0
+         }, 300);
+      });
+
+      // Prevent creating div on enter
+      contentEditableBr();
+   });
+
+   // Function to convert rgb to hex so can set type=color
+   var hexDigits = new Array("0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e", "f");
+
+   // Function to convert rgb color to hex format
+   function rgb2hex(rgb) {
+      rgb = rgb.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
+      if (!rgb) {
+         return "#000000";
+      } else {
+         return "#" + hex(rgb[1]) + hex(rgb[2]) + hex(rgb[3]);
+      }
+   }
+
+   function hex(x) {
+      return isNaN(x) ? "00" : hexDigits[(x - x % 16) / 16] + hexDigits[x % 16];
+   }
+
+   // Encode html
+   function htmlEncode(value) {
+      // Create a in-memory div, set its inner text (which jQuery automatically encodes)
+      // Then grab the encoded contents back out. The div never exists on the page.
+      return $('<div/>').text(value).html();
+   }
+
+   // Decode html
+   function htmlDecode(str) {
+      return str.replace(/&#(\d+);?/g, function () {
+         return String.fromCharCode(arguments[1])
       });
    }
-
-   $(document).bind("click", function(event) {
-      $("#rightClickMenu").css("display", "none");
-   });
-
-   $(document).on("mouseover", ".contentDivDivDraggableDiv", function() {
-      // Force stop
-      $(this).stop(true, true);
-      $(this).animate({
-         opacity: 1,
-         queue: false
-      }, 300);
-   });
-
-   $(document).on("mouseout", ".contentDivDivDraggableDiv", function() {
-      $(this).animate({
-         opacity: 0
-      }, 300);
-   });
-
-   // Prevent creating div on enter
-   contentEditableBr();
-});
-
-// Function to convert rgb to hex so can set type=color
-var hexDigits = new Array("0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e", "f");
-
-// Function to convert rgb color to hex format
-function rgb2hex(rgb) {
-   rgb = rgb.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
-   if (!rgb) {
-      return "#000000";
-   } else {
-      return "#" + hex(rgb[1]) + hex(rgb[2]) + hex(rgb[3]);
-   }
-}
-
-function hex(x) {
-   return isNaN(x) ? "00" : hexDigits[(x - x % 16) / 16] + hexDigits[x % 16];
-}
-
-// Encode html
-function htmlEncode(value) {
-   // Create a in-memory div, set its inner text (which jQuery automatically encodes)
-   // Then grab the encoded contents back out. The div never exists on the page.
-   return $('<div/>').text(value).html();
-}
-
-// Decode html
-function htmlDecode(str) {
-   return str.replace(/&#(\d+);?/g, function() {
-      return String.fromCharCode(arguments[1])
-   });
-}
