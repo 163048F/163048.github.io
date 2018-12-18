@@ -837,8 +837,7 @@ function addLessonContent(addLessonDiv) {
    $(page1ContentTitleTextInput).css("display", "none"); // Hiding real input
    $(page1ContentListTextarea).css("display", "none"); // Hiding real input
 
-   $(page1ContentListTextarea).html("<li></li>");
-   $(page1ContentListTextarea).text("<li></li>");
+   $(page1ContentListTextarea).text("<ul><li>>br></li></ul>");
 
    // Creating options for select (Dropdown)
    let lectureL = document.createElement("option");
@@ -1309,15 +1308,13 @@ function recreatePage1() {
          page1ContentListTextareaDiv.className = "inputDiv form-control";
          page1ContentListTextareaDiv.setAttribute("onkeyup", "divToInput(this)");
          page1ContentListTextareaDiv.setAttribute("onkeydown", "divToInput(this)");
-         let page1ContentListTextareaDivUl = document.createElement("ul");
          let page1ContentListTextarea = document.createElement("textarea");
          page1ContentListTextarea.setAttribute("onkeyup", "inputToDiv(this)");
          page1ContentListTextarea.setAttribute("onkeydown", "inputToDiv(this)");
          $(page1ContentListTextarea).css("display", "none"); // Hiding real input
          // Content List
-         let lessonContentText = $(this).find(".lessonPlanContent ul").html().trim().replace(/\t/g, "");
-         $(page1ContentListTextareaDivUl).html(lessonContentText);
-         $(page1ContentListTextareaDiv).html(page1ContentListTextareaDivUl);
+         let lessonContentText = $(this).find(".lessonPlanContent ul")[0].outerHTML.trim().replace(/\t/g, "");
+         $(page1ContentListTextareaDiv).html(lessonContentText);
          $(page1ContentListTextarea).val(lessonContentText);
 
          // Prevent backspace
@@ -1593,8 +1590,28 @@ function copyCommand() {
    $(tempText).remove();
 }
 
+function checkOverlapLink(selectedText) {
+   let selectedTextBackup = htmlEncode(selectedText);
+   let inputElement = focusedInput;
+   startIndex = inputElement.next().val().indexOf(selectedTextBackup);
+   let regexSearch1 = escape('<a href=');
+   let regexSearch2 = escape('</a>');
+   let regExp = new RegExp('(' + regexSearch1 + ').*(' + escape(selectedTextBackup) + ').*(' + regexSearch2 + ')');
+   if (!regExp.test(escape(inputElement.next().val()))) {
+      if (startIndex !== -1) {
+         return true;
+      } else {
+         alert("Error! Make sure the text selected is not overlapping with another link.");
+         return false;
+      }
+   } else {
+      alert("Error! You already made this a link.");
+      return false;
+   }
+}
+
 function promptLink() {
-   if (selectedText.length > 0) {
+   if (selectedText.length > 0 && checkOverlapLink(selectedText)) {
       $("#linkInput").val("");
       $("#linkBoxDiv").modal("show");
    }
