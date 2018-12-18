@@ -3,6 +3,125 @@ let focusedInput;
 let startIndex;
 let shouldGoBackHide = 0;
 
+$(function() {
+   // Hiding back arrow
+   $(".carousel-control-prev").css("display", "none");
+
+   // Clear the textarea in importTextarea (For some reason it having spaces onload)
+   clearImportTextarea();
+
+   // On unfocus
+   $(window.document).on("focusout", "#linkInput", checkAndDisplayAlert);
+
+   /*
+   // hiding contextmenu on rightClick (Not working)
+   $(document).on('mousedown', ":not(.inputDiv)", function(e) {
+     if (e.button == 2) {
+       alert("right-click");
+       // Hide contextMenu if already showing
+       $("#rightClickMenu").css("display", "none");
+     }
+   });
+   */
+
+   // Overriding right click menu
+   if ($(".inputDiv").addEventListener) { // IE >= 9; other browsers
+      $(".inputDiv").addEventListener('contextmenu', function(e) {
+         // Get focused Input
+         focusedInput = $(":focus");
+
+         // Getting selection offset
+         if (typeof window.getSelection != "undefined") {
+            let sel = window.getSelection();
+            if (sel.rangeCount) {
+               startIndex = sel.focusOffset;
+            }
+         } else if (typeof document.selection != "undefined") {
+            if (window.document.selection.type == "Text") {
+               startIndex = sel.focusOffset;
+            }
+         }
+
+         // Get selected text
+         if (window.getSelection) {
+            selectedText = window.getSelection().toString();
+         } else if (window.document.selection && window.document.selection.type != "Control") {
+            selectedText = window.document.selection.createRange().text;
+         }
+
+         // Show Menu if got value
+         if (selectedText) {
+            $("#rightClickMenu").css("display", "block");
+            $("#rightClickMenu").offset({
+               left: e.pageX,
+               top: e.pageY
+            });
+            e.preventDefault();
+         }
+      }, false);
+   } else { // IE < 9
+      $('body').on('contextmenu', '.inputDiv', function(e) {
+         // Get focused Input
+         focusedInput = $(":focus");
+
+         // Getting selection offset
+         if (typeof window.getSelection != "undefined") {
+            let sel = window.getSelection();
+            if (sel.rangeCount) {
+               startIndex = sel.focusOffset;
+            }
+         } else if (typeof document.selection != "undefined") {
+            if (document.selection.type == "Text") {
+               startIndex = sel.focusOffset;
+            }
+         }
+
+         // Get selected text
+         if (window.getSelection) {
+            selectedText = window.getSelection().toString();
+         } else if (document.selection && document.selection.type != "Control") {
+            selectedText = document.selection.createRange().text;
+         }
+
+         // Show Menu if got value
+         if (selectedText) {
+            $("#rightClickMenu").css("display", "block");
+            $("#rightClickMenu").offset({
+               left: e.pageX,
+               top: e.pageY
+            });
+
+            window.event.returnValue = false;
+         }
+      });
+   }
+
+   $(document).bind("click", function(event) {
+      $("#rightClickMenu").css("display", "none");
+   });
+
+   $(document).on("mouseover", ".contentDivDivDraggableDiv", function() {
+      // Force stop
+      $(this).stop(true, true);
+      $(this).animate({
+         opacity: 1,
+         queue: false
+      }, 300);
+   });
+
+   $(document).on("mouseout", ".contentDivDivDraggableDiv", function() {
+      $(this).animate({
+         opacity: 0
+      }, 300);
+   });
+
+   // Prevent creating div on enter
+   contentEditableBr();
+
+   // Change cursor back to pointer
+   document.body.style.cursor = "auto";
+});
+
 /**
  * Navigate to Page 2 of Startup Page.
  * @function
@@ -34,7 +153,7 @@ function goPage3(lessonPlanTemplateDiv) {
  */
 function goBack() {
    // Set progress bar to 0%
-   $(".progress-bar").css("width", "0%");
+   // $(".progress-bar").css("width", "0%");
 
    // Hiding alerts
    closeAlert();
@@ -121,7 +240,7 @@ function checkTextIsCorrect() {
             alertBoxP.appendChild(document.createTextNode("'id=#lessonPlanTemplate' div is empty. Make sure you entered/uploaded correctly"));
             $("#startupDivPage2 > div").prepend(alertBox);
 
-            $("#page2Error").slideDown(function () {
+            $("#page2Error").slideDown(function() {
                alertBox.style.display = "flex";
             });
          }
@@ -129,7 +248,7 @@ function checkTextIsCorrect() {
          alertBoxP.appendChild(document.createTextNode("'id=#lessonPlanTemplate' div missing. Make sure you entered/uploaded correctly"));
          $("#startupDivPage2 > div").prepend(alertBox);
 
-         $("#page2Error").slideDown(function () {
+         $("#page2Error").slideDown(function() {
             alertBox.style.display = "flex";
          });
       }
@@ -137,7 +256,7 @@ function checkTextIsCorrect() {
       alertBoxP.appendChild(document.createTextNode("Make sure you entered/uploaded something"));
       $("#startupDivPage2 > div").prepend(alertBox);
 
-      $("#page2Error").slideDown(function () {
+      $("#page2Error").slideDown(function() {
          alertBox.style.display = "flex";
       });
    }
@@ -185,7 +304,7 @@ function fileMatchesLayout(readerResult) {
             alertBoxP.appendChild(document.createTextNode("'id=#lessonPlanTemplate' div is empty. Make sure you entered/uploaded correctly"));
             $("#startupDivPage2 > div").prepend(alertBox);
 
-            $("#page2Error").slideDown(function () {
+            $("#page2Error").slideDown(function() {
                alertBox.style.display = "flex";
             });
          }
@@ -193,7 +312,7 @@ function fileMatchesLayout(readerResult) {
          alertBoxP.appendChild(document.createTextNode("'id=#lessonPlanTemplate' div missing. Make sure you entered/uploaded correctly"));
          $("#startupDivPage2 > div").prepend(alertBox);
 
-         $("#page2Error").slideDown(function () {
+         $("#page2Error").slideDown(function() {
             alertBox.style.display = "flex";
          });
       }
@@ -201,7 +320,7 @@ function fileMatchesLayout(readerResult) {
       alertBoxP.appendChild(document.createTextNode("Make sure you entered/uploaded something"));
       $("#startupDivPage2 > div").prepend(alertBox);
 
-      $("#page2Error").slideDown(function () {
+      $("#page2Error").slideDown(function() {
          alertBox.style.display = "flex";
       });
    }
@@ -265,20 +384,20 @@ function drop(ev) {
    let fileReader = new FileReader();
    // Make sure only .html and .txt is accepted
    if (file.type.match("text/plain") || file.type.match("text/html")) {
-      fileReader.onload = function () {
+      fileReader.onload = function() {
          let readerResult = fileReader.result;
          if (fileMatchesLayout(readerResult)) {
             $("#importTextarea").val(readerResult);
          }
       };
-      fileReader.onprogress = function (data) {
+      fileReader.onprogress = function(data) {
          if (data.lengthComputable) {
             let progress = parseInt(((data.loaded / data.total) * 100), 10);
             $(".progress-bar").css("width", progress + "%");
             console.log(progress);
          }
       };
-      fileReader.onloadend = function () {
+      fileReader.onloadend = function() {
          $(".progress-bar")[0].classList.remove("progress-bar-animated");
       };
    } else if (file.type.match("application/vnd.ms-excel") || file.type.match("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")) {
@@ -292,7 +411,7 @@ function drop(ev) {
 
 function dragAndDropExcel(file) {
    let fileReader = new FileReader();
-   fileReader.onload = function (e) {
+   fileReader.onload = function(e) {
       let filename = file.name;
       // pre-process data
       let binary = "";
@@ -322,6 +441,7 @@ function dragAndDropExcel(file) {
       instructors.className = "bold underline";
       instructorsDetails.id = "instructorsDetails";
 
+      let doesItExist = false;
       workbook.SheetNames.forEach(sheetName => {
          let subtitleValue = "";
          let first = true;
@@ -364,6 +484,8 @@ function dragAndDropExcel(file) {
                   // Appending Everything
                   lessonPlanTemplate.append(instructors);
                   lessonPlanTemplate.append(instructorsDetails);
+                  // If the function got enter anot
+                  doesItExist = true;
                   // Call function to get all things
                   getAllExcelValues(sheet, range, rows, lessonPlanTemplate);
                   // Breaking loop
@@ -382,15 +504,21 @@ function dragAndDropExcel(file) {
             }
          }
       });
+      if (!doesItExist) {
+         alert("The excel sheet does not meet the required format");
+         $(".progress-bar").css("width", "0%");
+      }
    };
 
-   fileReader.onprogress = function (data) {
+   // Progress bar
+   fileReader.onprogress = function(data) {
       if (data.lengthComputable) {
          let progress = parseInt(((data.loaded / data.total) * 100), 10);
          $(".progress-bar").css("width", progress + "%");
       }
    };
-   fileReader.onloadend = function () {
+
+   fileReader.onloadend = function() {
       $(".progress-bar")[0].classList.remove("progress-bar-animated");
    };
 
@@ -520,9 +648,9 @@ function getAllExcelValues(sheet, range, row, lessonPlanTemplate) {
             if (cell.l) {
                xArray = cell.v.trim().split("\n");
                for (let i = 0; i < xArray.length; i++) {
-                  if(cell.l.display) {
+                  if (cell.l.display) {
                      lines += "<li><a href='" + cell.l.display + "' target='_blank'>" + xArray[i] + "</a></li>";
-                  }else {
+                  } else {
                      console.log("Couldn't add link to " + xArray[i] + " due to error");
                      lines += "<li>" + xArray[i] + "</li>";
                   }
@@ -606,7 +734,7 @@ function makeSortable() {
       items: ".contentDivDiv",
       handle: ".contentDivDivDraggableDiv",
       cancel: ".inputDiv, textarea, input, button",
-      update: function () {
+      update: function() {
          setActualValue();
       },
       axis: "y",
@@ -696,7 +824,7 @@ function addLessonContent(addLessonDiv) {
 
    $(page1ContentListTextareaDiv).html("<ul><li><br></li></ul>");
    // Prevent backspace
-   $(page1ContentListTextareaDiv).keydown(function (e) {
+   $(page1ContentListTextareaDiv).keydown(function(e) {
       // trap the return key being pressed
       if (e.keyCode === 8) {
          if ($(this).html() === "<ul><li><br></li></ul>") {
@@ -816,7 +944,7 @@ function addLessonSection(addSectionDiv) {
    let closeImgImage = document.createElement("span");
 
    let addLessonContent = document.createElement("div");
-   let addLessonContentP = document.createElement("p");
+   let addLessonContentImg = document.createElement("i");
 
    let closeImg2 = document.createElement("button");
    let closeImgImage2 = document.createElement("span");
@@ -838,6 +966,7 @@ function addLessonSection(addSectionDiv) {
    closeImgImage.setAttribute("aria-hidden", "true");
    closeImgImage.innerHTML = "&times;";
 
+   addLessonContentImg.className = "fas fa-plus-circle";
    addLessonContent.className = "addLessonContent";
    addLessonContent.setAttribute("onclick", "addLessonContent(this)");
 
@@ -885,7 +1014,7 @@ function addLessonSection(addSectionDiv) {
 
    $(page1ContentListTextareaDiv).html("<ul><li><br></li></ul>");
    // Prevent backspace
-   $(page1ContentListTextareaDiv).keydown(function (e) {
+   $(page1ContentListTextareaDiv).keydown(function(e) {
       // trap the return key being pressed
       if (e.keyCode === 8) {
          if ($(this).html() === "<ul><li><br></li></ul>") {
@@ -954,8 +1083,7 @@ function addLessonSection(addSectionDiv) {
    contentDivDiv.appendChild(contentDivDivRight);
    contentDivDiv.appendChild(closeImg);
 
-   addLessonContentP.appendChild(document.createTextNode("Add new lesson content"));
-   addLessonContent.appendChild(addLessonContentP);
+   addLessonContent.appendChild(addLessonContentImg);
    closeImg2.appendChild(closeImgImage2);
 
    mainSection.appendChild(lessonSection);
@@ -1013,7 +1141,7 @@ function recreatePage1() {
    $(page1ParagraphTextareaDiv).html(paragraphInput);
 
    // Prevent backspace
-   $(page1ParagraphTextareaDiv).keydown(function (e) {
+   $(page1ParagraphTextareaDiv).keydown(function(e) {
       // trap the return key being pressed
       if (e.keyCode === 8) {
          if ($(this).html() === "<p><br></p>") {
@@ -1035,7 +1163,7 @@ function recreatePage1() {
    $("#page1").append(page1Section);
 
    // Main Section
-   $(".lesson").each(function () {
+   $(".lesson").each(function() {
       // Creating mainSection
       let mainSection = document.createElement("div");
       mainSection.className = "mainSection section";
@@ -1087,7 +1215,7 @@ function recreatePage1() {
       mainSection.appendChild(lessonSection);
 
       // ContentDivDiv
-      $(this).find(".lecPracHeader").each(function () {
+      $(this).find(".lecPracHeader").each(function() {
          // Creating contentDivDiv
          let contentDivDiv = document.createElement("div");
          contentDivDiv.className = "section contentDivDiv";
@@ -1193,7 +1321,7 @@ function recreatePage1() {
          $(page1ContentListTextarea).val(lessonContentText);
 
          // Prevent backspace
-         $(page1ContentListTextareaDiv).keydown(function (e) {
+         $(page1ContentListTextareaDiv).keydown(function(e) {
             // trap the return key being pressed
             if (e.keyCode === 8) {
                if ($(this).html() === "<ul><li><br></li></ul>") {
@@ -1239,7 +1367,7 @@ function recreatePage1() {
       // Creating closeImg for entire section / "lesson"
       let addLessonContent = document.createElement("div");
       addLessonContent.className = "addLessonContent";
-      let addLessonContentCloseImgImage = document.createElement("img");
+      let addLessonContentCloseImgImage = document.createElement("i");
 
       let closeImg2 = document.createElement("button");
       closeImg2.className = "closeImg close";
@@ -1247,9 +1375,7 @@ function recreatePage1() {
 
       // Setting attributes
       addLessonContent.setAttribute("onclick", "addLessonContent(this)");
-      addLessonContentCloseImgImage.setAttribute("src", "grass2.jpg");
-      addLessonContentCloseImgImage.setAttribute("width", "30");
-      addLessonContentCloseImgImage.setAttribute("height", "30");
+      addLessonContentCloseImgImage.className = "fas fa-plus-circle";
 
       closeImg2.setAttribute("onclick", "removeLessonContent(this)");
       closeImg2.setAttribute("type", "button");
@@ -1270,15 +1396,14 @@ function recreatePage1() {
 
    // Add lesson Section
    let addLessonSection = document.createElement("div");
-   let addLessonSectionImg = document.createElement("img");
+   let addLessonSectionImg = document.createElement("p");
    addLessonSection.id = "addLessonSection";
    addLessonSection.className = "addLessonContent";
    addLessonSection.setAttribute("onclick", "addLessonSection(this)");
-   addLessonSectionImg.setAttribute("src", "grass2.jpg");
-   addLessonSectionImg.setAttribute("width", "30");
-   addLessonSectionImg.setAttribute("height", "30");
+   addLessonSection.style.color = "white";
 
    // Appending Add Lesson
+   addLessonSectionImg.appendChild(document.createTextNode("Add New Lesson Section"));
    addLessonSection.appendChild(addLessonSectionImg);
 
    // Footer Section
@@ -1360,7 +1485,7 @@ function recreatePage2() {
    lessonPlanTemplate.append(instructorsDetails);
 
    // Loop MainSection
-   $(".mainSection").each(function () {
+   $(".mainSection").each(function() {
       // Create Lesson
       let lesson = document.createElement("div");
       let lessonHeader = document.createElement("div");
@@ -1383,7 +1508,7 @@ function recreatePage2() {
       lesson.appendChild(lessonHeader);
 
       // Loop All LecPracheader
-      $(this).find(".contentDivDiv").each(function () {
+      $(this).find(".contentDivDiv").each(function() {
          // lesPracHeader
          let lecPracHeader = document.createElement("div");
          // LecPracDiv
@@ -1489,27 +1614,27 @@ function changeInputBoxSelection(number) {
    let dropdownDiv = $("#linkBoxOptions");
    let linkInput = $("#linkInput");
    switch (number) {
-   case 1:
-      dropdownDiv.text("Webpage");
-      linkInput[0].setAttribute("placeholder", "https://");
-      linkInput.val("");
-      $(".dropdown-menu > a:first-child")[0].classList.add("active");
-      break;
-   case 2:
-      dropdownDiv.text("Email");
-      linkInput[0].setAttribute("placeholder", "example@nyp.edu.sg");
-      let emailRegex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-      if (emailRegex.test(selectedText)) {
-         linkInput.val(htmlEncode(selectedText));
-      }
-      $(".dropdown-menu > a:nth-child(2)")[0].classList.add("active");
-      break;
-   case 3:
-      dropdownDiv.text("Javascript");
-      linkInput[0].setAttribute("placeholder", "alert('Hello')");
-      linkInput.val("");
-      $(".dropdown-menu > a:nth-child(4)")[0].classList.add("active");
-      break;
+      case 1:
+         dropdownDiv.text("Webpage");
+         linkInput[0].setAttribute("placeholder", "https://");
+         linkInput.val("");
+         $(".dropdown-menu > a:first-child")[0].classList.add("active");
+         break;
+      case 2:
+         dropdownDiv.text("Email");
+         linkInput[0].setAttribute("placeholder", "example@nyp.edu.sg");
+         let emailRegex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+         if (emailRegex.test(selectedText)) {
+            linkInput.val(htmlEncode(selectedText));
+         }
+         $(".dropdown-menu > a:nth-child(2)")[0].classList.add("active");
+         break;
+      case 3:
+         dropdownDiv.text("Javascript");
+         linkInput[0].setAttribute("placeholder", "alert('Hello')");
+         linkInput.val("");
+         $(".dropdown-menu > a:nth-child(4)")[0].classList.add("active");
+         break;
    }
 }
 
@@ -1702,166 +1827,60 @@ function checkEnterKey(e) {
    if (e.keyCode === 13) {
       // insert 2 br tags (if only one br tag is inserted the cursor won't go to the next line)
       document.execCommand("insertHTML", false, "<br /><br />");
-         // prevent the default behaviour of return key pressed
-         return false;
-      }
+      // prevent the default behaviour of return key pressed
+      return false;
    }
+}
 
-   function contentEditableBr() {
-      // Make sure there is only one event attached
-      $(document).off("keydown", ".contenteditableBr", checkEnterKey);
+function contentEditableBr() {
+   // Make sure there is only one event attached
+   $(document).off("keydown", ".contenteditableBr", checkEnterKey);
 
-      // Prevent creating div on enter
-      $(document).on("keydown", ".contenteditableBr", checkEnterKey);
+   // Prevent creating div on enter
+   $(document).on("keydown", ".contenteditableBr", checkEnterKey);
+}
+
+function selectAll(popupTextarea) {
+   popupTextarea.setSelectionRange(0, popupTextarea.value.length);
+}
+
+// Function to convert rgb to hex so can set type=color
+let hexDigits = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e", "f"];
+
+// Function to convert rgb color to hex format
+function rgb2hex(rgb) {
+   rgb = rgb.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
+   if (!rgb) {
+      return "#000000";
+   } else {
+      return "#" + hex(rgb[1]) + hex(rgb[2]) + hex(rgb[3]);
    }
+}
 
-   function selectAll(popupTextarea) {
-      popupTextarea.setSelectionRange(0, popupTextarea.value.length);
-   }
+function hex(x) {
+   return isNaN(x) ? "00" : hexDigits[(x - x % 16) / 16] + hexDigits[x % 16];
+}
 
-   $(function () {
-      // Hiding back arrow
-      $(".carousel-control-prev").css("display", "none");
+// Encode html
+function htmlEncode(value) {
+   // Create a in-memory div, set its inner text (which jQuery automatically encodes)
+   // Then grab the encoded contents back out. The div never exists on the page.
+   return $('<div/>').text(value).html();
+}
 
-      // Clear the textarea in importTextarea (For some reason it having spaces onload)
-      clearImportTextarea();
-
-      // On unfocus
-      $(window.document).on("focusout", "#linkInput", checkAndDisplayAlert);
-
-      /*
-      // hiding contextmenu on rightClick (Not working)
-      $(document).on('mousedown', ":not(.inputDiv)", function(e) {
-        if (e.button == 2) {
-          alert("right-click");
-          // Hide contextMenu if already showing
-          $("#rightClickMenu").css("display", "none");
-        }
-      });
-      */
-
-      // Overriding right click menu
-      if ($(".inputDiv").addEventListener) { // IE >= 9; other browsers
-         $(".inputDiv").addEventListener('contextmenu', function (e) {
-            // Get focused Input
-            focusedInput = $(":focus");
-
-            // Getting selection offset
-            if (typeof window.getSelection != "undefined") {
-               let sel = window.getSelection();
-               if (sel.rangeCount) {
-                  startIndex = sel.focusOffset;
-               }
-            } else if (typeof document.selection != "undefined") {
-               if (window.document.selection.type == "Text") {
-                  startIndex = sel.focusOffset;
-               }
-            }
-
-            // Get selected text
-            if (window.getSelection) {
-               selectedText = window.getSelection().toString();
-            } else if (window.document.selection && window.document.selection.type != "Control") {
-               selectedText = window.document.selection.createRange().text;
-            }
-
-            // Show Menu if got value
-            if (selectedText) {
-               $("#rightClickMenu").css("display", "block");
-               $("#rightClickMenu").offset({
-                  left: e.pageX,
-                  top: e.pageY
-               });
-               e.preventDefault();
-            }
-         }, false);
-      } else { // IE < 9
-         $('body').on('contextmenu', '.inputDiv', function (e) {
-            // Get focused Input
-            focusedInput = $(":focus");
-
-            // Getting selection offset
-            if (typeof window.getSelection != "undefined") {
-               let sel = window.getSelection();
-               if (sel.rangeCount) {
-                  startIndex = sel.focusOffset;
-               }
-            } else if (typeof document.selection != "undefined") {
-               if (document.selection.type == "Text") {
-                  startIndex = sel.focusOffset;
-               }
-            }
-
-            // Get selected text
-            if (window.getSelection) {
-               selectedText = window.getSelection().toString();
-            } else if (document.selection && document.selection.type != "Control") {
-               selectedText = document.selection.createRange().text;
-            }
-
-            // Show Menu if got value
-            if (selectedText) {
-               $("#rightClickMenu").css("display", "block");
-               $("#rightClickMenu").offset({
-                  left: e.pageX,
-                  top: e.pageY
-               });
-
-               window.event.returnValue = false;
-            }
-         });
-      }
-
-      $(document).bind("click", function (event) {
-         $("#rightClickMenu").css("display", "none");
-      });
-
-      $(document).on("mouseover", ".contentDivDivDraggableDiv", function () {
-         // Force stop
-         $(this).stop(true, true);
-         $(this).animate({
-            opacity: 1,
-            queue: false
-         }, 300);
-      });
-
-      $(document).on("mouseout", ".contentDivDivDraggableDiv", function () {
-         $(this).animate({
-            opacity: 0
-         }, 300);
-      });
-
-      // Prevent creating div on enter
-      contentEditableBr();
+// Decode html
+function htmlDecode(str) {
+   return str.replace(/&#(\d+);?/g, function() {
+      return String.fromCharCode(arguments[1]);
    });
+}
 
-   // Function to convert rgb to hex so can set type=color
-   let hexDigits = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e", "f"];
-
-   // Function to convert rgb color to hex format
-   function rgb2hex(rgb) {
-      rgb = rgb.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
-      if (!rgb) {
-         return "#000000";
-      } else {
-         return "#" + hex(rgb[1]) + hex(rgb[2]) + hex(rgb[3]);
+// Sleep
+function sleep(milliseconds) {
+   var start = new Date().getTime();
+   for (var i = 0; i < 1e7; i++) {
+      if ((new Date().getTime() - start) > milliseconds) {
+         break;
       }
    }
-
-   function hex(x) {
-      return isNaN(x) ? "00" : hexDigits[(x - x % 16) / 16] + hexDigits[x % 16];
-   }
-
-   // Encode html
-   function htmlEncode(value) {
-      // Create a in-memory div, set its inner text (which jQuery automatically encodes)
-      // Then grab the encoded contents back out. The div never exists on the page.
-      return $('<div/>').text(value).html();
-   }
-
-   // Decode html
-   function htmlDecode(str) {
-      return str.replace(/&#(\d+);?/g, function () {
-         return String.fromCharCode(arguments[1]);
-      });
-   }
+}

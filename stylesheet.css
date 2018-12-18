@@ -64,6 +64,15 @@ hr {
 	flex-wrap: wrap;
 }
 
+.startupImg {
+	width:150px;
+	height:150px;
+	font-size:90px;
+	display:flex;
+	justify-content:center;
+	align-items:center;
+}
+
 #startupDivPage2 {
 	display: flex;
 	flex-direction: column;
@@ -328,11 +337,12 @@ hr {
 }
 
 .addLessonContent {
+	display: flex;
 	height: 50px;
 	background-color: lightsteelblue;
-	text-align: center;
-	vertical-align: middle;
-
+	align-items: center;
+	justify-content: center;
+	cursor: pointer;
 }
 
 .mainSection {
