@@ -1,0 +1,112 @@
+<html><head></head><body style="margin:0;"><textarea id="consoleOutput" style="width:100%;height:100%;resize:none"></textarea>
+<script>
+
+class Console {
+  constructor() {}
+
+  output(line) {
+     document.getElementById("consoleOutput").value += line + "\n";
+  }
+}
+
+const onsole = new Console();
+
+let json = `[{"s":{"c":1,"r":36},"e":{"c":3,"r":36}},{"s":{"c":1,"r":37},"e":{"c":3,"r":37}},{"s":{"c":4,"r":34},"e":{"c":4,"r":35}},{"s":{"c":0,"r":36},"e":{"c":0,"r":37}},{"s":{"c":0,"r":32},"e":{"c":0,"r":33}},{"s":{"c":1,"r":32},"e":{"c":1,"r":33}},{"s":{"c":2,"r":32},"e":{"c":2,"r":33}},{"s":{"c":3,"r":32},"e":{"c":3,"r":33}},{"s":{"c":0,"r":34},"e":{"c":0,"r":35}},{"s":{"c":1,"r":34},"e":{"c":3,"r":34}},{"s":{"c":1,"r":35},"e":{"c":3,"r":35}},{"s":{"c":0,"r":27},"e":{"c":0,"r":29}},{"s":{"c":1,"r":27},"e":{"c":3,"r":27}},{"s":{"c":1,"r":28},"e":{"c":3,"r":28}},{"s":{"c":1,"r":29},"e":{"c":3,"r":29}},{"s":{"c":0,"r":30},"e":{"c":0,"r":31}},{"s":{"c":1,"r":30},"e":{"c":1,"r":31}},{"s":{"c":2,"r":30},"e":{"c":2,"r":31}},{"s":{"c":3,"r":30},"e":{"c":3,"r":31}},{"s":{"c":0,"r":23},"e":{"c":0,"r":24}},{"s":{"c":1,"r":23},"e":{"c":4,"r":24}},{"s":{"c":0,"r":25},"e":{"c":0,"r":26}},{"s":{"c":1,"r":25},"e":{"c":1,"r":26}},{"s":{"c":2,"r":25},"e":{"c":2,"r":26}},{"s":{"c":3,"r":25},"e":{"c":3,"r":26}},{"s":{"c":4,"r":25},"e":{"c":4,"r":26}},{"s":{"c":0,"r":19},"e":{"c":0,"r":20}},{"s":{"c":1,"r":19},"e":{"c":1,"r":20}},{"s":{"c":2,"r":19},"e":{"c":2,"r":20}},{"s":{"c":3,"r":19},"e":{"c":3,"r":20}},{"s":{"c":0,"r":21},"e":{"c":0,"r":22}},{"s":{"c":1,"r":21},"e":{"c":1,"r":22}},{"s":{"c":2,"r":21},"e":{"c":2,"r":22}},{"s":{"c":3,"r":21},"e":{"c":3,"r":22}},{"s":{"c":4,"r":15},"e":{"c":4,"r":16}},{"s":{"c":0,"r":17},"e":{"c":0,"r":18}},{"s":{"c":1,"r":17},"e":{"c":1,"r":18}},{"s":{"c":2,"r":17},"e":{"c":2,"r":18}},{"s":{"c":3,"r":17},"e":{"c":3,"r":18}},{"s":{"c":4,"r":17},"e":{"c":4,"r":18}},{"s":{"c":0,"r":13},"e":{"c":0,"r":14}},{"s":{"c":1,"r":13},"e":{"c":1,"r":14}},{"s":{"c":2,"r":13},"e":{"c":2,"r":14}},{"s":{"c":3,"r":13},"e":{"c":3,"r":14}},{"s":{"c":0,"r":15},"e":{"c":0,"r":16}},{"s":{"c":1,"r":15},"e":{"c":1,"r":16}},{"s":{"c":2,"r":15},"e":{"c":2,"r":16}},{"s":{"c":3,"r":15},"e":{"c":3,"r":16}},{"s":{"c":0,"r":7},"e":{"c":0,"r":8}},{"s":{"c":1,"r":7},"e":{"c":1,"r":8}},{"s":{"c":2,"r":7},"e":{"c":2,"r":8}},{"s":{"c":3,"r":7},"e":{"c":3,"r":8}},{"s":{"c":4,"r":7},"e":{"c":4,"r":8}},{"s":{"c":0,"r":10},"e":{"c":0,"r":12}},{"s":{"c":1,"r":10},"e":{"c":1,"r":12}},{"s":{"c":2,"r":10},"e":{"c":2,"r":12}},{"s":{"c":3,"r":10},"e":{"c":3,"r":12}},{"s":{"c":0,"r":2},"e":{"c":0,"r":3}},{"s":{"c":1,"r":2},"e":{"c":1,"r":3}},{"s":{"c":2,"r":2},"e":{"c":2,"r":3}},{"s":{"c":3,"r":2},"e":{"c":3,"r":3}},{"s":{"c":4,"r":2},"e":{"c":4,"r":3}},{"s":{"c":0,"r":4},"e":{"c":0,"r":6}},{"s":{"c":3,"r":4},"e":{"c":3,"r":6}},{"s":{"c":4,"r":4},"e":{"c":4,"r":6}}]`;
+
+let jsonData = [["DIT 2018/2019 S2",null,"IT3133 Quantitative Methods (Year 3)",null,null],
+[null,null,null,null,null],
+["Week","Practical (2hrs)","Lecture (1hr) ","Tutorial (1hr)","Remarks"],
+[null,null,null,null,null],
+["1","P1.1 – Breakeven Analysis","L1 - Introduction to QM","T1 - Making good decisions – Decision Analysis",null],
+[null,"P1.2 – Making good decisions – Decision Analysis","L2 - Making good decisions – Decision Analysis",null,null],
+[null,null,null,null,null],
+["2","P2 - Making good decisions – Decision Analysis","L2 - Making good decisions – Decision Analysis","T2 - Making good decisions – Decision Analysis","Assignment Briefing"],
+[null,null,null,null,null],
+["3","P3 - Making the most out of things – Linear Programming","L3 - Making the most out of things – Linear Programming","T3 - Making the most out of things – Linear Programming",null],
+["4","P4 - Making the most out of things – Linear Programming","L3 - Making the most out of things – Linear Programming","T4 - Making the most out of things – Linear Programming","6 Nov 2018 (Tues)"],
+[null,null,null,null,"Deepavali"],
+[null,null,null,null,null],
+["5","P5 - Project scheduling – PERT Analysis","L4 - Project scheduling – PERT Analysis","T5 - Project scheduling – PERT Analysis","Submit practical assignment "],
+[null,null,null,null,"(ICA1 : 15%)"],
+["6","P5 contd - Project scheduling – PERT Analysis","L4 - Project scheduling – PERT Analysis","T6 - Project scheduling – PERT Analysis",null],
+[null,null,null,null,null],
+["7","P7 - Revision","L5 - Taking accounts of randomness – simulation in simple queuing problems","T7 - Taking accounts of randomness – simulation in simple queuing problems",null],
+[null,null,null,null,null],
+["8","Written Test 1: Probability, Decision Analysis, Linear Programming, Project Scheduling (no crashing or estimations)","Self-Revision","Self-Revision","Written Test 1"],
+[null,null,null,null,"ICA1 : 25%"],
+["9","P9 - Taking accounts of randomness – simulation in simple queuing problems","L5 - Taking accounts of randomness – simulation in simple queuing problems","T9 - Taking accounts of randomness – simulation in simple queuing problems","Participation "],
+[null,null,null,null,"ICA2: 5%"],
+["10","11","Term Break",null,null],
+[null,null,null,null,null],
+["12","Self-Revision","L5 - Taking accounts of randomness – simulation in simple queuing problems","Revision",null],
+[null,null,null,null,null],
+["13","SDL Week",null,null,"Quiz"],
+[null,"E-Learning on Simulation",null,null,"ICA1 : 5%"],
+[null,null,null,null,null],
+["14","Self-Revision","Revision","Written Test 2: Project Scheduling (crashing), Queuing problems, Simulation","Written Test 2"],
+[null,null,null,null,"ICA1 : 15%"],
+["15","Practical Test: Decision Analysis, Linear Programming, Simulation","Revision","Revision","Practical Test"],
+[null,null,null,null,"ICA1: 30%"],
+["16",null,null,null,null],
+[null,"E-Learning – Monte Carlo Simulation",null,null,null],
+["17",null,null,null,"ICA2 - "],
+[null,null,null,null,"Participation: 5%"],
+[null,null,null,null,null],
+["ICA1 (90%), ICA2 (10%)",null,null,null,null]];
+
+let jsonParsed = JSON.parse(json);
+let valueArray = Object.values(jsonParsed);
+
+function checkIfMerged(column, row) {
+   for(let i = 0; i < valueArray.length; i++) {
+      let sC = valueArray[i].s.c;
+      let eC = valueArray[i].e.c;
+      let sR = valueArray[i].s.r;
+      let eR = valueArray[i].e.r;
+      if(column >= sC && column <= eC && row >= sR && row <= eR) {
+         return {
+            found: true,
+            sC: sC,
+            eC: eC,
+            sR: sR,
+            eR: eR
+         }
+      }
+   }
+
+   return {
+      found: false,
+      sC: null,
+      eC: null,
+      sR: null,
+      eR: null
+   }
+}
+
+let userCol = 4;
+let userRow = 37;
+
+for (let actualRow = 0; actualRow <= userRow; actualRow++) {
+   var previousText = "";
+   for (let actualCol = 0; actualCol <= userCol; actualCol++) {
+      let methodReturn = checkIfMerged(actualCol,actualRow);
+      if(methodReturn.found) {
+         if(actualCol === 0 && previousText === jsonData[methodReturn.sR][methodReturn.sC]) {
+
+         }else {
+            previousText = jsonData[methodReturn.sR][methodReturn.sC];
+         }
+         let startValue = jsonData[methodReturn.sR][methodReturn.sC];
+         if(startValue) {
+            onsole.output(startValue);
+         }
+      }else {
+         let startValue = jsonData[actualRow][actualCol];
+         onsole.output(startValue);
+      }
+   }
+   onsole.output("\n");
+}
+
+</script>
+</body></html>

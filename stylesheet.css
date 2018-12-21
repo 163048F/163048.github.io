@@ -112,6 +112,12 @@ hr {
 	height: 100%;
 }
 
+.startupImg.rounded {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
 #startupDivPage2 > div {
 	display: flex;
 	flex-direction: column;
@@ -237,6 +243,7 @@ hr {
 
 .lecPracDiv > p {
 	margin: 12px;
+	word-break: break-word;
 }
 
 .lecPracHeader {

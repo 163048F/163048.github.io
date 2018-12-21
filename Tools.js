@@ -2,6 +2,15 @@ let selectedText = "";
 let focusedInput;
 let startIndex;
 let shouldGoBackHide = 0;
+let notClicked = true;
+let colourTemplate = `{
+   "Lecture": "rgb(0,0,0)",
+   "Practical": "rgb(0,0,0)",
+   "Tutorial": "rgb(0,0,0)",
+   "Remark": "rgb(0,0,0)",
+   "E-Learning": "rgb(0,0,0)",
+   "In Course Assessment": "rgb(0,0,0)"
+}`;
 
 $(function() {
    // Hiding back arrow
@@ -487,7 +496,7 @@ function dragAndDropExcel(file) {
                   // If the function got enter anot
                   doesItExist = true;
                   // Call function to get all things
-                  getAllExcelValues(sheet, range, rows, lessonPlanTemplate);
+                  getAllExcelValues(sheet, range, rowsAt, lessonPlanTemplate);
                   // Breaking loop
                   rows = range.e.r;
                   break;
@@ -531,8 +540,7 @@ function getAllExcelValues(sheet, range, row, lessonPlanTemplate) {
       "week": -1,
       "lecture": -1,
       "practical": -1,
-      "tutorial": -1,
-      "remark": -1
+      "tutorial": -1
    };
    for (let columns = range.s.c; columns <= range.e.c; columns++) {
       let cellRef = XLSX.utils.encode_cell({
@@ -541,6 +549,9 @@ function getAllExcelValues(sheet, range, row, lessonPlanTemplate) {
       });
       if (!sheet[cellRef]) {
          continue;
+      }
+      if (sheet['!merges']) {
+            console.log(JSON.stringify(sheet['!merges']));
       }
       let cell = sheet[cellRef];
       let x = String(cell.v);
@@ -555,6 +566,8 @@ function getAllExcelValues(sheet, range, row, lessonPlanTemplate) {
          columnMapping.tutorial = columns;
       }
    }
+
+   //alert(JSON.stringify(columnMapping));
 
    let footerSeperation = -1;
    // Use the mapped column and start processing
@@ -579,7 +592,7 @@ function getAllExcelValues(sheet, range, row, lessonPlanTemplate) {
       lesson.appendChild(lessonHeader);
 
       // Checking if entire row is empty
-      let isBlank = true;
+      //let isBlank = true;
       for (let columns = range.s.c; columns <= range.e.c; columns++) {
          //Mapping column and rows
          let cellRef = XLSX.utils.encode_cell({
@@ -591,7 +604,7 @@ function getAllExcelValues(sheet, range, row, lessonPlanTemplate) {
          }
          let cell = sheet[cellRef];
          let x = String(cell.v);
-         isBlank = false;
+         //isBlank = false;
 
          // Checking title
          if (columns === columnMapping.week) {
@@ -676,11 +689,11 @@ function getAllExcelValues(sheet, range, row, lessonPlanTemplate) {
          // Appending lesson to Page2
          lessonPlanTemplate.appendChild(lesson);
       }
-
-      if (isBlank) {
-         footerSeperation = (rows + 1);
-         break;
-      }
+      //alert("Row: " + rows + ", isBlank: " + isBlank);
+      //if (isBlank) {
+      //   footerSeperation = (rows + 1);
+      //   break;
+      //}
    }
 
    // Get footer
@@ -787,7 +800,7 @@ function addLessonContent(addLessonDiv) {
 
    contentDivDiv.className = "section contentDivDiv";
    leftDiv.className = "leftDiv";
-   leftDivTextInput.className = "form-control";
+   leftDivTextInput.className = "inputDiv form-control";
    leftDivColorInput.className = "form-control";
    rightDiv.className = "flex rightDiv";
    page1Content.className = "page1Content";
@@ -834,6 +847,7 @@ function addLessonContent(addLessonDiv) {
       }
    });
 
+   $(leftDivColorInput).css("display", "none"); // Hiding real input
    $(page1ContentTitleTextInput).css("display", "none"); // Hiding real input
    $(page1ContentListTextarea).css("display", "none"); // Hiding real input
 
@@ -842,23 +856,27 @@ function addLessonContent(addLessonDiv) {
    // Creating options for select (Dropdown)
    let lectureL = document.createElement("option");
    lectureL.appendChild(document.createTextNode("Lecture"));
-   lectureL.setAttribute("value", "L");
+   lectureL.setAttribute("value", "Lecture");
    let practicalP = document.createElement("option");
    practicalP.appendChild(document.createTextNode("Practical"));
-   practicalP.setAttribute("value", "P");
+   practicalP.setAttribute("value", "Practical");
    let tutorialT = document.createElement("option");
    tutorialT.appendChild(document.createTextNode("Tutorial"));
-   tutorialT.setAttribute("value", "T");
+   tutorialT.setAttribute("value", "Tutorial");
    let remarkR = document.createElement("option");
    remarkR.appendChild(document.createTextNode("Remark"));
-   remarkR.setAttribute("value", "R");
+   remarkR.setAttribute("value", "Remark");
+   let eLearningE = document.createElement("option");
+   eLearningE.appendChild(document.createTextNode("E-Learning"));
+   eLearningE.setAttribute("value", "E-Learning");
    let inCourseAssICA = document.createElement("option");
    inCourseAssICA.appendChild(document.createTextNode("In Course Assessment"));
-   inCourseAssICA.setAttribute("value", "ICA");
+   inCourseAssICA.setAttribute("value", "In Course Assessment");
    leftDivTextInput.appendChild(lectureL);
    leftDivTextInput.appendChild(practicalP);
    leftDivTextInput.appendChild(tutorialT);
    leftDivTextInput.appendChild(remarkR);
+   leftDivTextInput.appendChild(eLearningE);
    leftDivTextInput.appendChild(inCourseAssICA);
 
    leftDivP.appendChild(document.createTextNode("Lecture/Practical/something"));
@@ -953,7 +971,7 @@ function addLessonSection(addSectionDiv) {
 
    contentDivDiv.className = "section contentDivDiv";
    leftDiv.className = "leftDiv";
-   leftDivTextInput.className = "form-control";
+   leftDivTextInput.className = "inputDiv form-control";
    leftDivColorInput.className = "form-control";
    rightDiv.className = "flex rightDiv";
    page1Content.className = "page1Content";
@@ -1025,6 +1043,7 @@ function addLessonSection(addSectionDiv) {
 
    $(lessonTitleTextInput).css("display", "none"); // Hiding real input
    $(lessonSubtitleTextInput).css("display", "none"); // Hiding real input
+   $(leftDivColorInput).css("display", "none"); // Hiding real input
    $(page1ContentTitleTextInput).css("display", "none"); // Hiding real input
    $(page1ContentListTextarea).css("display", "none"); // Hiding real input
 
@@ -1040,23 +1059,27 @@ function addLessonSection(addSectionDiv) {
    // Creating options for select (Dropdown)
    let lectureL = document.createElement("option");
    lectureL.appendChild(document.createTextNode("Lecture"));
-   lectureL.setAttribute("value", "L");
+   lectureL.setAttribute("value", "Lecture");
    let practicalP = document.createElement("option");
    practicalP.appendChild(document.createTextNode("Practical"));
-   practicalP.setAttribute("value", "P");
+   practicalP.setAttribute("value", "Practical");
    let tutorialT = document.createElement("option");
    tutorialT.appendChild(document.createTextNode("Tutorial"));
-   tutorialT.setAttribute("value", "T");
+   tutorialT.setAttribute("value", "Tutorial");
    let remarkR = document.createElement("option");
    remarkR.appendChild(document.createTextNode("Remark"));
-   remarkR.setAttribute("value", "R");
+   remarkR.setAttribute("value", "Remark");
+   let eLearningE = document.createElement("option");
+   eLearningE.appendChild(document.createTextNode("E-Learning"));
+   eLearningE.setAttribute("value", "E-Learning");
    let inCourseAssICA = document.createElement("option");
    inCourseAssICA.appendChild(document.createTextNode("In Course Assessment"));
-   inCourseAssICA.setAttribute("value", "ICA");
+   inCourseAssICA.setAttribute("value", "In Course Assessment");
    leftDivTextInput.appendChild(lectureL);
    leftDivTextInput.appendChild(practicalP);
    leftDivTextInput.appendChild(tutorialT);
    leftDivTextInput.appendChild(remarkR);
+   leftDivTextInput.appendChild(eLearningE);
    leftDivTextInput.appendChild(inCourseAssICA);
 
    leftDivP.appendChild(document.createTextNode("Lecture/Practical/something"));
@@ -1237,28 +1260,32 @@ function recreatePage1() {
          leftDivP.appendChild(document.createTextNode("Lecture/Practical/something"));
          // Lecture/Practical/something
          let leftDivTextInput = document.createElement("select");
-         leftDivTextInput.setAttribute("onchange", "setActualValue()");
-         leftDivTextInput.className = "form-control";
+         leftDivTextInput.setAttribute("onchange", "setActualColour(this)");
+         leftDivTextInput.className = "inputDiv form-control";
          // Lecture select options
          let lectureL = document.createElement("option");
          lectureL.appendChild(document.createTextNode("Lecture"));
-         lectureL.setAttribute("value", "L");
+         lectureL.setAttribute("value", "Lecture");
          let practicalP = document.createElement("option");
          practicalP.appendChild(document.createTextNode("Practical"));
-         practicalP.setAttribute("value", "P");
+         practicalP.setAttribute("value", "Practical");
          let tutorialT = document.createElement("option");
          tutorialT.appendChild(document.createTextNode("Tutorial"));
-         tutorialT.setAttribute("value", "T");
+         tutorialT.setAttribute("value", "Tutorial");
          let remarkR = document.createElement("option");
          remarkR.appendChild(document.createTextNode("Remark"));
-         remarkR.setAttribute("value", "R");
+         remarkR.setAttribute("value", "Remark");
+         let eLearningE = document.createElement("option");
+         eLearningE.appendChild(document.createTextNode("E-Learning"));
+         eLearningE.setAttribute("value", "E-Learning");
          let inCourseAssICA = document.createElement("option");
          inCourseAssICA.appendChild(document.createTextNode("In Course Assessment"));
-         inCourseAssICA.setAttribute("value", "ICA");
+         inCourseAssICA.setAttribute("value", "In Course Assessment");
          leftDivTextInput.appendChild(lectureL);
          leftDivTextInput.appendChild(practicalP);
          leftDivTextInput.appendChild(tutorialT);
          leftDivTextInput.appendChild(remarkR);
+         leftDivTextInput.appendChild(eLearningE);
          leftDivTextInput.appendChild(inCourseAssICA);
          $(leftDivTextInput).val($(this).find(".lecPracDiv :first-child").text());
          // Lecture Color
@@ -1266,6 +1293,7 @@ function recreatePage1() {
          leftDivColorInput.setAttribute("onchange", "setActualValue()");
          leftDivColorInput.setAttribute("type", "color");
          leftDivColorInput.className = "form-control";
+         $(leftDivColorInput).css("display", "none"); // Hiding real input
          let lecPracDivColor = $(this).find(".lecPracDiv").css("background-color");
          $(leftDivColorInput).val(rgb2hex(lecPracDivColor));
 
@@ -1437,7 +1465,7 @@ function recreatePage1() {
 
    // Show all input
    let showAllButton = document.createElement("button");
-   showAllButton.appendChild(document.createTextNode("Show All"));
+   showAllButton.appendChild(document.createTextNode("Show All Hidden HTML"));
    showAllButton.setAttribute("onclick", "showAllInput(this)");
    showAllButton.className = "btn";
 
@@ -1562,6 +1590,15 @@ function setInputValue() {
 }
 
 function setActualValue() {
+   recreatePage2();
+}
+
+function setActualColour(dropdownInput) {
+   let dropdownValue = dropdownInput.value;
+   let colourTemplateJson = JSON.parse(colourTemplate);
+   if(colourTemplateJson[dropdownValue]) {
+      $(dropdownInput).next().val(colourTemplateJson[dropdownValue]);
+   }
    recreatePage2();
 }
 
@@ -1823,17 +1860,15 @@ function inputToDiv(div) {
    setActualValue();
 }
 
-let notClicked = true;
-
 function showAllInput(button) {
    if (notClicked) {
       $(".inputDiv").next().css("display", "block");
-      $("textarea").css("display", "block");
+      $("textarea:not(#popup textarea)").css("display", "block");
       button.innerHTML = "Hide All";
       notClicked = false;
    } else {
       $(".inputDiv").next().css("display", "none");
-      $("textarea:not(#popup > textarea)").css("display", "none");
+      $("textarea:not(#popup textarea)").css("display", "none");
       button.innerHTML = "Show All";
       notClicked = true;
    }
@@ -1890,14 +1925,4 @@ function htmlDecode(str) {
    return str.replace(/&#(\d+);?/g, function() {
       return String.fromCharCode(arguments[1]);
    });
-}
-
-// Sleep
-function sleep(milliseconds) {
-   var start = new Date().getTime();
-   for (var i = 0; i < 1e7; i++) {
-      if ((new Date().getTime() - start) > milliseconds) {
-         break;
-      }
-   }
 }

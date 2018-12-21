@@ -6,9 +6,9 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Redoing Lesson Plan</title>
 	<link rel="shortcut icon" type="image/jpeg" href="favicon.jpg" />
-	<link rel="stylesheet" href="stylesheet.min.css" />
+	<link rel="stylesheet" href="stylesheet.css" />
 	<!-- My Script -->
-	<script src="AGiftForYou.js" defer></script>
+	<script src="Tools.js" defer></script>
 	<!-- JQuery UI -->
 	<link rel="stylesheet" href="jquery-ui/jquery-ui.min.css" />
 	<!-- Bootstrap -->
@@ -111,7 +111,7 @@
 					</div>
 					<div class="lecPracHeader">
 						<div class="lecPracDiv">
-							<p class="bold">L</p>
+							<p class="bold">Lecture</p>
 						</div>
 						<div class="lessonPlanContent">
 							<p class="lessonPlanContentP"><a href="https://polymall.polytechnic.edu.sg/bbcswebdav/pid-3221088-dt-content-rid-9486481_1/xid-9486481_1" target="_blank">Universal Platform and Controls - Introduction to Windows 10</a></p>
@@ -124,7 +124,7 @@
 					</div>
 					<div class="lecPracHeader">
 						<div class="lecPracDiv">
-							<p class="bold">P</p>
+							<p class="bold">Practical</p>
 						</div>
 						<div class="lessonPlanContent">
 							<p class="lessonPlanContentP">Platform and Controls</p>
@@ -143,7 +143,7 @@
 					</div>
 					<div class="lecPracHeader">
 						<div class="lecPracDiv">
-							<p class="bold">L</p>
+							<p class="bold">Lecture</p>
 						</div>
 						<div class="lessonPlanContent">
 							<p class="lessonPlanContentP">Page Controls and Navigation</p>
@@ -157,7 +157,7 @@
 					</div>
 					<div class="lecPracHeader">
 						<div class="lecPracDiv">
-							<p class="bold">P</p>
+							<p class="bold">Practical</p>
 						</div>
 						<div class="lessonPlanContent">
 							<p class="lessonPlanContentP">Page Controls and Navigation</p>
@@ -171,7 +171,7 @@
 					</div>
 					<div class="lecPracHeader">
 						<div class="lecPracDiv" style="background-color:#fa8072">
-							<p class="bold">ICA</p>
+							<p class="bold">In Course Assessment</p>
 						</div>
 						<div class="lessonPlanContent">
 							<ul>
@@ -210,7 +210,9 @@
 		<div id="rightClickMenu">
 			<ul>
 				<li onclick="promptLink()">Link</li>
-				<li><hr></li>
+			</ul>
+			<hr />
+			<ul>
 				<li onclick="copyCommand()">Copy</li>
 			</ul>
 		</div>
@@ -231,8 +233,8 @@
 								<div class="dropdown-menu">
 									<a class="dropdown-item active" onclick="changeInputBoxSelection(1)">Webpage</a>
 									<a class="dropdown-item" onclick="changeInputBoxSelection(2)">Email</a>
-									<div role="separator" class="dropdown-divider"></div>
-									<a class="dropdown-item" onclick="changeInputBoxSelection(3)">Javascript</a>
+									<!-- <div role="separator" class="dropdown-divider"></div> -->
+									<!-- <a class="dropdown-item" onclick="changeInputBoxSelection(3)">Javascript</a> -->
 								</div>
 							</div>
 							<input id="linkInput" placeholder="https://" type="text" class="form-control" aria-label="Text input with dropdown button">
