@@ -12,12 +12,17 @@
    		  src="https://code.jquery.com/jquery-3.3.1.min.js"
    		  integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
    		  crossorigin="anonymous"></script>
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.14.1/xlsx.full.min.js" integrity="sha256-vzSR+lySv0KEag7JZGIt59p04tPZekm9/N/Se/5s08w=" crossorigin="anonymous"></script>
+      <script src="xlsx.full.min.js"></script>
    </head>
    <body>
       <div>
          <input id="fileInput" type="file" /><br /><br />
-         <textarea id="outputTextarea" wrap="soft" style="white-space: nowrap;  overflow: auto;"></textarea>
+         <select id="selectOptions" onchange="startProcessing(this)" style="width: 100%;">
+            <option value="" disabled selected>
+               Select an option
+            </option>
+         </select><br /><br />
+         <textarea id="outputTextarea" wrap="soft" style="white-space: nowrap;  overflow: auto; width: 100%"></textarea>
       </div>
       <div id="page2">
 

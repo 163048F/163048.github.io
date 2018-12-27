@@ -3,6 +3,7 @@ let focusedInput;
 let startIndex;
 let shouldGoBackHide = 0;
 let notClicked = true;
+let file;
 let colourTemplate = `{
    "Lecture": "rgb(0,0,0)",
    "Practical": "rgb(0,0,0)",
@@ -11,6 +12,7 @@ let colourTemplate = `{
    "E-Learning": "rgb(0,0,0)",
    "In Course Assessment": "rgb(0,0,0)"
 }`;
+let selectOptions = '{"Lecture","Practical","Tutorial","Remark","E-Learning","In Course Assessment"}';
 
 $(function() {
    // Hiding back arrow
@@ -387,15 +389,28 @@ function drop(ev) {
    $(".progress-bar").css("width", "0%");
    $(".progress-bar")[0].classList.add("progress-bar-animated");
    // Get the files
-   let draggedFiles = ev.dataTransfer.files;
+   let draggedFiles;
+   if (ev.dataTransfer) {
+      draggedFiles = ev.dataTransfer.files;
+   } else {
+      draggedFiles = ev.target.files;
+   }
    // Get the first file
-   let file = ev.dataTransfer.files[0];
+   file = draggedFiles[0];
    let fileReader = new FileReader();
    // Make sure only .html and .txt is accepted
    if (file.type.match("text/plain") || file.type.match("text/html")) {
+      /* Not really necessary
+      // Set file Input to same as drag
+      if(ev.dataTransfer) {
+         $("#uploadedFileName")[0].files = ev.dataTransfer.files;
+      }
+      */
+
       fileReader.onload = function() {
          let readerResult = fileReader.result;
          if (fileMatchesLayout(readerResult)) {
+            $("#uploadedFileName").html(file.name);
             $("#importTextarea").val(readerResult);
          }
       };
@@ -410,7 +425,8 @@ function drop(ev) {
          $(".progress-bar")[0].classList.remove("progress-bar-animated");
       };
    } else if (file.type.match("application/vnd.ms-excel") || file.type.match("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")) {
-      dragAndDropExcel(file);
+      showColumn(file);
+      $("#excelBoxDiv").modal("show");
    } else {
       alert("Only .html, .txt & .xls(x) is the accepted file format");
    }
@@ -418,7 +434,7 @@ function drop(ev) {
    fileReader.readAsText(file);
 }
 
-function dragAndDropExcel(file) {
+function showColumn(file) {
    let fileReader = new FileReader();
    fileReader.onload = function(e) {
       let filename = file.name;
@@ -431,311 +447,503 @@ function dragAndDropExcel(file) {
       }
       // call 'xlsx' to read the file
       let workbook = XLSX.read(binary, {
-         type: "binary",
+         type: 'binary',
          cellDates: true,
          cellStyles: true
       });
 
-      // LessonPlanTemplate
-      let lessonPlanTemplate = document.createElement("div");
-      lessonPlanTemplate.id = "lessonPlanTemplate";
-
-      // Instructors
-      let instructors = document.createElement("p");
-      instructors.appendChild(document.createTextNode("Instructors Details"));
-      // Instructors Details
-      let instructorsDetails = document.createElement("div");
-
-      // Adding all classes
-      instructors.className = "bold underline";
-      instructorsDetails.id = "instructorsDetails";
-
-      let doesItExist = false;
-      workbook.SheetNames.forEach(sheetName => {
-         let subtitleValue = "";
-         let first = true;
-
-         let sheet = workbook.Sheets[sheetName];
-         let range = XLSX.utils.decode_range(sheet["!ref"]);
-         for (let rows = range.s.r; rows <= range.e.r; rows++) {
-            for (let columns = range.s.c; columns <= range.e.c; columns++) {
-               let rowsAt = -1;
-
-               let cellRef = XLSX.utils.encode_cell({
-                  c: columns,
-                  r: rows
-               });
-               if (!sheet[cellRef]) {
-                  continue;
-               }
-               let cell = sheet[cellRef];
-               let x = String(cell.v);
-
-               // Processing
-               if (x.indexOf("Week") !== -1) {
-                  rowsAt = rows;
-               } else if (x.indexOf("Lecture") !== -1) {
-                  rowsAt = rows;
-               } else if (x.indexOf("Practical") !== -1) {
-                  rowsAt = rows;
-               } else if (x.indexOf("Tutorial") !== -1) {
-                  rowsAt = rows;
-               } else if (x.indexOf("Remark") !== -1) {
-                  rowsAt = rows;
-               } else {
-                  //console.log(x + " is (probably) Title/Subtitle");
-               }
-
-               // If hit something
-               if (rowsAt >= 0) {
-                  // Add title and subTitle
-                  $(instructorsDetails).html(subtitleValue);
-                  // Appending Everything
-                  lessonPlanTemplate.append(instructors);
-                  lessonPlanTemplate.append(instructorsDetails);
-                  // If the function got enter anot
-                  doesItExist = true;
-                  // Call function to get all things
-                  getAllExcelValues(sheet, range, rowsAt, lessonPlanTemplate);
-                  // Breaking loop
-                  rows = range.e.r;
-                  break;
-               } else {
-                  if (x) {
-                     if (first) {
-                        subtitleValue = "<p>" + x + "</p>";
-                        first = false;
-                     } else {
-                        subtitleValue += "<p>" + x + "</p>";
-                     }
-                  }
-               }
-            }
-         }
-      });
-      if (!doesItExist) {
-         alert("The excel sheet does not meet the required format");
-         $(".progress-bar").css("width", "0%");
-      }
-   };
-
-   // Progress bar
-   fileReader.onprogress = function(data) {
-      if (data.lengthComputable) {
-         let progress = parseInt(((data.loaded / data.total) * 100), 10);
-         $(".progress-bar").css("width", progress + "%");
-      }
-   };
-
-   fileReader.onloadend = function() {
-      $(".progress-bar")[0].classList.remove("progress-bar-animated");
-   };
-
-   fileReader.readAsArrayBuffer(file);
-}
-
-function getAllExcelValues(sheet, range, row, lessonPlanTemplate) {
-   // Map the columns first
-   let columnMapping = {
-      "week": -1,
-      "lecture": -1,
-      "practical": -1,
-      "tutorial": -1
-   };
-   for (let columns = range.s.c; columns <= range.e.c; columns++) {
-      let cellRef = XLSX.utils.encode_cell({
-         c: columns,
-         r: row
-      });
-      if (!sheet[cellRef]) {
-         continue;
-      }
-      if (sheet['!merges']) {
-            console.log(JSON.stringify(sheet['!merges']));
-      }
-      let cell = sheet[cellRef];
-      let x = String(cell.v);
-
-      if (x.indexOf("Week") !== -1) {
-         columnMapping.week = columns;
-      } else if (x.indexOf("Lecture") !== -1) {
-         columnMapping.lecture = columns;
-      } else if (x.indexOf("Practical") !== -1) {
-         columnMapping.practical = columns;
-      } else if (x.indexOf("Tutorial") !== -1) {
-         columnMapping.tutorial = columns;
-      }
-   }
-
-   //alert(JSON.stringify(columnMapping));
-
-   let footerSeperation = -1;
-   // Use the mapped column and start processing
-   for (let rows = (row + 1); rows <= range.e.r; rows++) {
-      // Create Lesson
-      let lesson = document.createElement("div");
-      let lessonHeader = document.createElement("div");
-      // Lesson Title
-      let lessonTitle = document.createElement("p");
-      // Lesson Subtitle
-      let lessonSubtitle = document.createElement("p");
-
-      // Adding all classes
-      lesson.className = "lesson";
-      lessonHeader.className = "lessonHeader";
-      lessonTitle.className = "bold";
-      lessonSubtitle.className = "em";
-
-      // Appending Lesson header before loop
-      lessonHeader.appendChild(lessonTitle);
-      lessonHeader.appendChild(lessonSubtitle);
-      lesson.appendChild(lessonHeader);
-
-      // Checking if entire row is empty
-      //let isBlank = true;
+      // Clearing selectOptions
+      $("#excelSelectInput").empty();
+      $("#excelSelectInput2").empty();
+      // Adding placeholder
+      let placeholderOption = $("<option disabled selected>Select an option</option>");
+      $("#excelSelectInput").append(placeholderOption);
+      let placeholderOption2 = $("<option disabled selected>Select an option</option>");
+      $("#excelSelectInput2").append(placeholderOption2);
+      // Getting the first sheet
+      let sheet = workbook.Sheets[workbook.SheetNames[0]];
+      let range = XLSX.utils.decode_range(sheet['!ref']);
+      // Looping all columns on first row
       for (let columns = range.s.c; columns <= range.e.c; columns++) {
-         //Mapping column and rows
          let cellRef = XLSX.utils.encode_cell({
             c: columns,
-            r: rows
+            r: 0
          });
          if (!sheet[cellRef]) {
             continue;
          }
          let cell = sheet[cellRef];
          let x = String(cell.v);
-         //isBlank = false;
 
-         // Checking title
-         if (columns === columnMapping.week) {
-            // LessonTitle = week
-            // Checking whether is link
-            if (cell.l) {
-               if (typeof cell.v == "number") {
-                  $(lessonTitle).html("<a href='" + cell.l.display + "' target='_blank'>Week " + cell.v + "</a>");
-               } else {
-                  $(lessonTitle).html("<a href='" + cell.l.display + "' target='_blank'>" + cell.v + "</a>");
-               }
-            } else {
-               $(lessonTitle).html("Week " + x);
+         // Adding to selectOptions
+         let option = document.createElement("option");
+         option.appendChild(document.createTextNode(x));
+         option.value = columns;
+         let option2 = document.createElement("option");
+         option2.appendChild(document.createTextNode(x));
+         option2.value = columns;
+         // Title
+         $("#excelSelectInput").append(option);
+         // subtitle
+         $("#excelSelectInput2").append(option2);
+      }
+   };
+   fileReader.readAsArrayBuffer(file);
+}
+
+function startProcessingExcel() {
+   if ($("#excelSelectInput").val() && $("#excelSelectInput").val() >= 0) {
+      // LessonPlanTemplate
+      let lessonPlanTemplate = document.createElement("div");
+      lessonPlanTemplate.id = "lessonPlanTemplate";
+      // Instructors
+      let instructors = document.createElement("p");
+      instructors.appendChild(document.createTextNode("Instructors Details"));
+      // Instructors Details
+      let instructorsDetails = document.createElement("div");
+      // Adding all classes
+      instructors.className = "bold underline";
+      instructorsDetails.id = "instructorsDetails";
+      // Appending Everything
+      lessonPlanTemplate.append(instructors);
+      lessonPlanTemplate.append(instructorsDetails);
+
+
+      // Getting the primary column number
+      let selectedValue = $("#excelSelectInput").val();
+      let selectedSubValue = $("#excelSelectInput2").val();
+      if (selectedValue >= 0) {
+         // Show name on file input
+         $("#uploadedFileName").html(file.name);
+
+         let workbookSheet;
+
+         let fileReader = new FileReader();
+         fileReader.onload = function(e) {
+            let filename = file.name;
+            // pre-process data
+            let binary = "";
+            let bytes = new Uint8Array(e.target.result);
+            let length = bytes.byteLength;
+            for (let i = 0; i < length; i++) {
+               binary += String.fromCharCode(bytes[i]);
             }
-         } else {
-            // lecPracHeader
-            let lecPracHeader = document.createElement("div");
-            // LecPracDiv
-            let lecPracDiv = document.createElement("div");
-            let lecPracDivP = document.createElement("p");
-            lecPracDiv.appendChild(lecPracDivP);
-            // Lesson Plan Content
-            let lessonPlanContent = document.createElement("div");
-            // Lesson Plan Content Title
-            let lessonPlanContentTitleP = document.createElement("p");
-            // Lesson Plan Content List
-            let lessonPlanContentListUl = document.createElement("ul");
+            // call 'xlsx' to read the file
+            let workbook = XLSX.read(binary, {
+               type: 'binary',
+               cellDates: true,
+               cellStyles: true
+            });
 
-            // Adding all classes
-            lecPracHeader.className = "lecPracHeader";
-            lecPracDiv.className = "lecPracDiv";
-            lecPracDivP.className = "bold";
-            lessonPlanContent.className = "lessonPlanContent";
-            lessonPlanContentTitleP.className = "lessonPlanContentP";
+            // Getting the first sheet
+            let sheet = workbook.Sheets[workbook.SheetNames[0]];
+            let range = XLSX.utils.decode_range(sheet['!ref']);
 
-            if (columns === columnMapping.lecture) {
-               // LecPracDiv = L
-               $(lecPracDivP).html("L");
-            } else if (columns === columnMapping.practical) {
-               // LecPracDiv = P
-               $(lecPracDivP).html("P");
-            } else if (columns === columnMapping.tutorial) {
-               // LecPracDiv = T
-               $(lecPracDivP).html("T");
-            } else {
-               // LecPracDiv = R
-               $(lecPracDivP).html("R");
-            }
+            workbookSheet = {
+               "sheet": sheet,
+               "range": range
+            };
 
-            // ContentList = value
-            let xArray = x.trim().split("\n");
-            let lines = "";
-            // Checking whether is link
-            if (cell.l) {
-               xArray = cell.v.trim().split("\n");
-               for (let i = 0; i < xArray.length; i++) {
-                  if (cell.l.display) {
-                     lines += "<li><a href='" + cell.l.display + "' target='_blank'>" + xArray[i] + "</a></li>";
-                  } else {
-                     console.log("Couldn't add link to " + xArray[i] + " due to error");
-                     lines += "<li>" + xArray[i] + "</li>";
+            // Check if loadSheet is empty
+            if (workbookSheet) {
+               // Map the columns first
+               let range = workbookSheet.range;
+               let columnMapping = {
+                  lecture: -1,
+                  practical: -1,
+                  tutorial: -1,
+                  remark: -1
+               };
+               for (let columns = range.s.c; columns <= range.e.c; columns++) {
+                  let cellRef = XLSX.utils.encode_cell({
+                     c: columns,
+                     r: 0
+                  });
+                  if (!sheet[cellRef]) {
+                     continue;
+                  }
+                  let cell = sheet[cellRef];
+                  let x = String(cell.v);
+
+                  if (x.indexOf("Lecture") !== -1) {
+                     columnMapping.lecture = columns;
+                  } else if (x.indexOf("Practical") !== -1) {
+                     columnMapping.practical = columns;
+                  } else if (x.indexOf("Tutorial") !== -1) {
+                     columnMapping.tutorial = columns;
+                  } else if (x.indexOf("Remark") !== -1) {
+                     columnMapping.remark = columns;
                   }
                }
+
+               // Get the primary first
+               // +1 to not read header/title of table
+               for (let rows = (range.s.r + 1); rows <= range.e.r; rows++) {
+                  let cellRef = XLSX.utils.encode_cell({
+                     c: selectedValue,
+                     r: rows
+                  });
+                  if (!sheet[cellRef]) {
+                     continue;
+                  }
+                  let cell = sheet[cellRef];
+                  let x = String(cell.v);
+
+                  // Create Lesson
+                  let lesson = document.createElement("div");
+                  let lessonHeader = document.createElement("div");
+                  // Lesson Title
+                  let lessonTitle = document.createElement("p");
+                  // Lesson Subtitle
+                  let lessonSubtitle = document.createElement("p");
+
+                  // Adding all classes
+                  lesson.className = "lesson";
+                  lessonHeader.className = "lessonHeader";
+                  lessonTitle.className = "bold";
+                  lessonSubtitle.className = "em";
+
+                  // Checking whether is link
+                  if (cell.l) {
+                     if (typeof cell.v == "number") {
+                        $(lessonTitle).html("<a href='" + cell.l.Target + "' target='_blank'>Week " + cell.v + "</a>");
+                     } else {
+                        $(lessonTitle).html("<a href='" + cell.l.Target + "' target='_blank'>" + cell.v + "</a>");
+                     }
+                  } else {
+                     $(lessonTitle).html(x);
+                  }
+
+                  // If subtitle is set
+                  if (selectedSubValue && selectedSubValue >= 0) {
+                     let cellSubRef;
+
+                     let selectedSubValueMerge = checkIfMerged(sheet, selectedSubValue, rows);
+                     if (selectedSubValueMerge.found) {
+                        cellSubRef = XLSX.utils.encode_cell({
+                           c: selectedSubValueMerge.sC,
+                           r: selectedSubValueMerge.sR
+                        });
+                     } else {
+                        cellSubRef = XLSX.utils.encode_cell({
+                           c: selectedSubValue,
+                           r: rows
+                        });
+                     }
+
+                     if (sheet[cellSubRef]) {
+                        let cellSub = sheet[cellSubRef];
+                        let xSub = String(cellSub.v);
+
+                        // Checking whether is link
+                        if (cellSub.l) {
+                           if (typeof cellSub.v == "number") {
+                              $(lessonSubtitle).html("<a href='" + cellSub.l.Target + "' target='_blank'>Week " + cellSub.v + "</a>");
+                           } else {
+                              $(lessonSubtitle).html("<a href='" + cellSub.l.Target + "' target='_blank'>" + cellSub.v + "</a>");
+                           }
+                        } else {
+                           $(lessonSubtitle).html(xSub);
+                        }
+                     }
+                  }
+
+                  // Appending Lesson header before loop
+                  lessonHeader.appendChild(lessonTitle);
+                  lessonHeader.appendChild(lessonSubtitle);
+                  lesson.appendChild(lessonHeader);
+
+                  let mergeObject = checkIfMerged(sheet, selectedValue, rows);
+                  if (mergeObject.direction === "row") {
+                     let rowsRemaining = mergeObject.eR - mergeObject.sR;
+
+                     for (let columns = range.s.c; columns <= range.e.c; columns++) {
+                        // Skip the selected Value
+                        if (columns == selectedValue || columns == selectedSubValue) {
+                           continue;
+                        }
+                        for (let y = rows; y <= (rows + rowsRemaining); y++) {
+                           // If not first and the cell is merged in rows with the primary, skip
+                           if (y > rows && checkIfMerged(sheet, columns, rows).direction === "row") {
+                              continue;
+                           }
+
+                           let cellRef2;
+                           // Check if it is Merged
+                           let divsss = checkIfMerged(sheet, columns, y);
+                           if (divsss.direction === "column" || divsss.direction === "both") {
+                              // If merged get first value
+                              cellRef2 = XLSX.utils.encode_cell({
+                                 c: divsss.sC,
+                                 r: divsss.sR
+                              });
+                           } else {
+                              cellRef2 = XLSX.utils.encode_cell({
+                                 c: columns,
+                                 r: y
+                              });
+                           }
+
+                           if (!sheet[cellRef2]) {
+                              continue;
+                           }
+                           // Create header
+                           let divss = getHeader(columnMapping, columns);
+                           let lecPracHeader = divss.header;
+                           let lecPracDiv = divss.lecPrac;
+                           // Lesson Plan Content
+                           let lessonPlanContent = document.createElement("div");
+                           // Lesson Plan Content Title
+                           let lessonPlanContentTitleP = document.createElement("p");
+                           // Lesson Plan Content List
+                           let lessonPlanContentListUl = document.createElement("ul");
+                           // Adding all classes
+                           lessonPlanContent.className = "lessonPlanContent";
+                           lessonPlanContentTitleP.className = "lessonPlanContentP";
+
+                           // Create ContentList
+                           let cell2 = sheet[cellRef2];
+                           let x2 = String(cell2.v);
+                           let xArray = x2.trim().split("\n");
+                           // Checking whether is link
+                           let lines = "";
+                           if (cell2.l) {
+                              xArray = cell2.v.trim().split("\n");
+                              for (let i = 0; i < xArray.length; i++) {
+                                 lines += "<li><a href='" + cell2.l.Target + "' target='_blank'>" + xArray[i] + "</a></li>";
+                              }
+                           } else {
+                              for (let i = 0; i < xArray.length; i++) {
+                                 lines += "<li>" + xArray[i] + "</li>";
+                              }
+                           }
+
+                           $(lessonPlanContentListUl).html(lines);
+
+                           // Appending Everything
+                           lessonPlanContent.appendChild(lessonPlanContentTitleP);
+                           lessonPlanContent.appendChild(lessonPlanContentListUl);
+                           lecPracHeader.appendChild(lecPracDiv);
+                           lecPracHeader.appendChild(lessonPlanContent);
+
+                           // Appending to lesson
+                           lesson.appendChild(lecPracHeader);
+                        }
+                        // Appending lesson to Page2
+                        lessonPlanTemplate.appendChild(lesson);
+                     }
+                  } else {
+                     for (let columns = range.s.c; columns <= range.e.c; columns++) {
+                        // Skip the selected Value
+                        if (columns == selectedValue || columns == selectedSubValue) {
+                           continue;
+                        }
+                        let cellRef2;
+                        // Check if it is Merged
+                        let divsss = checkIfMerged(sheet, columns, rows);
+                        if (divsss.direction === "column" || divsss.direction === "both") {
+                           // If merged get first value
+                           cellRef2 = XLSX.utils.encode_cell({
+                              c: divsss.sC,
+                              r: divsss.sR
+                           });
+                        } else {
+                           cellRef2 = XLSX.utils.encode_cell({
+                              c: columns,
+                              r: rows
+                           });
+                        }
+
+                        if (!sheet[cellRef2]) {
+                           continue;
+                        }
+                        // Create header
+                        let divss = getHeader(columnMapping, columns);
+                        let lecPracHeader = divss.header;
+                        let lecPracDiv = divss.lecPrac;
+                        // Lesson Plan Content
+                        let lessonPlanContent = document.createElement("div");
+                        // Lesson Plan Content Title
+                        let lessonPlanContentTitleP = document.createElement("p");
+                        // Lesson Plan Content List
+                        let lessonPlanContentListUl = document.createElement("ul");
+                        // Adding all classes
+                        lessonPlanContent.className = "lessonPlanContent";
+                        lessonPlanContentTitleP.className = "lessonPlanContentP";
+
+                        // Create ContentList
+                        let cell2 = sheet[cellRef2];
+                        let x2 = String(cell2.v);
+                        let xArray = x2.trim().split("\n");
+                        // Checking whether is link
+                        let lines = "";
+                        if (cell2.l) {
+                           xArray = cell2.v.trim().split("\n");
+                           for (let i = 0; i < xArray.length; i++) {
+                              lines += "<li><a href='" + cell2.l.Target + "' target='_blank'>" + xArray[i] + "</a></li>";
+                           }
+                        } else {
+                           for (let i = 0; i < xArray.length; i++) {
+                              lines += "<li>" + xArray[i] + "</li>";
+                           }
+                        }
+
+                        $(lessonPlanContentListUl).html(lines);
+
+                        // Appending Everything
+                        lessonPlanContent.appendChild(lessonPlanContentTitleP);
+                        lessonPlanContent.appendChild(lessonPlanContentListUl);
+                        lecPracHeader.appendChild(lecPracDiv);
+                        lecPracHeader.appendChild(lessonPlanContent);
+
+                        // Appending to lesson
+                        lesson.appendChild(lecPracHeader);
+                     }
+                     // Appending lesson to Page2
+                     lessonPlanTemplate.appendChild(lesson);
+                  }
+               }
+               $("#importTextarea").val(lessonPlanTemplate.outerHTML);
+               $("#excelBoxDiv").modal("hide");
+               $("#excelSelectInput")[0].style.boxShadow = "";
+            }
+         };
+         // Progress bar
+         fileReader.onprogress = function(data) {
+            if (data.lengthComputable) {
+               let progress = parseInt(((data.loaded / data.total) * 100), 10);
+               $(".progress-bar").css("width", progress + "%");
+            }
+         };
+
+         fileReader.onloadend = function() {
+            $(".progress-bar")[0].classList.remove("progress-bar-animated");
+         };
+
+         fileReader.readAsArrayBuffer(file);
+      }
+   } else {
+      // Validation show red
+      $("#excelSelectInput")[0].style.boxShadow = "0 0 0 .2rem rgba(255,0,0,.25)";
+   }
+}
+
+function getHeader(columnMapping, column) {
+   // lecPracHeader
+   let lecPracHeader = document.createElement("div");
+   // LecPracDiv
+   let lecPracDiv = document.createElement("div");
+   let lecPracDivP = document.createElement("p");
+   lecPracDiv.appendChild(lecPracDivP);
+
+   // Adding all classes
+   lecPracHeader.className = "lecPracHeader";
+   lecPracDiv.className = "lecPracDiv";
+   lecPracDivP.className = "bold";
+
+   for (let keyValue in columnMapping) {
+      if (columnMapping.hasOwnProperty(keyValue)) {
+         if (columnMapping[keyValue] === column) {
+            // See is which
+            if (keyValue === "practical") {
+               // Create input with practical selected
+               $(lecPracDivP).html("Practical");
+               return {
+                  header: lecPracHeader,
+                  lecPrac: lecPracDiv
+               };
+            } else if (keyValue === "tutorial") {
+               // Create input with tutorial selected
+               $(lecPracDivP).html("Tutorial");
+               return {
+                  header: lecPracHeader,
+                  lecPrac: lecPracDiv
+               };
+            } else if (keyValue === "remark") {
+               // Create input with remark selected
+               $(lecPracDivP).html("Remark");
+               return {
+                  header: lecPracHeader,
+                  lecPrac: lecPracDiv
+               };
+            }
+         }
+      }
+   }
+   // (Default)
+   // Create input with lecture selected
+   $(lecPracDivP).html("Lecture");
+   return {
+      header: lecPracHeader,
+      lecPrac: lecPracDiv
+   };
+}
+
+function checkIfMerged(sheet, column, row) {
+   let json = sheet["!merges"];
+   let valueArray = Object.values(json);
+
+   for (let i = 0; i < valueArray.length; i++) {
+      let sC = valueArray[i].s.c;
+      let eC = valueArray[i].e.c;
+      let sR = valueArray[i].s.r;
+      let eR = valueArray[i].e.r;
+      // If it is merged
+      if (column >= sC && column <= eC && row >= sR && row <= eR) {
+         // If column is merged
+         if (eC > sC) {
+            // If row is merged
+            if (eR > sR) {
+               // Direction both
+               return {
+                  found: true,
+                  sC: sC,
+                  eC: eC,
+                  sR: sR,
+                  eR: eR,
+                  direction: "both"
+               }
             } else {
-               for (let i = 0; i < xArray.length; i++) {
-                  lines += "<li>" + xArray[i] + "</li>";
+               // Direction column
+               return {
+                  found: true,
+                  sC: sC,
+                  eC: eC,
+                  sR: sR,
+                  eR: eR,
+                  direction: "column"
                }
             }
-
-            $(lessonPlanContentListUl).html(lines);
-
-            // Appending Everything
-            lessonPlanContent.appendChild(lessonPlanContentTitleP);
-            lessonPlanContent.appendChild(lessonPlanContentListUl);
-            lecPracHeader.appendChild(lecPracDiv);
-            lecPracHeader.appendChild(lessonPlanContent);
-
-            // Appending to lesson
-            lesson.appendChild(lecPracHeader);
-         }
-
-         // Appending lesson to Page2
-         lessonPlanTemplate.appendChild(lesson);
-      }
-      //alert("Row: " + rows + ", isBlank: " + isBlank);
-      //if (isBlank) {
-      //   footerSeperation = (rows + 1);
-      //   break;
-      //}
-   }
-
-   // Get footer
-   if (footerSeperation > 0 && footerSeperation <= range.e.r) {
-      let first = true;
-      // Footer
-      let lessonPlanFooter = document.createElement("p");
-      let footerValue = "";
-
-      // Adding all classes
-      lessonPlanFooter.className = "sub";
-
-      for (let rows = footerSeperation; rows <= range.e.r; rows++) {
-         for (let columns = range.s.c; columns <= range.e.c; columns++) {
-            let cellRef = XLSX.utils.encode_cell({
-               c: columns,
-               r: rows
-            });
-            if (!sheet[cellRef]) {
-               continue;
-            }
-            let cell = sheet[cellRef];
-            let x = String(cell.v);
-            if (first) {
-               footerValue = x;
-               first = false;
-            } else {
-               footerValue += "<br />" + x;
+         } else {
+            if (eR > sR) {
+               // Direction Row
+               return {
+                  found: true,
+                  sC: sC,
+                  eC: eC,
+                  sR: sR,
+                  eR: eR,
+                  direction: "row"
+               }
             }
          }
       }
-
-      // Setting footer value
-      $(lessonPlanFooter).html(footerValue);
-      // Appending Footer
-      lessonPlanTemplate.appendChild(lessonPlanFooter);
    }
 
-   $("#importTextarea").val(lessonPlanTemplate.outerHTML);
+   // Direction none
+   return {
+      found: false,
+      sC: null,
+      eC: null,
+      sR: null,
+      eR: null,
+      direction: "none"
+   }
 }
 
 function clearImportTextarea() {
+   $("#inputGroupFile01").val(null);
+   $("#uploadedFileName").html("Choose file");
    $("#importTextarea").val("");
    $(".progress-bar").css("width", "0%");
 }
@@ -1467,10 +1675,10 @@ function recreatePage1() {
    let showAllButton = document.createElement("button");
    showAllButton.appendChild(document.createTextNode("Show All Hidden HTML"));
    showAllButton.setAttribute("onclick", "showAllInput(this)");
-   showAllButton.className = "btn";
+   showAllButton.className = "btn btn-secondary";
 
    // Appending Everything
-   var page1 = document.getElementById("page1");
+   let page1 = document.getElementById("page1");
    page1.appendChild(addLessonSection);
    page1.appendChild(footerSection);
    page1.appendChild(buttonBr);
@@ -1596,7 +1804,7 @@ function setActualValue() {
 function setActualColour(dropdownInput) {
    let dropdownValue = dropdownInput.value;
    let colourTemplateJson = JSON.parse(colourTemplate);
-   if(colourTemplateJson[dropdownValue]) {
+   if (colourTemplateJson[dropdownValue]) {
       $(dropdownInput).next().val(colourTemplateJson[dropdownValue]);
    }
    recreatePage2();
@@ -1659,6 +1867,13 @@ function hideLinkBox() {
 
    // Make sure Webpage is still default
    changeInputBoxSelection(1);
+}
+
+function hideExcelBox() {
+   $("#excelSelectInput")[0].style.boxShadow = "";
+   $("#inputGroupFile01").val(null);
+   $("#uploadedFileName").html("Choose file");
+   $("#excelBoxDiv").modal("hide");
 }
 
 function changeInputBoxSelection(number) {
