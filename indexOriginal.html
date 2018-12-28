@@ -24,7 +24,7 @@
 				<div class="carousel-inner">
 
 					<div class="carousel-item active">
-						<div id="startupDivPage1"  class="bg-light">
+						<div id="startupDivPage1" class="bg-light">
 							<div id="startupLeftDiv">
 								<div onclick="createNew()">
 									<i class="far fa-file-alt rounded startupImg"></i>
@@ -266,23 +266,32 @@
 						</button>
 					</div>
 					<div class="modal-body">
-						<p>
-							Select your primary column <span style="color:red;font-weight:900">*</span>
-						</p>
-						<select id="excelSelectInput" class="form-control">
-							<option disabled>
-								Please select your primary column
-							</option>
-						</select>
-						<br />
-						<p>
-							Select your secondary column
-						</p>
-						<select id="excelSelectInput2" class="form-control">
-							<option selected disabled>
-								Please select your secondary column
-							</option>
-						</select>
+						<div class="form-group">
+							<p>
+								Select your primary column <span style="color:red;font-weight:900">*</span>
+							</p>
+							<select id="excelSelectInput" class="custom-select">
+								<option disabled>
+									Please select your primary column
+								</option>
+							</select>
+							<div class="invalid-feedback">Please select an option</div>
+						</div>
+						<div class="form-group">
+							<p>
+								Select your secondary column
+							</p>
+							<select id="excelSelectInput2" class="custom-select">
+								<option selected disabled>
+									Please select your secondary column
+								</option>
+							</select>
+						</div>
+						<div class="custom-control custom-checkbox mr-sm-2" id="excelPopupCheckboxDiv">
+							<input type="checkbox" class="custom-control-input" id="customControlAutosizing" checked>
+							<label class="custom-control-label" for="customControlAutosizing">Merge all cell headers</label>
+						</div>
+
 					</div>
 					<div class="modal-footer">
 						<button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="hideExcelBox()">Cancel</button>

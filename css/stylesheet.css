@@ -114,6 +114,10 @@ hr {
    background-color: ghostwhite;
 }
 
+#excelPopupCheckboxDiv {
+   text-align: right;
+}
+
 .startupImg.rounded {
    display: flex;
    justify-content: center;

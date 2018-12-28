@@ -126,6 +126,13 @@ $(function() {
       }, 300);
    });
 
+   $(document).on("change", "#excelSelectInput", function() {
+      if($(this).hasClass("is-invalid")) {
+         $(this).removeClass("is-invalid");
+         $(this).addClass("is-valid");
+      }
+   });
+
    // Prevent creating div on enter
    contentEditableBr();
 
@@ -456,9 +463,9 @@ function showColumn(file) {
       $("#excelSelectInput").empty();
       $("#excelSelectInput2").empty();
       // Adding placeholder
-      let placeholderOption = $("<option disabled selected>Select an option</option>");
+      let placeholderOption = $("<option disabled selected>Please select your primary column</option>");
       $("#excelSelectInput").append(placeholderOption);
-      let placeholderOption2 = $("<option disabled selected>Select an option</option>");
+      let placeholderOption2 = $("<option disabled selected>Please select your secondary column</option>");
       $("#excelSelectInput2").append(placeholderOption2);
       // Getting the first sheet
       let sheet = workbook.Sheets[workbook.SheetNames[0]];
@@ -493,6 +500,8 @@ function showColumn(file) {
 
 function startProcessingExcel() {
    if ($("#excelSelectInput").val() && $("#excelSelectInput").val() >= 0) {
+      // Get whether user want to merge headers
+      let userSelectMerge = document.getElementById("customControlAutosizing").checked;
       // LessonPlanTemplate
       let lessonPlanTemplate = document.createElement("div");
       lessonPlanTemplate.id = "lessonPlanTemplate";
@@ -658,10 +667,13 @@ function startProcessingExcel() {
                      let rowsRemaining = mergeObject.eR - mergeObject.sR;
 
                      for (let columns = range.s.c; columns <= range.e.c; columns++) {
+                        let previousUL = null;
+
                         // Skip the selected Value
                         if (columns == selectedValue || columns == selectedSubValue) {
                            continue;
                         }
+
                         for (let y = rows; y <= (rows + rowsRemaining); y++) {
                            // If not first and the cell is merged in rows with the primary, skip
                            if (y > rows && checkIfMerged(sheet, columns, rows).direction === "row") {
@@ -687,6 +699,7 @@ function startProcessingExcel() {
                            if (!sheet[cellRef2]) {
                               continue;
                            }
+
                            // Create header
                            let divss = getHeader(columnMapping, columns);
                            let lecPracHeader = divss.header;
@@ -728,6 +741,23 @@ function startProcessingExcel() {
 
                            // Appending to lesson
                            lesson.appendChild(lecPracHeader);
+
+                           if(userSelectMerge) {
+                              // If got previous, merge the content List
+                              if(previousUL) {
+                                 if (y > rows && (checkIfMerged(sheet, columns, rows).direction === "row" || checkIfMerged(sheet, columns, rows).direction === "both")) {
+                                    continue;
+                                 }
+                                 let previousULList = previousUL.find(".lessonPlanContent > ul");
+                                 let lines = previousULList.html() + lessonPlanContentListUl.innerHTML;
+                                 $(previousULList).html(lines);
+                                 $(lecPracHeader).remove();
+                                 continue;
+                              }
+
+                              // Store previous lesson
+                              previousUL = $(lecPracHeader);
+                           }
                         }
                         // Appending lesson to Page2
                         lessonPlanTemplate.appendChild(lesson);
@@ -805,7 +835,7 @@ function startProcessingExcel() {
                }
                $("#importTextarea").val(lessonPlanTemplate.outerHTML);
                $("#excelBoxDiv").modal("hide");
-               $("#excelSelectInput")[0].style.boxShadow = "";
+               $("#excelSelectInput").removeClass("is-valid");
             }
          };
          // Progress bar
@@ -824,7 +854,7 @@ function startProcessingExcel() {
       }
    } else {
       // Validation show red
-      $("#excelSelectInput")[0].style.boxShadow = "0 0 0 .2rem rgba(255,0,0,.25)";
+      $("#excelSelectInput").addClass("is-invalid");
    }
 }
 
@@ -971,10 +1001,12 @@ function makeSortable() {
 }
 
 function removeLessonContent(closeImg) {
-   $(closeImg).parent().remove();
+   $(closeImg).parent().fadeOut("swing", function(){
+      $(closeImg).parent().remove();
 
-   // Rebuilt Page2
-   recreatePage2();
+      // Rebuilt Page2
+      recreatePage2();
+   });
 }
 
 function addLessonContent(addLessonDiv) {
@@ -1870,7 +1902,8 @@ function hideLinkBox() {
 }
 
 function hideExcelBox() {
-   $("#excelSelectInput")[0].style.boxShadow = "";
+   $("#excelSelectInput").removeClass("is-invalid");
+   $("#excelSelectInput").removeClass("is-valid");
    $("#inputGroupFile01").val(null);
    $("#uploadedFileName").html("Choose file");
    $("#excelBoxDiv").modal("hide");
