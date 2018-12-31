@@ -127,7 +127,7 @@ $(function() {
    });
 
    $(document).on("change", "#excelSelectInput", function() {
-      if($(this).hasClass("is-invalid")) {
+      if ($(this).hasClass("is-invalid")) {
          $(this).removeClass("is-invalid");
          $(this).addClass("is-valid");
       }
@@ -561,7 +561,9 @@ function startProcessingExcel() {
                   lecture: -1,
                   practical: -1,
                   tutorial: -1,
-                  remark: -1
+                  remark: -1,
+                  eLearning: -1,
+                  iCA: -1
                };
                for (let columns = range.s.c; columns <= range.e.c; columns++) {
                   let cellRef = XLSX.utils.encode_cell({
@@ -582,6 +584,10 @@ function startProcessingExcel() {
                      columnMapping.tutorial = columns;
                   } else if (x.indexOf("Remark") !== -1) {
                      columnMapping.remark = columns;
+                  } else if (x.indexOf("E-Learning") !== -1) {
+                     columnMapping.elearning = columns;
+                  } else if (x.indexOf("ICA") !== -1 || x.indexOf("In Course Assessment") !== -1) {
+                     columnMapping.iCA = columns;
                   }
                }
 
@@ -742,9 +748,10 @@ function startProcessingExcel() {
                            // Appending to lesson
                            lesson.appendChild(lecPracHeader);
 
-                           if(userSelectMerge) {
+                           // If the checkbox is checked (default) to merge the headers
+                           if (userSelectMerge) {
                               // If got previous, merge the content List
-                              if(previousUL) {
+                              if (previousUL) {
                                  if (y > rows && (checkIfMerged(sheet, columns, rows).direction === "row" || checkIfMerged(sheet, columns, rows).direction === "both")) {
                                     continue;
                                  }
@@ -871,38 +878,49 @@ function getHeader(columnMapping, column) {
    lecPracDiv.className = "lecPracDiv";
    lecPracDivP.className = "bold";
 
+   let headerValue = null;
    for (let keyValue in columnMapping) {
       if (columnMapping.hasOwnProperty(keyValue)) {
          if (columnMapping[keyValue] === column) {
             // See is which
-            if (keyValue === "practical") {
-               // Create input with practical selected
-               $(lecPracDivP).html("Practical");
-               return {
-                  header: lecPracHeader,
-                  lecPrac: lecPracDiv
-               };
+            if (keyValue === "lecture") {
+               headerValue = "Lecture";
+               break;
+            } else if (keyValue === "practical") {
+               headerValue = "Practical";
+               break;
             } else if (keyValue === "tutorial") {
-               // Create input with tutorial selected
-               $(lecPracDivP).html("Tutorial");
-               return {
-                  header: lecPracHeader,
-                  lecPrac: lecPracDiv
-               };
+               headerValue = "Tutorial";
+               break;
             } else if (keyValue === "remark") {
-               // Create input with remark selected
-               $(lecPracDivP).html("Remark");
-               return {
-                  header: lecPracHeader,
-                  lecPrac: lecPracDiv
-               };
+               headerValue = "Remark";
+               break;
+            } else if (keyValue === "eLearning") {
+               headerValue = "E-Learning";
+               break;
+            } else if (keyValue === "iCA") {
+               headerValue = "In Course Assessment";
+               break;
             }
          }
       }
    }
-   // (Default)
-   // Create input with lecture selected
-   $(lecPracDivP).html("Lecture");
+   if (headerValue) {
+      $(lecPracDivP).html(headerValue);
+      let colourTemplateJson = JSON.parse(colourTemplate);
+      if (colourTemplateJson[headerValue]) {
+         lecPracDiv.style.background = colourTemplateJson[headerValue];
+      }
+   } else {
+      // (Default)
+      // Create input with lecture selected
+      $(lecPracDivP).html("Lecture");
+      let colourTemplateJson = JSON.parse(colourTemplate);
+      if (colourTemplateJson["Lecture"]) {
+         lecPracDiv.style.background = colourTemplateJson["Lecture"];
+      }
+   }
+
    return {
       header: lecPracHeader,
       lecPrac: lecPracDiv
@@ -1001,7 +1019,7 @@ function makeSortable() {
 }
 
 function removeLessonContent(closeImg) {
-   $(closeImg).parent().fadeOut("swing", function(){
+   $(closeImg).parent().fadeOut("swing", function() {
       $(closeImg).parent().remove();
 
       // Rebuilt Page2
@@ -1040,7 +1058,7 @@ function addLessonContent(addLessonDiv) {
 
    contentDivDiv.className = "section contentDivDiv";
    leftDiv.className = "leftDiv";
-   leftDivTextInput.className = "inputDiv form-control";
+   leftDivTextInput.className = "inputDiv custom-select";
    leftDivColorInput.className = "form-control";
    rightDiv.className = "flex rightDiv";
    page1Content.className = "page1Content";
@@ -1211,7 +1229,7 @@ function addLessonSection(addSectionDiv) {
 
    contentDivDiv.className = "section contentDivDiv";
    leftDiv.className = "leftDiv";
-   leftDivTextInput.className = "inputDiv form-control";
+   leftDivTextInput.className = "inputDiv custom-select";
    leftDivColorInput.className = "form-control";
    rightDiv.className = "flex rightDiv";
    page1Content.className = "page1Content";
@@ -1501,7 +1519,7 @@ function recreatePage1() {
          // Lecture/Practical/something
          let leftDivTextInput = document.createElement("select");
          leftDivTextInput.setAttribute("onchange", "setActualColour(this)");
-         leftDivTextInput.className = "inputDiv form-control";
+         leftDivTextInput.className = "inputDiv custom-select";
          // Lecture select options
          let lectureL = document.createElement("option");
          lectureL.appendChild(document.createTextNode("Lecture"));
@@ -1941,53 +1959,54 @@ function changeInputBoxSelection(number) {
 }
 
 function checkAndDisplayAlert() {
-   // Creating alert
-   let alertBox = document.createElement("div");
-   alertBox.className = "alert alert-warning fade show";
-   alertBox.id = "linkBoxAlertError";
-   alertBox.setAttribute("role", "alert");
-   let alertBoxP = document.createElement("p");
-   let alertBoxButtonDiv = document.createElement("div");
-   let alertBoxButtonDivButton = document.createElement("button");
-   alertBoxButtonDivButton.className = "close";
-   alertBoxButtonDivButton.setAttribute("type", "button");
-   alertBoxButtonDivButton.setAttribute("data-dismiss", "alert");
-   alertBoxButtonDivButton.setAttribute("aria-label", "Close");
-   let alertBoxButtonDivButtonSpan = document.createElement("span");
-   alertBoxButtonDivButton.setAttribute("aria-hidden", "true");
-   alertBoxButtonDivButton.innerHTML = "&times;";
-   // Appending alert
-   alertBoxButtonDivButton.appendChild(alertBoxButtonDivButtonSpan);
-   alertBoxButtonDiv.appendChild(alertBoxButtonDivButton);
-   alertBox.appendChild(alertBoxP);
-   alertBox.appendChild(alertBoxButtonDiv);
+   if($("#linkInput").val()) {
+      // Creating alert
+      let alertBox = document.createElement("div");
+      alertBox.className = "alert alert-warning fade show";
+      alertBox.id = "linkBoxAlertError";
+      alertBox.setAttribute("role", "alert");
+      let alertBoxP = document.createElement("p");
+      let alertBoxButtonDiv = document.createElement("div");
+      let alertBoxButtonDivButton = document.createElement("button");
+      alertBoxButtonDivButton.className = "close";
+      alertBoxButtonDivButton.setAttribute("type", "button");
+      alertBoxButtonDivButton.setAttribute("data-dismiss", "alert");
+      alertBoxButtonDivButton.setAttribute("aria-label", "Close");
+      let alertBoxButtonDivButtonSpan = document.createElement("span");
+      alertBoxButtonDivButton.setAttribute("aria-hidden", "true");
+      alertBoxButtonDivButton.innerHTML = "&times;";
+      // Appending alert
+      alertBoxButtonDivButton.appendChild(alertBoxButtonDivButtonSpan);
+      alertBoxButtonDiv.appendChild(alertBoxButtonDivButton);
+      alertBox.appendChild(alertBoxP);
+      alertBox.appendChild(alertBoxButtonDiv);
 
-   // Checking value
-   let inputValue = $("#linkInput").val();
-   let dropdownDivText = $("#linkBoxOptions").text();
-   if (dropdownDivText === "Webpage") {
-      let urlRegex = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/;
+      // Checking value
+      let inputValue = $("#linkInput").val();
+      let dropdownDivText = $("#linkBoxOptions").text();
+      if (dropdownDivText === "Webpage") {
+         let urlRegex = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/;
 
-      // If entered text doesnt match url regex, ask for confirmation
-      if (!urlRegex.test(inputValue)) {
-         closeAlert();
-         alertBoxP.appendChild(document.createTextNode("The URL entered does not match the format."));
-         $("#linkBox > .modal-content > .modal-body").prepend(alertBox);
-      } else {
-         closeAlert();
-      }
-   } else if (dropdownDivText === "Email") {
-      let emailRegex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+         // If entered text doesnt match url regex, ask for confirmation
+         if (!urlRegex.test(inputValue)) {
+            closeAlert();
+            alertBoxP.appendChild(document.createTextNode("The URL entered does not match the format."));
+            $("#linkBox > .modal-content > .modal-body").prepend(alertBox);
+         } else {
+            closeAlert();
+         }
+      } else if (dropdownDivText === "Email") {
+         let emailRegex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 
-      if (!emailRegex.test(inputValue)) {
-         closeAlert();
-         alertBoxP.appendChild(document.createTextNode("The email entered does not match the format."));
-         $("#linkBox > .modal-content > .modal-body").prepend(alertBox);
-      } else {
-         closeAlert();
+         if (!emailRegex.test(inputValue)) {
+            closeAlert();
+            alertBoxP.appendChild(document.createTextNode("The email entered does not match the format."));
+            $("#linkBox > .modal-content > .modal-body").prepend(alertBox);
+         } else {
+            closeAlert();
+         }
       }
    }
-
 }
 
 function whichLinkSelection() {
