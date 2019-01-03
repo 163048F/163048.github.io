@@ -105,16 +105,16 @@
 				<p class="bold underline">Instructors Details</p>
 				<div id="instructorsDetails">
 					<p>
-						Module Leader: Leow Zhen Zhen (<a href="mailto:leow_zhen_zhen@nyp.edu.sg">leow_zhen_zhen@nyp.edu.sg</a>)
+						Module Leader: Meow Zheng Zheng (<a href="mailto:meow_zheng_zheng@nyp.edu.sg">meow_zheng_zheng@nyp.edu.sg</a>)
 					</p>
 					<p>
-						Tutor: Benjamin Tan (<a href="mailto:benjamin_tan@nyp.edu.sg">benjamin_tan@nyp.edu.sg</a>)
+						Tutor: Ben Tang (<a href="mailto:ben_tang@nyp.edu.sg">ben_tang@nyp.edu.sg</a>)
 					</p>
 				</div>
 				<div class="lesson">
 					<div class="lessonHeader">
 						<p class="bold">Lesson 1 (25 Jun 2018)</p>
-						<p class="em">Instructor: Leow Zhen Zhen</p>
+						<p class="em">Instructor: Meow Zheng Zheng</p>
 					</div>
 					<div class="lecPracHeader">
 						<div class="lecPracDiv">
@@ -146,7 +146,7 @@
 				<div class="lesson">
 					<div class="lessonHeader">
 						<p class="bold">Lesson 2 (27 Jun 18)</p>
-						<p class="em">Instructor: Leow Zhen Zhen</p>
+						<p class="em">Instructor: Meow Zheng Zheng</p>
 					</div>
 					<div class="lecPracHeader">
 						<div class="lecPracDiv">
@@ -238,10 +238,10 @@
 							<div class="input-group-prepend">
 								<button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" id="linkBoxOptions">Webpage</button>
 								<div class="dropdown-menu">
-									<a class="dropdown-item active" onclick="changeInputBoxSelection(1)">Webpage</a>
-									<a class="dropdown-item" onclick="changeInputBoxSelection(2)">Email</a>
-									<!-- <div role="separator" class="dropdown-divider"></div> -->
-									<!-- <a class="dropdown-item" onclick="changeInputBoxSelection(3)">Javascript</a> -->
+									<a class="dropdown-item dropdown-itemed active" onclick="changeInputBoxSelection(1)">Webpage</a>
+									<a class="dropdown-item dropdown-itemed" onclick="changeInputBoxSelection(2)">Email</a>
+									<div role="separator" class="dropdown-divider showAllInput"></div>
+									<a class="dropdown-item showAllInput" onclick="changeInputBoxSelection(3)">Javascript</a>
 								</div>
 							</div>
 							<input id="linkInput" placeholder="https://" type="text" class="form-control" aria-label="Text input with dropdown button">
@@ -270,7 +270,7 @@
 							<p>
 								Select your primary column <span style="color:red;font-weight:900">*</span>
 							</p>
-							<select id="excelSelectInput" class="custom-select">
+							<select id="excelSelectInput" class="custom-select" onchange="disableRemap()">
 								<option disabled>
 									Please select your primary column
 								</option>
@@ -281,17 +281,30 @@
 							<p>
 								Select your secondary column
 							</p>
-							<select id="excelSelectInput2" class="custom-select">
+							<select id="excelSelectInput2" class="custom-select" onchange="disableRemap()">
 								<option selected disabled>
 									Please select your secondary column
 								</option>
 							</select>
 						</div>
-						<div class="custom-control custom-checkbox mr-sm-2" id="excelPopupCheckboxDiv">
-							<input type="checkbox" class="custom-control-input" id="customControlAutosizing" checked>
-							<label class="custom-control-label" for="customControlAutosizing">Merge all cell headers</label>
+						<div class="form-group">
+							<div class="custom-control custom-checkbox mr-sm-2" id="excelPopupCheckboxDiv">
+								<input type="checkbox" class="custom-control-input" id="customControlAutosizing" checked>
+								<label class="custom-control-label" for="customControlAutosizing">Merge all cell headers</label>
+							</div>
 						</div>
-
+						<div class="card">
+							<div class="card-header" id="headingOne" onclick="changeRemapIcon()" data-toggle="collapse" data-target="#remappingDiv" aria-expanded="false" aria-controls="remappingDiv">
+								<p class="mb-0">
+									<i class="far fa-plus-square" id="remapIcon"></i>
+									Remap the columns
+								</p>
+							</div>
+							<div id="remappingDiv" class="collapse" aria-labelledby="headingOne">
+								<div class="card-body">
+								</div>
+							</div>
+						</div>
 					</div>
 					<div class="modal-footer">
 						<button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="hideExcelBox()">Cancel</button>

@@ -487,6 +487,27 @@ textarea {
    max-height: 150px;
 }
 
+.dropdown-itemed {
+   display: block;
+}
+
+.showAllInput {
+   display: none;
+}
+
+#remappingDiv > .card-body {
+   display: flex;
+   flex-direction: column;
+}
+
+#headingOne {
+   cursor: pointer;
+}
+
+.mb-0 > i {
+   margin-right: 10px;
+}
+
 @media only screen and (min-width:0px) and (max-width:736px) {
    #startupLeftDiv, #startupRightDiv {
       padding: 12px;

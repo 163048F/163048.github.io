@@ -12,7 +12,7 @@ let colourTemplate = `{
    "E-Learning": "rgb(0,0,0)",
    "In Course Assessment": "rgb(0,0,0)"
 }`;
-let selectOptions = '{"Lecture","Practical","Tutorial","Remark","E-Learning","In Course Assessment"}';
+let selectOptions = "{'Lecture','Practical','Tutorial','Remark','E-Learning','In Course Assessment'}";
 
 $(function() {
    // Hiding back arrow
@@ -37,7 +37,7 @@ $(function() {
 
    // Overriding right click menu
    if ($(".inputDiv").addEventListener) { // IE >= 9; other browsers
-      $(".inputDiv").addEventListener('contextmenu', function(e) {
+      $(".inputDiv").addEventListener("contextmenu", function(e) {
          // Get focused Input
          focusedInput = $(":focus");
 
@@ -71,7 +71,7 @@ $(function() {
          }
       }, false);
    } else { // IE < 9
-      $('body').on('contextmenu', '.inputDiv', function(e) {
+      $("body").on("contextmenu", ".inputDiv", function(e) {
          // Get focused Input
          focusedInput = $(":focus");
 
@@ -127,6 +127,13 @@ $(function() {
    });
 
    $(document).on("change", "#excelSelectInput", function() {
+      if ($(this).hasClass("is-invalid")) {
+         $(this).removeClass("is-invalid");
+         $(this).addClass("is-valid");
+      }
+   });
+
+   $(document).on("change", ".remapExcelSelectInput", function() {
       if ($(this).hasClass("is-invalid")) {
          $(this).removeClass("is-invalid");
          $(this).addClass("is-valid");
@@ -395,6 +402,11 @@ function drop(ev) {
    removeDragCSS();
    $(".progress-bar").css("width", "0%");
    $(".progress-bar")[0].classList.add("progress-bar-animated");
+   // Collapse the remappingDiv
+   $("#remappingDiv").collapse('hide');
+   // Change the remappingDiv icon back to plus
+   $("#remapIcon")[0].classList.add("fa-plus-square");
+   $("#remapIcon")[0].classList.remove("fa-minus-square");
    // Get the files
    let draggedFiles;
    if (ev.dataTransfer) {
@@ -454,7 +466,7 @@ function showColumn(file) {
       }
       // call 'xlsx' to read the file
       let workbook = XLSX.read(binary, {
-         type: 'binary',
+         type: "binary",
          cellDates: true,
          cellStyles: true
       });
@@ -465,11 +477,13 @@ function showColumn(file) {
       // Adding placeholder
       let placeholderOption = $("<option disabled selected>Please select your primary column</option>");
       $("#excelSelectInput").append(placeholderOption);
-      let placeholderOption2 = $("<option disabled selected>Please select your secondary column</option>");
+      let placeholderOption2 = $("<option selected>Please select your secondary column</option>");
       $("#excelSelectInput2").append(placeholderOption2);
       // Getting the first sheet
       let sheet = workbook.Sheets[workbook.SheetNames[0]];
-      let range = XLSX.utils.decode_range(sheet['!ref']);
+      let range = XLSX.utils.decode_range(sheet["!ref"]);
+      // Empty the remappingDiv
+      $("#remappingDiv > .card-body").empty();
       // Looping all columns on first row
       for (let columns = range.s.c; columns <= range.e.c; columns++) {
          let cellRef = XLSX.utils.encode_cell({
@@ -493,6 +507,49 @@ function showColumn(file) {
          $("#excelSelectInput").append(option);
          // subtitle
          $("#excelSelectInput2").append(option2);
+
+         // Remap columns
+         let remapFormGroupDiv = document.createElement("div");
+         remapFormGroupDiv.className = "form-group";
+         let remapFormGroupP = document.createElement("p");
+         remapFormGroupP.appendChild(document.createTextNode(x));
+         let remapFormGroupSelect = document.createElement("select");
+         remapFormGroupSelect.className = "custom-select remapExcelSelectInput";
+         // Placeholder
+         let placeHolderOption = document.createElement("option");
+         placeHolderOption.appendChild(document.createTextNode("Select an option"));
+         placeHolderOption.selected = true;
+         // Creating options for select (Dropdown)
+         let lectureL = document.createElement("option");
+         lectureL.appendChild(document.createTextNode("Lecture"));
+         lectureL.setAttribute("value", "0");
+         let practicalP = document.createElement("option");
+         practicalP.appendChild(document.createTextNode("Practical"));
+         practicalP.setAttribute("value", "1");
+         let tutorialT = document.createElement("option");
+         tutorialT.appendChild(document.createTextNode("Tutorial"));
+         tutorialT.setAttribute("value", "2");
+         let remarkR = document.createElement("option");
+         remarkR.appendChild(document.createTextNode("Remark"));
+         remarkR.setAttribute("value", "3");
+         let eLearningE = document.createElement("option");
+         eLearningE.appendChild(document.createTextNode("E-Learning"));
+         eLearningE.setAttribute("value", "4");
+         let inCourseAssICA = document.createElement("option");
+         inCourseAssICA.appendChild(document.createTextNode("In Course Assessment"));
+         inCourseAssICA.setAttribute("value", "5");
+         remapFormGroupSelect.appendChild(placeHolderOption);
+         remapFormGroupSelect.appendChild(lectureL);
+         remapFormGroupSelect.appendChild(practicalP);
+         remapFormGroupSelect.appendChild(tutorialT);
+         remapFormGroupSelect.appendChild(remarkR);
+         remapFormGroupSelect.appendChild(eLearningE);
+         remapFormGroupSelect.appendChild(inCourseAssICA);
+
+         remapFormGroupDiv.appendChild(remapFormGroupP);
+         remapFormGroupDiv.appendChild(remapFormGroupSelect);
+
+         $("#remappingDiv > .card-body").append(remapFormGroupDiv);
       }
    };
    fileReader.readAsArrayBuffer(file);
@@ -539,14 +596,14 @@ function startProcessingExcel() {
             }
             // call 'xlsx' to read the file
             let workbook = XLSX.read(binary, {
-               type: 'binary',
+               type: "binary",
                cellDates: true,
                cellStyles: true
             });
 
             // Getting the first sheet
             let sheet = workbook.Sheets[workbook.SheetNames[0]];
-            let range = XLSX.utils.decode_range(sheet['!ref']);
+            let range = XLSX.utils.decode_range(sheet["!ref"]);
 
             workbookSheet = {
                "sheet": sheet,
@@ -558,14 +615,34 @@ function startProcessingExcel() {
                // Map the columns first
                let range = workbookSheet.range;
                let columnMapping = {
-                  lecture: -1,
-                  practical: -1,
-                  tutorial: -1,
-                  remark: -1,
-                  eLearning: -1,
-                  iCA: -1
+                  lecture: [],
+                  practical: [],
+                  tutorial: [],
+                  remark: [],
+                  eLearning: [],
+                  iCA: []
                };
+
+               columnMapping = getRemapFromInput(columnMapping, selectedValue, selectedSubValue);
+               let notMarkedArray = [];
                for (let columns = range.s.c; columns <= range.e.c; columns++) {
+                  // Skip if user mapped
+                  let doSkip = !1;
+                  for (keyValue in columnMapping) {
+                     if (columnMapping.hasOwnProperty(keyValue)) {
+                        for (i = 0; i < columnMapping[keyValue].length; i++) {
+                           if(parseInt(columnMapping[keyValue][i]) === columns) {
+                              doSkip = !0;
+                              break;
+                           }
+                        }
+                     }
+                  }
+
+                  if(doSkip) {
+                     continue;
+                  }
+
                   let cellRef = XLSX.utils.encode_cell({
                      c: columns,
                      r: 0
@@ -574,20 +651,55 @@ function startProcessingExcel() {
                      continue;
                   }
                   let cell = sheet[cellRef];
-                  let x = String(cell.v);
+                  let x = String(cell.v).toLowerCase();
 
-                  if (x.indexOf("Lecture") !== -1) {
-                     columnMapping.lecture = columns;
-                  } else if (x.indexOf("Practical") !== -1) {
-                     columnMapping.practical = columns;
-                  } else if (x.indexOf("Tutorial") !== -1) {
-                     columnMapping.tutorial = columns;
-                  } else if (x.indexOf("Remark") !== -1) {
-                     columnMapping.remark = columns;
-                  } else if (x.indexOf("E-Learning") !== -1) {
-                     columnMapping.elearning = columns;
-                  } else if (x.indexOf("ICA") !== -1 || x.indexOf("In Course Assessment") !== -1) {
-                     columnMapping.iCA = columns;
+                  if (x.indexOf("lecture") !== -1) {
+                     columnMapping.lecture.push(columns);
+                  } else if (x.indexOf("practical") !== -1) {
+                     columnMapping.practical.push(columns);
+                  } else if (x.indexOf("tutorial") !== -1) {
+                     columnMapping.tutorial.push(columns);
+                  } else if (x.indexOf("remark") !== -1) {
+                     columnMapping.remark.push(columns);
+                  } else if (x.indexOf("e-learning") !== -1 || x.indexOf("elearning") !== -1) {
+                     columnMapping.eLearning.push(columns);
+                  } else if (x.indexOf("ica") !== -1 || x.indexOf("in course assessment") !== -1) {
+                     columnMapping.iCA.push(columns);
+                  } else {
+                     if(columns !== parseInt(selectedValue) && columns !== parseInt(selectedSubValue)) {
+                        console.log("pushed: " + columns + ", Selected: " + selectedValue + selectedSubValue);
+                        notMarkedArray.push(columns);
+                     }
+                  }
+               }
+
+               if(notMarkedArray.length > 0) {
+                  let confirmationQuestion = "Some columns could not be mapped automatically. Do you want to continue without mapping the Column(s): ";
+                  let first = true;
+                  for(let i = 0; i < notMarkedArray.length; i++) {
+                     let cellRef = XLSX.utils.encode_cell({
+                        c: notMarkedArray[i],
+                        r: 0
+                     });
+                     if (!sheet[cellRef]) {
+                        continue;
+                     }
+                     let cell = sheet[cellRef];
+                     let x = String(cell.v);
+
+                     $("#remappingDiv > .card-body").children().eq(notMarkedArray[i]).find("select").addClass("is-invalid");
+                     if(first) {
+                        confirmationQuestion += x;
+                        first = false;
+                     }else if(i === (notMarkedArray.length - 1)) {
+                        confirmationQuestion += " & " + x + "?";
+                     }else {
+                        confirmationQuestion += ", " + x;
+                     }
+                  }
+
+                  if(!confirm(confirmationQuestion)) {
+                     return !1;
                   }
                }
 
@@ -878,33 +990,7 @@ function getHeader(columnMapping, column) {
    lecPracDiv.className = "lecPracDiv";
    lecPracDivP.className = "bold";
 
-   let headerValue = null;
-   for (let keyValue in columnMapping) {
-      if (columnMapping.hasOwnProperty(keyValue)) {
-         if (columnMapping[keyValue] === column) {
-            // See is which
-            if (keyValue === "lecture") {
-               headerValue = "Lecture";
-               break;
-            } else if (keyValue === "practical") {
-               headerValue = "Practical";
-               break;
-            } else if (keyValue === "tutorial") {
-               headerValue = "Tutorial";
-               break;
-            } else if (keyValue === "remark") {
-               headerValue = "Remark";
-               break;
-            } else if (keyValue === "eLearning") {
-               headerValue = "E-Learning";
-               break;
-            } else if (keyValue === "iCA") {
-               headerValue = "In Course Assessment";
-               break;
-            }
-         }
-      }
-   }
+   let headerValue = checkIfColumnsHeader(columnMapping, column);
    if (headerValue) {
       $(lecPracDivP).html(headerValue);
       let colourTemplateJson = JSON.parse(colourTemplate);
@@ -925,6 +1011,105 @@ function getHeader(columnMapping, column) {
       header: lecPracHeader,
       lecPrac: lecPracDiv
    };
+}
+
+function checkIfColumnsHeader(columnMapping, column) {
+   let headerValue = null;
+   for (let keyValue in columnMapping) {
+      if (columnMapping.hasOwnProperty(keyValue)) {
+         for (i = 0; i < columnMapping[keyValue].length; i++) {
+            if(parseInt(columnMapping[keyValue][i]) === column) {
+               // See is which
+               if (keyValue === "lecture") {
+                  headerValue = "Lecture";
+                  break;
+               } else if (keyValue === "practical") {
+                  headerValue = "Practical";
+                  break;
+               } else if (keyValue === "tutorial") {
+                  headerValue = "Tutorial";
+                  break;
+               } else if (keyValue === "remark") {
+                  headerValue = "Remark";
+                  break;
+               } else if (keyValue === "eLearning") {
+                  headerValue = "E-Learning";
+                  break;
+               } else if (keyValue === "iCA") {
+                  headerValue = "In Course Assessment";
+                  break;
+               }
+            }
+         }
+      }
+   }
+   return headerValue;
+}
+
+function getRemapFromInput(remapArray, selectedValue, selectedSubValue) {
+   $("#remappingDiv > .card-body").children().each(function(index) {
+      if(index === selectedValue || index === selectedSubValue) {
+         return !1;
+      }
+
+      switch(parseInt($(this).find("select").val())) {
+         case 0:
+            // Lecture
+            remapArray.lecture.push(index);
+            break;
+         case 1:
+            // Practical
+            remapArray.practical.push(index);
+            break;
+         case 2:
+            // Tutorial
+            remapArray.tutorial.push(index);
+            break;
+         case 3:
+            // Remark
+            remapArray.remark.push(index);
+            break;
+         case 4:
+            // E-Learning
+            remapArray.eLearning.push(index);
+            break;
+         case 5:
+            // In Course Assessment
+            remapArray.iCA.push(index);
+            break;
+      }
+   });
+   return remapArray;
+}
+
+function disableRemap() {
+   $("#remappingDiv > .card-body").children().each(function() {
+      let selectOption = $(this).find("select");
+      if(selectOption[0].hasAttribute("disabled")) {
+         selectOption.removeAttr("disabled");
+      }
+   });
+
+   if($("#excelSelectInput").val()) {
+      let excelSelectInputSelect = $("#remappingDiv > .card-body").children().eq($("#excelSelectInput").val()).find("select");
+      excelSelectInputSelect.attr("disabled", "disabled");
+      excelSelectInputSelect[0].selectedIndex = "0";
+   }
+   if($("#excelSelectInput2")[0].selectedIndex !== 0) {
+      let excelSelectInput2Select = $("#remappingDiv > .card-body").children().eq($("#excelSelectInput2").val()).find("select");
+      excelSelectInput2Select.attr("disabled", "disabled");
+      excelSelectInput2Select[0].selectedIndex = "0";
+   }
+}
+
+function changeRemapIcon() {
+   if($("#remapIcon").hasClass("fa-plus-square")) {
+      $("#remapIcon")[0].classList.add("fa-minus-square");
+      $("#remapIcon")[0].classList.remove("fa-plus-square");
+   }else {
+      $("#remapIcon")[0].classList.add("fa-plus-square");
+      $("#remapIcon")[0].classList.remove("fa-minus-square");
+   }
 }
 
 function checkIfMerged(sheet, column, row) {
@@ -1889,9 +2074,9 @@ function checkOverlapLink(selectedText) {
    let selectedTextBackup = htmlEncode(selectedText);
    let inputElement = focusedInput;
    startIndex = inputElement.next().val().indexOf(selectedTextBackup);
-   let regexSearch1 = escape('<a href=');
-   let regexSearch2 = escape('</a>');
-   let regExp = new RegExp('(' + regexSearch1 + ').*(' + escape(selectedTextBackup) + ').*(' + regexSearch2 + ')');
+   let regexSearch1 = escape("<a href=");
+   let regexSearch2 = escape("</a>");
+   let regExp = new RegExp("(" + regexSearch1 + ").*(" + escape(selectedTextBackup) + ").*(" + regexSearch2 + ")");
    if (!regExp.test(escape(inputElement.next().val()))) {
       if (startIndex !== -1) {
          return true;
@@ -1907,7 +2092,8 @@ function checkOverlapLink(selectedText) {
 
 function promptLink() {
    if (selectedText.length > 0 && checkOverlapLink(selectedText)) {
-      $("#linkInput").val("");
+      $("#linkInput").val("https://");
+      $("#linkBoxOptions").text("Webpage");
       $("#linkBoxDiv").modal("show");
    }
 }
@@ -1937,12 +2123,13 @@ function changeInputBoxSelection(number) {
       case 1:
          dropdownDiv.text("Webpage");
          linkInput[0].setAttribute("placeholder", "https://");
-         linkInput.val("");
+         linkInput.val("https://");
          $(".dropdown-menu > a:first-child")[0].classList.add("active");
          break;
       case 2:
          dropdownDiv.text("Email");
          linkInput[0].setAttribute("placeholder", "example@nyp.edu.sg");
+         linkInput.val("");
          let emailRegex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
          if (emailRegex.test(selectedText)) {
             linkInput.val(htmlEncode(selectedText));
@@ -2086,9 +2273,9 @@ function convertToLink() {
       startIndex = inputElement.next().val().indexOf(selectedTextBackup);
 
       // Make sure the text is not already a link
-      let regexSearch1 = escape('<a href=');
-      let regexSearch2 = escape('</a>');
-      let regExp = new RegExp('(' + regexSearch1 + ').*(' + escape(selectedTextBackup) + ').*(' + regexSearch2 + ')');
+      let regexSearch1 = escape("<a href=");
+      let regexSearch2 = escape("</a>");
+      let regExp = new RegExp("(" + regexSearch1 + ").*(" + escape(selectedTextBackup) + ").*(" + regexSearch2 + ")");
       if (!regExp.test(escape(inputElement.next().val()))) {
          if (startIndex !== -1) {
             // Replacing the html in input
@@ -2131,11 +2318,13 @@ function showAllInput(button) {
    if (notClicked) {
       $(".inputDiv").next().css("display", "block");
       $("textarea:not(#popup textarea)").css("display", "block");
+      $(".showAllInput").css("display", "block");
       button.innerHTML = "Hide All";
       notClicked = false;
    } else {
       $(".inputDiv").next().css("display", "none");
       $("textarea:not(#popup textarea)").css("display", "none");
+      $(".showAllInput").css("display", "none");
       button.innerHTML = "Show All";
       notClicked = true;
    }
@@ -2184,7 +2373,7 @@ function hex(x) {
 function htmlEncode(value) {
    // Create a in-memory div, set its inner text (which jQuery automatically encodes)
    // Then grab the encoded contents back out. The div never exists on the page.
-   return $('<div/>').text(value).html();
+   return $("<div/>").text(value).html();
 }
 
 // Decode html
