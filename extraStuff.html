@@ -1,0 +1,118 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html lang="en-SG">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Redoing Lesson Plan</title>
+	<link rel="shortcut icon" type="image/jpeg" href="favicon.jpg" />
+	<link rel="stylesheet" href="css/extraStylesheet.css" />
+	<!-- My Script -->
+	<script src="js/Personal/ExtraTools.js" defer></script>
+	<!-- JQuery UI -->
+	<link rel="stylesheet" href="css/jquery-ui.min.css" />
+	<!-- Bootstrap -->
+	<link rel="stylesheet" href="css/bootstrap.min.css" />
+	<!-- Font Awesome -->
+	<link rel="stylesheet" href="css/fontawesome/css/all.min.css" />
+</head>
+
+<body onscroll="checkElement()">
+	<div id="page1" class="bg-dark">
+		<div id="page1TopDiv">
+			<div id="page1TopDivTitleDiv">
+				<p id="page1TopDivTitle">
+					Testing
+				</p>
+				<div id="page1TopDivButtonDiv">
+					<button class="btn" onclick="loadAccordionPreset()">Accordion</button>
+					<button class="btn" onclick="loadCardPreset()">Card</button>
+				</div>
+			</div>
+		</div>
+
+		<div id="page1BottomDiv">
+			<p id="page1BottomDivTitle">
+				<b>
+					Some information
+				</b>
+			</p>
+			<p id="page1BottomDivSubtitle">
+				More information
+			</p>
+		</div>
+	</div>
+
+
+	<div id="page2">
+		<div id="page2TopBarDiv" class="bg-dark">
+			<div id="page2TopBarDivBackbutton" onclick="animatePage1In()">
+				<i class="fas fa-caret-left"></i>
+				<p>
+					Back
+				</p>
+			</div>
+			<div id="page2TopBarDivTitle">
+				<p>
+					Title
+				</p>
+			</div>
+		</div>
+		<div id="page2BottomDiv">
+			<div id="page2BottomLeftDiv">
+				<div id="page2BottomLeftDivLeftDiv" contenteditable>
+					<!-- START -->
+					<!-- END -->
+				</div>
+				<div id="page2BottomLeftDivRightDiv">
+					<div>
+						<i class="far fa-plus-square"></i>
+					</div>
+					<div>
+						wad
+					</div>
+					<div>
+						wad
+					</div>
+					<div class="clearSpace"></div>
+					<hr />
+					<div>
+						wad
+					</div>
+				</div>
+			</div>
+			<div id="page2BottomRightDiv">
+
+			</div>
+		</div>
+	</div>
+
+
+	<div id="page3">
+		<div>
+			<div>
+				<p onclick="animatePage3Out()">
+					Again
+				</p>
+			</div>
+			<div>
+
+			</div>
+		</div>
+
+		<div>
+
+		</div>
+	</div>
+
+
+	<!-- JQuery -->
+	<script src="js/jquery-3.3.1.min.js"></script>
+	<!-- JQuery UI -->
+	<script src="js/jquery-ui.min.js"></script>
+	<!-- Bootstrap -->
+	<script src="js/popper.min.js"></script>
+	<script src="js/bootstrap.min.js"></script>
+</body>
+
+</html>
