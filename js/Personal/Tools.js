@@ -5,12 +5,12 @@ let shouldGoBackHide = 0;
 let notClicked = true;
 let file;
 let colourTemplate = `{
-   "Lecture": "rgb(0,0,0)",
-   "Practical": "rgb(0,0,0)",
-   "Tutorial": "rgb(0,0,0)",
-   "Remark": "rgb(0,0,0)",
-   "E-Learning": "rgb(0,0,0)",
-   "In Course Assessment": "rgb(0,0,0)"
+   "Lecture": "#40c4ff",
+   "Practical": "#ffea00",
+   "Tutorial": "#ffccbc",
+   "Remark": "#e0e0e0",
+   "E-Learning": "#c6ff00",
+   "In Course Assessment": "#9575cd"
 }`;
 let selectOptions = "{'Lecture','Practical','Tutorial','Remark','E-Learning','In Course Assessment'}";
 
@@ -414,6 +414,11 @@ function drop(ev) {
    } else {
       draggedFiles = ev.target.files;
    }
+
+   if(!draggedFiles[0]) {
+      return !1;
+   }
+   
    // Get the first file
    file = draggedFiles[0];
    let fileReader = new FileReader();
@@ -1114,49 +1119,51 @@ function changeRemapIcon() {
 
 function checkIfMerged(sheet, column, row) {
    let json = sheet["!merges"];
-   let valueArray = Object.values(json);
+   if(json) {
+      let valueArray = Object.values(json);
 
-   for (let i = 0; i < valueArray.length; i++) {
-      let sC = valueArray[i].s.c;
-      let eC = valueArray[i].e.c;
-      let sR = valueArray[i].s.r;
-      let eR = valueArray[i].e.r;
-      // If it is merged
-      if (column >= sC && column <= eC && row >= sR && row <= eR) {
-         // If column is merged
-         if (eC > sC) {
-            // If row is merged
-            if (eR > sR) {
-               // Direction both
-               return {
-                  found: true,
-                  sC: sC,
-                  eC: eC,
-                  sR: sR,
-                  eR: eR,
-                  direction: "both"
+      for (let i = 0; i < valueArray.length; i++) {
+         let sC = valueArray[i].s.c;
+         let eC = valueArray[i].e.c;
+         let sR = valueArray[i].s.r;
+         let eR = valueArray[i].e.r;
+         // If it is merged
+         if (column >= sC && column <= eC && row >= sR && row <= eR) {
+            // If column is merged
+            if (eC > sC) {
+               // If row is merged
+               if (eR > sR) {
+                  // Direction both
+                  return {
+                     found: true,
+                     sC: sC,
+                     eC: eC,
+                     sR: sR,
+                     eR: eR,
+                     direction: "both"
+                  }
+               } else {
+                  // Direction column
+                  return {
+                     found: true,
+                     sC: sC,
+                     eC: eC,
+                     sR: sR,
+                     eR: eR,
+                     direction: "column"
+                  }
                }
             } else {
-               // Direction column
-               return {
-                  found: true,
-                  sC: sC,
-                  eC: eC,
-                  sR: sR,
-                  eR: eR,
-                  direction: "column"
-               }
-            }
-         } else {
-            if (eR > sR) {
-               // Direction Row
-               return {
-                  found: true,
-                  sC: sC,
-                  eC: eC,
-                  sR: sR,
-                  eR: eR,
-                  direction: "row"
+               if (eR > sR) {
+                  // Direction Row
+                  return {
+                     found: true,
+                     sC: sC,
+                     eC: eC,
+                     sR: sR,
+                     eR: eR,
+                     direction: "row"
+                  }
                }
             }
          }
