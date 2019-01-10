@@ -1,4 +1,4 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<!DOCTYPE html>
 <html lang="en-SG">
 
 <head>
@@ -32,14 +32,45 @@
 		</div>
 
 		<div id="page1BottomDiv">
-			<p id="page1BottomDivTitle">
-				<b>
-					Some information
-				</b>
-			</p>
-			<p id="page1BottomDivSubtitle">
-				More information
-			</p>
+			<div id="page1BottomAccordionTitleDiv">
+				<p id="page1BottomDivTitle">
+					<b>
+						Information
+					</b>
+				</p>
+				<p id="page1BottomDivSubtitle">
+					Details on the 2 components
+				</p>
+			</div>
+			<div class="page1BottomExample">
+				<p id="page1BottomAccordionTitle">
+					What is an Accordion?
+				</p>
+				<div>
+					<p id="page1BottomAccordionDetails">
+						An accordion has several windows that are stacked on each other. All of them are "shaded", so only their captions are visible. If one of them is clicked, to make it active, it is "unshaded" or "maximized". Other windows in accordion are
+						displaced around top or bottom edge.
+					</p>
+					<div id="page1BottomAccordionDetailsExample">
+
+					</div>
+				</div>
+			</div>
+			<div class="page1BottomExample">
+				<p id="page1BottomCardTitle">
+					What is a Flash Card?
+				</p>
+				<div>
+					<p id="page1BottomCardDetails">
+						A flashcard or flash card is a card bearing information, as words or numbers, on either or both sides, used in classroom drills or in private study. One writes a question on a side and an answer overleaf. Flashcards can bear vocabulary,
+						historical dates, formulae or any subject matter that can be learned via a question-and-answer format. Flashcards are widely used as a learning drill to aid memorization. They are often associated with spaced repetition, i.e. reviewed at
+						expanding time intervals.
+					</p>
+					<div id="page1BottomCardDetailsExample">
+
+					</div>
+				</div>
+			</div>
 		</div>
 	</div>
 
@@ -60,13 +91,14 @@
 		</div>
 		<div id="page2BottomDiv">
 			<div id="page2BottomLeftDiv">
-				<div id="page2BottomLeftDivLeftDiv" contenteditable>
-					<!-- START -->
-					<!-- END -->
+				<div id="page2BottomLeftDivLeftDiv">
+					<!-- Extra space for rightDiv but I dont know what to put yet -->
 				</div>
 				<div id="page2BottomLeftDivRightDiv">
 					<div>
-						<i class="far fa-plus-square"></i>
+						<a tabindex="0" class="btn btn-secondary" role="button" data-toggle="popover" data-trigger="focus" data-placement="right" data-content="Added" onclick="addNewSection()">
+							<i class="far fa-plus-square"></i>
+						</a>
 					</div>
 					<div>
 						wad
@@ -77,12 +109,17 @@
 					<div class="clearSpace"></div>
 					<hr />
 					<div>
-						wad
+						<a class="btn btn-secondary" onclick="page2Output()">
+							<i class="far fa-save"></i>
+						</a>
 					</div>
 				</div>
 			</div>
 			<div id="page2BottomRightDiv">
-
+				<div id="componentsDiv">
+					<!-- START -->
+					<!-- END -->
+				</div>
 			</div>
 		</div>
 	</div>
@@ -94,8 +131,11 @@
 				<p onclick="animatePage3Out()">
 					Again
 				</p>
+				<p onclick="animatePage2In()">
+					Try Again
+				</p>
 			</div>
-			<div>
+			<div id="tempTextarea">
 
 			</div>
 		</div>

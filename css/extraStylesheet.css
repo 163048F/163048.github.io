@@ -9,6 +9,7 @@
 }
 
 html, body {
+   min-height: 100%;
    height: 100%;
    margin: 0;
 }
@@ -19,12 +20,12 @@ body {
    font-family: 'RobotoR', sans-serif;
 }
 
-div {
-   border: 1px dotted red;
+p {
+   margin: 0 !important;
 }
 
 #page1 {
-   display: none;
+   display: flex;
    flex-direction: column;
    width: 100%;
    height: 100%;
@@ -97,12 +98,52 @@ div {
    background-color: #F5F5F6;
    flex-grow: 1;
    text-align: center;
-   padding: 24px 24px 20vh 24px;
-   font-size: 5vw;
+   padding-bottom: 20vh;
+   font-size: 3vw;
+}
+
+#page1BottomAccordionTitleDiv {
+   padding: 24px;
+   background-color: rgba(55,55,55,0.2);
+}
+
+#page1BottomDivTitle {
+   font-size: 6vw;
+}
+
+#page1BottomDivSubtitle {
+   font-size: 4vw;
+}
+
+.page1BottomExample {
+   display: flex;
+   flex-direction: row;
+   margin: 20px;
+}
+
+.page1BottomExample > :first-child {
+   flex-basis: 20%;
+}
+
+.page1BottomExample > :last-child {
+   flex-basis: 70%;
+   flex-grow: 1;
+}
+
+#page1BottomAccordionTitle, #page1BottomCardTitle {
+   padding: 10px;
+}
+
+#page1BottomAccordionDetails, #page1BottomCardDetails {
+   padding: 10px;
+   text-align: left;
 }
 
 /* For animation */
-#page1TopDivTitle, #page1TopDivButtonDiv, #page1BottomDivTitle, #page1BottomDivSubtitle {
+#page1TopDivTitle, #page1TopDivButtonDiv, #page1BottomDivTitle,
+#page1BottomDivSubtitle, #page1BottomAccordionTitle, #page1BottomAccordionDetails,
+#page1BottomAccordionExample, #page1BottomCardTitle,  #page1BottomCardDetails,
+#page1BottomCardDetailsImage {
    opacity: 0;
 }
 
@@ -111,16 +152,17 @@ div {
 }
 
 #page2 {
-   display: flex;
+   display: none;
    flex-direction: column;
    z-index: 2;
-   background-color: yellow;
    height: 100%;
    width: 100%;
+   background-color: #F5F5F6;
 }
 
 #page2TopBarDiv {
    flex-basis: 50px;
+   min-height: 50px;
    display: flex;
 }
 
@@ -137,7 +179,7 @@ div {
 }
 
 #page2TopBarDivBackbutton > p {
-   margin: 0 0 2px 10px;
+   margin: 0 0 2px 10px !important;
    color: white;
 }
 
@@ -148,7 +190,6 @@ div {
 }
 
 #page2TopBarDivTitle {
-   height: 100%;
    flex-grow: 1;
    display: flex;
    align-items: center;
@@ -164,44 +205,41 @@ div {
 #page2BottomDiv {
    display: flex;
    flex-grow: 1;
+   flex-direction: column;
 }
 
 #page2BottomLeftDiv {
    display: flex;
-   flex-basis: 50%;
-   background-color: #F5F5F6;
+   flex-direction: column;
+   min-height: 50px;
 }
 
 #page2BottomLeftDivLeftDiv {
-   flex-grow: 1;
+   height: 0;
 }
 
 #page2BottomLeftDivRightDiv {
-   flex-basis: 50px;
+   min-height: 50px;
    display: flex;
-   flex-direction: column;
    background-color: pink;
 }
 
-#page2BottomLeftDivRightDiv > :first-child {
-   margin: 0 0 5px 0;
-}
-
-#page2BottomLeftDivRightDiv > :last-child {
-   margin: 0;
-}
-
 #page2BottomLeftDivRightDiv > div {
-   margin: 5px 0;
    flex-basis: 50px;
    display: flex;
    align-items: center;
    justify-content: center;
 }
 
-#page2BottomLeftDivRightDiv > div > i {
-   font-size: 30px;
-   cursor: pointer;
+#page2BottomLeftDivRightDiv > div > * {
+   display: flex;
+   justify-content: center;
+   align-items: center;
+   border-radius: 2px;
+   width: 100%;
+   height: 100%;
+   font-size: 1.5rem;
+   color: white;
 }
 
 #page2BottomLeftDivRightDiv > .clearSpace {
@@ -217,14 +255,80 @@ div {
 
 #page2BottomRightDiv {
    flex-grow: 1;
+   overflow-y: auto;
+}
+
+#componentsDiv {
+   padding: 20px;
+}
+
+#cardIndicatorDiv {
+   display: flex;
+   margin-top: 10px;
+   flex-direction: column;
+}
+
+#cardIndicatorDiv > :first-child{
+   order: 1;
+}
+
+#cardIndicatorDiv > :last-child{
+   order: 2;
+}
+
+#cardIndicatorDiv > * {
+   margin: 10px;
+}
+
+#cardIndexIndicator {
+   font-size: 8vw;
+   flex-grow: 1;
+   text-align: center;
+   font-weight: 900;
 }
 
 #page3 {
    display: none;
    z-index: 1;
-   background-color: red;
+   background-color: rgb(204, 10, 10);
    height: 100%;
    width: 100%;
+}
+
+.accordion {
+   width: 100%;
+   text-align: center;
+   cursor: pointer;
+   padding: 0 .75rem;
+   margin-bottom: 24px;
+   color: inherit;
+   background-color: rgba(0, 0, 0, .03);
+	border-radius: 5px;
+}
+
+.accordion>p:first-child {
+   margin: 0;
+   padding: 16px 0;
+}
+
+.accordion .accordionContent {
+   border-top-style: solid;
+   border-top-width: 0;
+	background-color: white;
+	border-radius: 2px;
+   cursor: auto;
+   overflow: auto;
+   height: 0;
+   transition-property: height, border-top-width;
+   transition-duration: 0.5s;
+   transition-timing-function: ease-in-out;
+}
+
+.expand.accordionContent {
+   height: 200px !important;
+   border-top-width: 1px !important;
+	border-top-color: rgba(133, 133, 133, .75);
+	margin-bottom: 8px;
 }
 
 .cardAnimationDiv {
@@ -273,11 +377,28 @@ div {
    #page1TopDiv {
       height: 100vw;
    }
+
+   .page1BottomExample {
+      flex-direction: column;
+   }
+
+   .page1BottomExample > :first-child {
+      flex-grow: 1;
+   }
+
 }
 
 @media only screen and (min-width: 425px) and (max-width: 768px){
    #page1TopDiv {
       height: 100vh;
+   }
+
+   .page1BottomExample {
+      flex-direction: column;
+   }
+
+   #page1BottomDiv {
+      font-size: 24px;
    }
 }
 
@@ -292,9 +413,60 @@ div {
       font-size: 160px;
    }
    #page1BottomDivTitle {
-      font-size: 40px;
+      font-size: 56px;
    }
    #page1BottomDivSubtitle {
       font-size: 40px;
+   }
+
+   #page1BottomDiv {
+      font-size: 28px;
+   }
+
+   #page2BottomDiv {
+      flex-direction: row;
+   }
+
+   #page2BottomLeftDiv {
+      flex-direction: row;
+   }
+
+   #page2BottomLeftDivLeftDiv {
+      width: unset;
+      height: 0;
+   }
+
+   #page2BottomLeftDivRightDiv {
+      flex-direction: column;
+      min-width: 50px;
+      min-height: unset;
+   }
+
+   #page2BottomLeftDivRightDiv > :first-child {
+      margin: 0 0 5px 0;
+   }
+
+   #page2BottomLeftDivRightDiv > :last-child {
+      margin: 0;
+   }
+
+   #page2BottomLeftDivRightDiv > div {
+      margin: 5px 0;
+   }
+
+   #cardIndicatorDiv {
+      flex-direction: row;
+   }
+
+   #cardIndicatorDiv > :first-child{
+      order: 0;
+   }
+
+   #cardIndicatorDiv > :last-child{
+      order: 0;
+   }
+
+   #cardIndexIndicator {
+      font-size: 24px;
    }
 }

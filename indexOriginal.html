@@ -4,7 +4,7 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Redoing Lesson Plan</title>
+	<title>Lesson Plan Generator</title>
 	<link rel="shortcut icon" type="image/jpeg" href="favicon.jpg" />
 	<link rel="stylesheet" href="css/stylesheet.css" />
 	<!-- My Script -->
@@ -48,7 +48,7 @@
 						<div id="startupDivPage2" class="bg-light">
 							<div>
 								<p id="startupDivPage2P">
-									<b>Paste html codes here</b> or <br /><b>Drag and drop a html,text or excel file onto the textarea</b>
+									<b>Paste html codes here</b> or <br /><b>Drag and drop / Select a HTML or HTML text from this Lesson Plan Generator <br /> or Choose a lesson plan Excel file</b>
 								</p>
 								<div class="input-group mb-3">
 									<div class="input-group-prepend">
@@ -105,16 +105,16 @@
 				<p class="bold underline">Instructors Details</p>
 				<div id="instructorsDetails">
 					<p>
-						Module Leader: Meow Zheng Zheng (<a href="mailto:meow_zheng_zheng@nyp.edu.sg">meow_zheng_zheng@nyp.edu.sg</a>)
+						Module Leader: Lauren Weaver (<a href="mailto:lauren_weaver@nyp.edu.sg">lauren_weaver@nyp.edu.sg</a>)
 					</p>
 					<p>
-						Tutor: Ben Tang (<a href="mailto:ben_tang@nyp.edu.sg">ben_tang@nyp.edu.sg</a>)
+						Tutor: Menachem Hubbard (<a href="mailto:menachem_hubbard@nyp.edu.sg">menachem_hubbard@nyp.edu.sg</a>)
 					</p>
 				</div>
 				<div class="lesson">
 					<div class="lessonHeader">
 						<p class="bold">Lesson 1 (25 Jun 2018)</p>
-						<p class="em">Instructor: Meow Zheng Zheng</p>
+						<p class="em">Instructor: Lauren Weaver</p>
 					</div>
 					<div class="lecPracHeader">
 						<div class="lecPracDiv">
@@ -146,7 +146,7 @@
 				<div class="lesson">
 					<div class="lessonHeader">
 						<p class="bold">Lesson 2 (27 Jun 18)</p>
-						<p class="em">Instructor: Meow Zheng Zheng</p>
+						<p class="em">Instructor: Lauren Weaver</p>
 					</div>
 					<div class="lecPracHeader">
 						<div class="lecPracDiv">
@@ -266,9 +266,12 @@
 						</button>
 					</div>
 					<div class="modal-body">
-						<div class="form-group">
+						<div class="form-group" id="excelPage1">
 							<p>
-								Select your primary column <span style="color:red;font-weight:900">*</span>
+								<b>Step 1: Setup Lesson Days</b>
+							</p>
+							<p>
+								Select your primary column (E.g: Week/Date/Day)<span style="color:red;font-weight:900">*</span>
 							</p>
 							<select id="excelSelectInput" class="custom-select" onchange="disableRemap()">
 								<option disabled>
@@ -276,8 +279,14 @@
 								</option>
 							</select>
 							<div class="invalid-feedback">Please select an option</div>
+							<div class="excelPopupButtonDiv">
+								<button class="btn btn-primary" onclick="excelMoveToPage(2)">Next</button>
+							</div>
 						</div>
-						<div class="form-group">
+						<div class="form-group" id="excelPage2">
+							<p>
+								<b>Step 2: Setup Lesson Weeks (Optional)</b>
+							</p>
 							<p>
 								Select your secondary column
 							</p>
@@ -286,23 +295,29 @@
 									Please select your secondary column
 								</option>
 							</select>
-						</div>
-						<div class="form-group">
 							<div class="custom-control custom-checkbox mr-sm-2" id="excelPopupCheckboxDiv">
 								<input type="checkbox" class="custom-control-input" id="customControlAutosizing" checked>
-								<label class="custom-control-label" for="customControlAutosizing">Merge all cell headers</label>
+								<label class="custom-control-label" for="customControlAutosizing">Merge cells if content spans over multiple rows</label>
+							</div>
+							<div class="excelPopupButtonDiv">
+								<button class="btn btn-secondary" onclick="excelMoveToPage(1)">Back</button>
+								<button class="btn btn-primary" onclick="excelMoveToPage(3)">Next</button>
 							</div>
 						</div>
-						<div class="card">
+						<div class="card" id="excelPage3">
 							<div class="card-header" id="headingOne" onclick="changeRemapIcon()" data-toggle="collapse" data-target="#remappingDiv" aria-expanded="false" aria-controls="remappingDiv">
 								<p class="mb-0">
 									<i class="far fa-plus-square" id="remapIcon"></i>
-									Remap the columns
+									Remap column headers <br />
+									(Optional - <i>If the column header cannot be read, it will set to lecture by default)</i>
 								</p>
 							</div>
 							<div id="remappingDiv" class="collapse" aria-labelledby="headingOne">
 								<div class="card-body">
 								</div>
+							</div>
+							<div class="excelPopupButtonDiv">
+								<button class="btn btn-secondary" onclick="excelMoveToPage(2)">Back</button>
 							</div>
 						</div>
 					</div>
@@ -328,6 +343,8 @@
 	<script src="js/bootstrap.min.js"></script>
 	<!-- SheetJS -->
 	<script src="js/xlsx.full.min.js"></script>
+	<!-- FileSaverJS -->
+	<script src="js/FileSaver.js"></script>
 </body>
 
 </html>

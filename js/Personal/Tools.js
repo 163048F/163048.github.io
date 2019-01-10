@@ -5,12 +5,12 @@ let shouldGoBackHide = 0;
 let notClicked = true;
 let file;
 let colourTemplate = `{
-   "Lecture": "#40c4ff",
-   "Practical": "#ffea00",
-   "Tutorial": "#ffccbc",
-   "Remark": "#e0e0e0",
-   "E-Learning": "#c6ff00",
-   "In Course Assessment": "#9575cd"
+   "Lecture": "#b0c4de",
+   "Practical": "#b0c4de",
+   "Tutorial": "#b0c4de",
+   "Remark": "#81c784",
+   "E-Learning": "#81c784",
+   "In Course Assessment": "#FA8072"
 }`;
 let selectOptions = "{'Lecture','Practical','Tutorial','Remark','E-Learning','In Course Assessment'}";
 
@@ -415,10 +415,10 @@ function drop(ev) {
       draggedFiles = ev.target.files;
    }
 
-   if(!draggedFiles[0]) {
+   if (!draggedFiles[0]) {
       return !1;
    }
-   
+
    // Get the first file
    file = draggedFiles[0];
    let fileReader = new FileReader();
@@ -517,9 +517,16 @@ function showColumn(file) {
          let remapFormGroupDiv = document.createElement("div");
          remapFormGroupDiv.className = "form-group";
          let remapFormGroupP = document.createElement("p");
-         remapFormGroupP.appendChild(document.createTextNode(x));
+         remapFormGroupP.appendChild(document.createTextNode("Table Header: "));
+         remapFormGroupP.className = "remapColumnHeader";
+         let remapFormGroupPP = document.createElement("p");
+         remapFormGroupPP.appendChild(document.createTextNode(x));
+         let remapFormGroupSelectP = document.createElement("p");
+         remapFormGroupSelectP.appendChild(document.createTextNode("Map to: "));
+         remapFormGroupSelectP.className = "remapColumnHeader";
          let remapFormGroupSelect = document.createElement("select");
          remapFormGroupSelect.className = "custom-select remapExcelSelectInput";
+         remapFormGroupSelect.style.marginBottom = "8px";
          // Placeholder
          let placeHolderOption = document.createElement("option");
          placeHolderOption.appendChild(document.createTextNode("Select an option"));
@@ -552,6 +559,8 @@ function showColumn(file) {
          remapFormGroupSelect.appendChild(inCourseAssICA);
 
          remapFormGroupDiv.appendChild(remapFormGroupP);
+         remapFormGroupDiv.appendChild(remapFormGroupPP);
+         remapFormGroupDiv.appendChild(remapFormGroupSelectP);
          remapFormGroupDiv.appendChild(remapFormGroupSelect);
 
          $("#remappingDiv > .card-body").append(remapFormGroupDiv);
@@ -560,8 +569,45 @@ function showColumn(file) {
    fileReader.readAsArrayBuffer(file);
 }
 
+function excelMoveToPage(pageIndex) {
+   switch(pageIndex) {
+      case 1:
+         $("#excelPage1").fadeIn();
+         $("#excelPage2").fadeOut();
+         break;
+      case 2:
+         if ($("#excelSelectInput").val() && $("#excelSelectInput").val() >= 0) {
+            $("#excelPage3")[0].style.left = "5%";
+            $("#excelPage3")[0].style.top = "10%";
+            $("#excelPage3").css("position", "absolute");
+            $("#excelPage1").fadeOut();
+            $("#excelPage2").fadeIn();
+            $("#excelPage3").fadeOut();
+            $(".modal-footer > button:nth-child(2)").css("display", "none");
+         } else {
+            // Validation show red
+            $("#excelSelectInput").addClass("is-invalid");
+         }
+         $("#excelPage3 > .excelPopupButtonDiv > button").css("position", "block");
+         break;
+      case 3:
+         $("#excelPage2").fadeOut();
+         $("#excelPage3").fadeIn(function() {
+            $("#excelPage3")[0].style.left = 0;
+            $("#excelPage3")[0].style.top = 0;
+            $("#excelPage3").css("position", "relative");
+         });
+         $(".modal-footer > button:nth-child(2)").css("display", "block");
+         break;
+      default:
+         alert("What? How is this possible... Stop it");
+   }
+}
+
 function startProcessingExcel() {
    if ($("#excelSelectInput").val() && $("#excelSelectInput").val() >= 0) {
+      excelMoveToPage(2);
+      excelMoveToPage(1);
       // Get whether user want to merge headers
       let userSelectMerge = document.getElementById("customControlAutosizing").checked;
       // LessonPlanTemplate
@@ -636,7 +682,7 @@ function startProcessingExcel() {
                   for (keyValue in columnMapping) {
                      if (columnMapping.hasOwnProperty(keyValue)) {
                         for (i = 0; i < columnMapping[keyValue].length; i++) {
-                           if(parseInt(columnMapping[keyValue][i]) === columns) {
+                           if (parseInt(columnMapping[keyValue][i]) === columns) {
                               doSkip = !0;
                               break;
                            }
@@ -644,7 +690,7 @@ function startProcessingExcel() {
                      }
                   }
 
-                  if(doSkip) {
+                  if (doSkip) {
                      continue;
                   }
 
@@ -671,17 +717,16 @@ function startProcessingExcel() {
                   } else if (x.indexOf("ica") !== -1 || x.indexOf("in course assessment") !== -1) {
                      columnMapping.iCA.push(columns);
                   } else {
-                     if(columns !== parseInt(selectedValue) && columns !== parseInt(selectedSubValue)) {
-                        console.log("pushed: " + columns + ", Selected: " + selectedValue + selectedSubValue);
+                     if (columns !== parseInt(selectedValue) && columns !== parseInt(selectedSubValue)) {
                         notMarkedArray.push(columns);
                      }
                   }
                }
 
-               if(notMarkedArray.length > 0) {
+               if (notMarkedArray.length > 0) {
                   let confirmationQuestion = "Some columns could not be mapped automatically. Do you want to continue without mapping the Column(s): ";
                   let first = true;
-                  for(let i = 0; i < notMarkedArray.length; i++) {
+                  for (let i = 0; i < notMarkedArray.length; i++) {
                      let cellRef = XLSX.utils.encode_cell({
                         c: notMarkedArray[i],
                         r: 0
@@ -693,17 +738,17 @@ function startProcessingExcel() {
                      let x = String(cell.v);
 
                      $("#remappingDiv > .card-body").children().eq(notMarkedArray[i]).find("select").addClass("is-invalid");
-                     if(first) {
+                     if (first) {
                         confirmationQuestion += x;
                         first = false;
-                     }else if(i === (notMarkedArray.length - 1)) {
+                     } else if (i === (notMarkedArray.length - 1)) {
                         confirmationQuestion += " & " + x + "?";
-                     }else {
+                     } else {
                         confirmationQuestion += ", " + x;
                      }
                   }
 
-                  if(!confirm(confirmationQuestion)) {
+                  if (!confirm(confirmationQuestion)) {
                      return !1;
                   }
                }
@@ -737,13 +782,17 @@ function startProcessingExcel() {
 
                   // Checking whether is link
                   if (cell.l) {
-                     if (typeof cell.v == "number") {
+                     if (!isNaN(cell.v)) {
                         $(lessonTitle).html("<a href='" + cell.l.Target + "' target='_blank'>Week " + cell.v + "</a>");
                      } else {
                         $(lessonTitle).html("<a href='" + cell.l.Target + "' target='_blank'>" + cell.v + "</a>");
                      }
                   } else {
-                     $(lessonTitle).html(x);
+                     if (!isNaN(cell.v)) {
+                        $(lessonTitle).html("Week " + x);
+                     } else {
+                        $(lessonTitle).html(x);
+                     }
                   }
 
                   // If subtitle is set
@@ -769,13 +818,17 @@ function startProcessingExcel() {
 
                         // Checking whether is link
                         if (cellSub.l) {
-                           if (typeof cellSub.v == "number") {
+                           if (!isNaN(cellSub.v)) {
                               $(lessonSubtitle).html("<a href='" + cellSub.l.Target + "' target='_blank'>Week " + cellSub.v + "</a>");
                            } else {
                               $(lessonSubtitle).html("<a href='" + cellSub.l.Target + "' target='_blank'>" + cellSub.v + "</a>");
                            }
                         } else {
-                           $(lessonSubtitle).html(xSub);
+                           if (!isNaN(cellSub.v)) {
+                              $(lessonSubtitle).html("Week " + xSub);
+                           } else {
+                              $(lessonSubtitle).html(xSub);
+                           }
                         }
                      }
                   }
@@ -829,9 +882,9 @@ function startProcessingExcel() {
                            let lecPracDiv = divss.lecPrac;
                            // Lesson Plan Content
                            let lessonPlanContent = document.createElement("div");
-                           // Lesson Plan Content Title
+                           // Lesson Plan Title
                            let lessonPlanContentTitleP = document.createElement("p");
-                           // Lesson Plan Content List
+                           // Lesson Plan Topics
                            let lessonPlanContentListUl = document.createElement("ul");
                            // Adding all classes
                            lessonPlanContent.className = "lessonPlanContent";
@@ -867,7 +920,7 @@ function startProcessingExcel() {
 
                            // If the checkbox is checked (default) to merge the headers
                            if (userSelectMerge) {
-                              // If got previous, merge the content List
+                              // If got previous, merge the Topics
                               if (previousUL) {
                                  if (y > rows && (checkIfMerged(sheet, columns, rows).direction === "row" || checkIfMerged(sheet, columns, rows).direction === "both")) {
                                     continue;
@@ -895,7 +948,7 @@ function startProcessingExcel() {
                         let cellRef2;
                         // Check if it is Merged
                         let divsss = checkIfMerged(sheet, columns, rows);
-                        if (divsss.direction === "column" || divsss.direction === "both") {
+                        if (divsss.direction === "column" || divsss.direction === "both" || divsss.direction === "row") {
                            // If merged get first value
                            cellRef2 = XLSX.utils.encode_cell({
                               c: divsss.sC,
@@ -917,9 +970,9 @@ function startProcessingExcel() {
                         let lecPracDiv = divss.lecPrac;
                         // Lesson Plan Content
                         let lessonPlanContent = document.createElement("div");
-                        // Lesson Plan Content Title
+                        // Lesson Plan Title
                         let lessonPlanContentTitleP = document.createElement("p");
-                        // Lesson Plan Content List
+                        // Lesson Plan Topics
                         let lessonPlanContentListUl = document.createElement("ul");
                         // Adding all classes
                         lessonPlanContent.className = "lessonPlanContent";
@@ -1023,7 +1076,7 @@ function checkIfColumnsHeader(columnMapping, column) {
    for (let keyValue in columnMapping) {
       if (columnMapping.hasOwnProperty(keyValue)) {
          for (i = 0; i < columnMapping[keyValue].length; i++) {
-            if(parseInt(columnMapping[keyValue][i]) === column) {
+            if (parseInt(columnMapping[keyValue][i]) === column) {
                // See is which
                if (keyValue === "lecture") {
                   headerValue = "Lecture";
@@ -1053,11 +1106,11 @@ function checkIfColumnsHeader(columnMapping, column) {
 
 function getRemapFromInput(remapArray, selectedValue, selectedSubValue) {
    $("#remappingDiv > .card-body").children().each(function(index) {
-      if(index === selectedValue || index === selectedSubValue) {
+      if (index === selectedValue || index === selectedSubValue) {
          return !1;
       }
 
-      switch(parseInt($(this).find("select").val())) {
+      switch (parseInt($(this).find("select").val())) {
          case 0:
             // Lecture
             remapArray.lecture.push(index);
@@ -1090,17 +1143,17 @@ function getRemapFromInput(remapArray, selectedValue, selectedSubValue) {
 function disableRemap() {
    $("#remappingDiv > .card-body").children().each(function() {
       let selectOption = $(this).find("select");
-      if(selectOption[0].hasAttribute("disabled")) {
+      if (selectOption[0].hasAttribute("disabled")) {
          selectOption.removeAttr("disabled");
       }
    });
 
-   if($("#excelSelectInput").val()) {
+   if ($("#excelSelectInput").val()) {
       let excelSelectInputSelect = $("#remappingDiv > .card-body").children().eq($("#excelSelectInput").val()).find("select");
       excelSelectInputSelect.attr("disabled", "disabled");
       excelSelectInputSelect[0].selectedIndex = "0";
    }
-   if($("#excelSelectInput2")[0].selectedIndex !== 0) {
+   if ($("#excelSelectInput2")[0].selectedIndex !== 0) {
       let excelSelectInput2Select = $("#remappingDiv > .card-body").children().eq($("#excelSelectInput2").val()).find("select");
       excelSelectInput2Select.attr("disabled", "disabled");
       excelSelectInput2Select[0].selectedIndex = "0";
@@ -1108,10 +1161,10 @@ function disableRemap() {
 }
 
 function changeRemapIcon() {
-   if($("#remapIcon").hasClass("fa-plus-square")) {
+   if ($("#remapIcon").hasClass("fa-plus-square")) {
       $("#remapIcon")[0].classList.add("fa-minus-square");
       $("#remapIcon")[0].classList.remove("fa-plus-square");
-   }else {
+   } else {
       $("#remapIcon")[0].classList.add("fa-plus-square");
       $("#remapIcon")[0].classList.remove("fa-minus-square");
    }
@@ -1119,7 +1172,7 @@ function changeRemapIcon() {
 
 function checkIfMerged(sheet, column, row) {
    let json = sheet["!merges"];
-   if(json) {
+   if (json) {
       let valueArray = Object.values(json);
 
       for (let i = 0; i < valueArray.length; i++) {
@@ -1265,7 +1318,7 @@ function addLessonContent(addLessonDiv) {
    leftDivColorInput.setAttribute("type", "color");
    page1ContentTitleTextInput.setAttribute("type", "text");
 
-   leftDivTextInput.setAttribute("onchange", "setActualValue()");
+   leftDivTextInput.setAttribute("onchange", "setActualColour(this)");
    leftDivColorInput.setAttribute("onchange", "setActualValue()");
    page1ContentTitleTextInput.setAttribute("onkeyup", "inputToDiv(this)");
    page1ContentTitleTextInput.setAttribute("onkeydown", "inputToDiv(this)");
@@ -1297,7 +1350,10 @@ function addLessonContent(addLessonDiv) {
       }
    });
 
+   // Getting default (lecture) colour
+   let colourTemplateJson = JSON.parse(colourTemplate);
    $(leftDivColorInput).css("display", "none"); // Hiding real input
+   leftDivColorInput.value = colourTemplateJson["Lecture"];
    $(page1ContentTitleTextInput).css("display", "none"); // Hiding real input
    $(page1ContentListTextarea).css("display", "none"); // Hiding real input
 
@@ -1329,14 +1385,14 @@ function addLessonContent(addLessonDiv) {
    leftDivTextInput.appendChild(eLearningE);
    leftDivTextInput.appendChild(inCourseAssICA);
 
-   leftDivP.appendChild(document.createTextNode("Lecture/Practical/something"));
+   leftDivP.appendChild(document.createTextNode("Lesson/ICA Type"));
    leftDiv.appendChild(leftDivP);
    //leftDiv.appendChild(leftDivTextInputDiv);
    leftDiv.appendChild(leftDivTextInput);
    leftDiv.appendChild(leftDivColorInput);
 
-   page1ContentTitle.appendChild(document.createTextNode("Content Title"));
-   page1ContentList.appendChild(document.createTextNode("Content List"));
+   page1ContentTitle.appendChild(document.createTextNode("Title"));
+   page1ContentList.appendChild(document.createTextNode("Topics"));
    page1Content.appendChild(page1ContentTitle);
    page1Content.appendChild(page1ContentTitleTextInputDiv);
    page1Content.appendChild(page1ContentTitleTextInput);
@@ -1412,6 +1468,7 @@ function addLessonSection(addSectionDiv) {
 
    let addLessonContent = document.createElement("div");
    let addLessonContentImg = document.createElement("i");
+   let addLessonContentP = document.createElement("p");
 
    let closeImg2 = document.createElement("button");
    let closeImgImage2 = document.createElement("span");
@@ -1433,6 +1490,7 @@ function addLessonSection(addSectionDiv) {
    closeImgImage.setAttribute("aria-hidden", "true");
    closeImgImage.innerHTML = "&times;";
 
+   addLessonContentP.appendChild(document.createTextNode("Add New Lesson/ICA"));
    addLessonContentImg.className = "fas fa-plus-circle";
    addLessonContent.className = "addLessonContent";
    addLessonContent.setAttribute("onclick", "addLessonContent(this)");
@@ -1455,7 +1513,7 @@ function addLessonSection(addSectionDiv) {
    lessonTitleTextInput.setAttribute("onkeydown", "inputToDiv(this)");
    lessonSubtitleTextInput.setAttribute("onkeyup", "inputToDiv(this)");
    lessonSubtitleTextInput.setAttribute("onkeydown", "inputToDiv(this)");
-   leftDivTextInput.setAttribute("onchange", "setActualValue()");
+   leftDivTextInput.setAttribute("onchange", "setActualColour(this)");
    leftDivColorInput.setAttribute("onchange", "setActualValue()");
    page1ContentTitleTextInput.setAttribute("onkeyup", "inputToDiv(this)");
    page1ContentTitleTextInput.setAttribute("onkeydown", "inputToDiv(this)");
@@ -1491,9 +1549,11 @@ function addLessonSection(addSectionDiv) {
       }
    });
 
+   let colourTemplateJson = JSON.parse(colourTemplate);
    $(lessonTitleTextInput).css("display", "none"); // Hiding real input
    $(lessonSubtitleTextInput).css("display", "none"); // Hiding real input
    $(leftDivColorInput).css("display", "none"); // Hiding real input
+   leftDivColorInput.value = colourTemplateJson["Lecture"];
    $(page1ContentTitleTextInput).css("display", "none"); // Hiding real input
    $(page1ContentListTextarea).css("display", "none"); // Hiding real input
 
@@ -1532,13 +1592,13 @@ function addLessonSection(addSectionDiv) {
    leftDivTextInput.appendChild(eLearningE);
    leftDivTextInput.appendChild(inCourseAssICA);
 
-   leftDivP.appendChild(document.createTextNode("Lecture/Practical/something"));
+   leftDivP.appendChild(document.createTextNode("Lesson/ICA Type"));
    leftDiv.appendChild(leftDivP);
    leftDiv.appendChild(leftDivTextInput);
    leftDiv.appendChild(leftDivColorInput);
 
-   page1ContentTitle.appendChild(document.createTextNode("Content Title"));
-   page1ContentList.appendChild(document.createTextNode("Content List"));
+   page1ContentTitle.appendChild(document.createTextNode("Title"));
+   page1ContentList.appendChild(document.createTextNode("Topics"));
    page1Content.appendChild(page1ContentTitle);
    page1Content.appendChild(page1ContentTitleTextInputDiv);
    page1Content.appendChild(page1ContentTitleTextInput);
@@ -1556,6 +1616,7 @@ function addLessonSection(addSectionDiv) {
    contentDivDiv.appendChild(closeImg);
 
    addLessonContent.appendChild(addLessonContentImg);
+   addLessonContent.appendChild(addLessonContentP);
    closeImg2.appendChild(closeImgImage2);
 
    mainSection.appendChild(lessonSection);
@@ -1705,10 +1766,10 @@ function recreatePage1() {
          let leftDiv = document.createElement("div");
          leftDiv.className = "leftDiv";
 
-         // Creating Lecture/Practical/something
+         // Creating Lesson/ICA Type
          let leftDivP = document.createElement("p");
-         leftDivP.appendChild(document.createTextNode("Lecture/Practical/something"));
-         // Lecture/Practical/something
+         leftDivP.appendChild(document.createTextNode("Lesson/ICA Type"));
+         // Lesson/ICA Type
          let leftDivTextInput = document.createElement("select");
          leftDivTextInput.setAttribute("onchange", "setActualColour(this)");
          leftDivTextInput.className = "inputDiv custom-select";
@@ -1760,9 +1821,9 @@ function recreatePage1() {
          let page1Content = document.createElement("div");
          page1Content.className = "page1Content";
 
-         // page1Content Content Title
+         // page1Content Title
          let page1ContentTitle = document.createElement("p");
-         page1ContentTitle.appendChild(document.createTextNode("Content Title"));
+         page1ContentTitle.appendChild(document.createTextNode("Title"));
          // page1Input
          let page1ContentTitleTextInputDiv = document.createElement("div");
          page1ContentTitleTextInputDiv.contentEditable = "true";
@@ -1777,9 +1838,9 @@ function recreatePage1() {
          $(page1ContentTitleTextInput).val($(this).find(".lessonPlanContent .lessonPlanContentP").html());
          $(page1ContentTitleTextInput).css("display", "none"); // Hiding real input
 
-         // page1Content Content List
+         // page1Content Topics
          let page1ContentList = document.createElement("p");
-         page1ContentList.appendChild(document.createTextNode("Content List"));
+         page1ContentList.appendChild(document.createTextNode("Topics"));
          // page1Content Textarea
          let page1ContentListTextareaDiv = document.createElement("div");
          page1ContentListTextareaDiv.contentEditable = "true";
@@ -1790,7 +1851,7 @@ function recreatePage1() {
          page1ContentListTextarea.setAttribute("onkeyup", "inputToDiv(this)");
          page1ContentListTextarea.setAttribute("onkeydown", "inputToDiv(this)");
          $(page1ContentListTextarea).css("display", "none"); // Hiding real input
-         // Content List
+         // Topics
          let lessonContentText = $(this).find(".lessonPlanContent ul")[0].outerHTML.trim().replace(/\t/g, "");
          $(page1ContentListTextareaDiv).html(lessonContentText);
          $(page1ContentListTextarea).val(lessonContentText);
@@ -1842,6 +1903,8 @@ function recreatePage1() {
       // Creating closeImg for entire section / "lesson"
       let addLessonContent = document.createElement("div");
       addLessonContent.className = "addLessonContent";
+      let addLessonContentP = document.createElement("p");
+      addLessonContentP.appendChild(document.createTextNode("Add New Lesson/ICA"));
       let addLessonContentCloseImgImage = document.createElement("i");
 
       let closeImg2 = document.createElement("button");
@@ -1860,6 +1923,7 @@ function recreatePage1() {
 
       closeImg2.appendChild(closeImgImage2);
       addLessonContent.appendChild(addLessonContentCloseImgImage);
+      addLessonContent.appendChild(addLessonContentP);
 
       // Appending Section close and add
       mainSection.appendChild(addLessonContent);
@@ -1871,20 +1935,24 @@ function recreatePage1() {
 
    // Add lesson Section
    let addLessonSection = document.createElement("div");
-   let addLessonSectionImg = document.createElement("p");
+   let addLessonSectionImg = document.createElement("i");
+   let addLessonSectionP = document.createElement("p");
    addLessonSection.id = "addLessonSection";
    addLessonSection.className = "addLessonContent";
    addLessonSection.setAttribute("onclick", "addLessonSection(this)");
    addLessonSection.style.color = "white";
+   addLessonSectionImg.className = "fas fa-plus-circle";
 
    // Appending Add Lesson
-   addLessonSectionImg.appendChild(document.createTextNode("Add New Lesson Section"));
+   addLessonSectionP.appendChild(document.createTextNode("Add New Lesson"));
    addLessonSection.appendChild(addLessonSectionImg);
+   addLessonSection.appendChild(addLessonSectionP);
 
    // Footer Section
    let footerSection = document.createElement("div");
+   footerSection.className = "footerSection";
    let footerP = document.createElement("p");
-   footerP.appendChild(document.createTextNode("Footer"));
+   footerP.appendChild(document.createTextNode("Footnote"));
    let footerTextInputDiv = document.createElement("div");
    footerTextInputDiv.contentEditable = "true";
    footerTextInputDiv.className = "inputDiv contenteditableBr form-control";
@@ -1907,11 +1975,21 @@ function recreatePage1() {
    // Adding br
    let buttonBr = document.createElement("br");
 
+   let buttonsDiv = document.createElement("div");
+   buttonsDiv.style.display = "flex";
+   buttonsDiv.style.flexDirection = "column";
+
    // Generate Button
    let generateHTMLButton = document.createElement("button");
-   generateHTMLButton.appendChild(document.createTextNode("Generate HTML"));
+   generateHTMLButton.appendChild(document.createTextNode("Generate HTML for BlackBoard"));
    generateHTMLButton.setAttribute("onclick", "generateHTML()");
    generateHTMLButton.className = "btn btn-primary";
+
+   // Save HTML Button
+   let saveHTMLButton = document.createElement("button");
+   saveHTMLButton.appendChild(document.createTextNode("Save As HTML (For Reimport)"));
+   saveHTMLButton.setAttribute("onclick", "saveHTMLFile()");
+   saveHTMLButton.className = "btn btn-secondary";
 
    // Show all input
    let showAllButton = document.createElement("button");
@@ -1920,12 +1998,15 @@ function recreatePage1() {
    showAllButton.className = "btn btn-secondary";
 
    // Appending Everything
+   buttonsDiv.appendChild(generateHTMLButton);
+   buttonsDiv.appendChild(saveHTMLButton);
+   buttonsDiv.appendChild(showAllButton);
+
    let page1 = document.getElementById("page1");
    page1.appendChild(addLessonSection);
    page1.appendChild(footerSection);
    page1.appendChild(buttonBr);
-   page1.appendChild(generateHTMLButton);
-   page1.appendChild(showAllButton);
+   page1.appendChild(buttonsDiv);
 
    // Prevent creating div on enter
    contentEditableBr();
@@ -1994,10 +2075,10 @@ function recreatePage2() {
          lecPracDiv.appendChild(lecPracDivP);
          // Lesson Plan Content
          let lessonPlanContent = document.createElement("div");
-         // Lesson Plan Content Title
+         // Lesson Plan Title
          let lessonPlanContentTitleP = document.createElement("p");
          $(lessonPlanContentTitleP).html($(this).find(".rightDiv .page1Content :nth-child(2)").html());
-         // Lesson Plan Content List
+         // Lesson Plan Topics
          let lines = $(this).find(".rightDiv .page1Content :nth-child(5)").html();
          $(lessonPlanContent).html(lines);
 
@@ -2153,7 +2234,7 @@ function changeInputBoxSelection(number) {
 }
 
 function checkAndDisplayAlert() {
-   if($("#linkInput").val()) {
+   if ($("#linkInput").val()) {
       // Creating alert
       let alertBox = document.createElement("div");
       alertBox.className = "alert alert-warning fade show";
@@ -2321,18 +2402,65 @@ function inputToDiv(div) {
    setActualValue();
 }
 
+function saveHTMLFile() {
+   try {
+      var isFileSaverSupported = !!new Blob;
+
+      let fileName = prompt("Please enter filename:", "BlackBoard Lesson Plan");
+      if(fileName) {
+         let textForSave = document.getElementById("lessonPlanTemplate").outerHTML.toString();
+         var blob = new Blob([textForSave], {
+            type: "text/html;charset=utf-8"
+         });
+         saveAs(blob, fileName + ".html");
+      }
+   } catch (e) {
+      let saveFileAlertDivBackground = document.createElement("div");
+      saveFileAlertDivBackground.style.position = "fixed";
+      saveFileAlertDivBackground.style.top = "0";
+      saveFileAlertDivBackground.style.left = "0";
+      saveFileAlertDivBackground.style.width = "100%";
+      saveFileAlertDivBackground.style.height = "100%";
+      saveFileAlertDivBackground.style.backgroundColor = "rgba(25,25,25,0.6)";
+      saveFileAlertDivBackground.id = "saveFileAlertBackground";
+      let saveFileAlertDiv = document.createElement("div");
+      saveFileAlertDiv.className = "alert alert-danger alert-dismissible fade show";
+      saveFileAlertDiv.setAttribute("role", "alert");
+      saveFileAlertDiv.style.position = "absolute";
+      saveFileAlertDiv.style.top = "40%";
+      saveFileAlertDiv.style.left = "20%";
+      saveFileAlertDiv.style.width = "60%";
+      saveFileAlertDiv.style.height = "20%";
+      let saveFileAlertP = document.createElement("p");
+      saveFileAlertP.innerHTML = "<strong>File saving not supported</strong><br>To save the file, press <kbd><kbd>ctrl</kbd> + <kbd>s</kbd></kbd>"
+      let saveFileAlertCloseButton = document.createElement("button");
+      saveFileAlertCloseButton.setAttribute("data-dismiss", "alert");
+      saveFileAlertCloseButton.setAttribute("aria-label", "close");
+      saveFileAlertCloseButton.appendChild(document.createTextNode("Close"));
+      saveFileAlertCloseButton.className = "btn btn-primary";
+      saveFileAlertCloseButton.onclick = function() {$('#saveFileAlertBackground').remove()};
+
+      saveFileAlertDiv.appendChild(saveFileAlertP);
+      saveFileAlertDiv.appendChild(saveFileAlertCloseButton);
+      saveFileAlertDivBackground.appendChild(saveFileAlertDiv);
+
+      $("#masterDiv").append(saveFileAlertDivBackground);
+      console.log("Error message: " + e);
+   }
+}
+
 function showAllInput(button) {
    if (notClicked) {
       $(".inputDiv").next().css("display", "block");
       $("textarea:not(#popup textarea)").css("display", "block");
       $(".showAllInput").css("display", "block");
-      button.innerHTML = "Hide All";
+      button.innerHTML = "Hide All Hidden HTML";
       notClicked = false;
    } else {
       $(".inputDiv").next().css("display", "none");
       $("textarea:not(#popup textarea)").css("display", "none");
       $(".showAllInput").css("display", "none");
-      button.innerHTML = "Show All";
+      button.innerHTML = "Show All Hidden HTML";
       notClicked = true;
    }
 }
