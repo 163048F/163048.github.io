@@ -570,7 +570,7 @@ function showColumn(file) {
 }
 
 function excelMoveToPage(pageIndex) {
-   switch(pageIndex) {
+   switch (pageIndex) {
       case 1:
          $("#excelPage1").fadeIn();
          $("#excelPage2").fadeOut();
@@ -606,8 +606,6 @@ function excelMoveToPage(pageIndex) {
 
 function startProcessingExcel() {
    if ($("#excelSelectInput").val() && $("#excelSelectInput").val() >= 0) {
-      excelMoveToPage(2);
-      excelMoveToPage(1);
       // Get whether user want to merge headers
       let userSelectMerge = document.getElementById("customControlAutosizing").checked;
       // LessonPlanTemplate
@@ -1013,6 +1011,9 @@ function startProcessingExcel() {
                $("#importTextarea").val(lessonPlanTemplate.outerHTML);
                $("#excelBoxDiv").modal("hide");
                $("#excelSelectInput").removeClass("is-valid");
+               // Reset page back to first
+               excelMoveToPage(2);
+               excelMoveToPage(1);
             }
          };
          // Progress bar
@@ -2407,7 +2408,7 @@ function saveHTMLFile() {
       var isFileSaverSupported = !!new Blob;
 
       let fileName = prompt("Please enter filename:", "BlackBoard Lesson Plan");
-      if(fileName) {
+      if (fileName) {
          let textForSave = document.getElementById("lessonPlanTemplate").outerHTML.toString();
          var blob = new Blob([textForSave], {
             type: "text/html;charset=utf-8"
@@ -2438,7 +2439,9 @@ function saveHTMLFile() {
       saveFileAlertCloseButton.setAttribute("aria-label", "close");
       saveFileAlertCloseButton.appendChild(document.createTextNode("Close"));
       saveFileAlertCloseButton.className = "btn btn-primary";
-      saveFileAlertCloseButton.onclick = function() {$('#saveFileAlertBackground').remove()};
+      saveFileAlertCloseButton.onclick = function() {
+         $('#saveFileAlertBackground').remove()
+      };
 
       saveFileAlertDiv.appendChild(saveFileAlertP);
       saveFileAlertDiv.appendChild(saveFileAlertCloseButton);

@@ -32,7 +32,7 @@
 		</div>
 
 		<div id="page1BottomDiv">
-			<div id="page1BottomAccordionTitleDiv">
+			<div id="page1BottomAccordionTitleDiv" class="page1Title">
 				<p id="page1BottomDivTitle">
 					<b>
 						Information
@@ -71,6 +71,26 @@
 					</div>
 				</div>
 			</div>
+			<div id="page1BottomWhyTitleDiv" class="page1Title">
+				<p id="page1BottomDivWhyTitle">
+					<b>
+						Why use this tool?
+					</b>
+				</p>
+			</div>
+			<div class="page1BottomExample">
+				<p id="page1BottomWhyTitle">
+					Main objective
+				</p>
+				<div>
+					<p id="page1BottomWhyDetails">
+						This tool is to generate a simple basic HTML component "framework" without having the knowledge of HTML coding. We aim to assist people with no knowledge of HTML and those who found their BlackBoard's html code view too overwhelming. <br /><br />
+						This tool however would not have text formating to prevent overlapping with BlackBoard's text format (<i>also because in order to perfect my codes to match BlackBoard's would take too much time</i>)<br /><br />
+
+						TLDR Use blackboard for text format and this tool to generate
+					</p>
+				</div>
+			</div>
 		</div>
 	</div>
 
@@ -96,12 +116,14 @@
 				</div>
 				<div id="page2BottomLeftDivRightDiv">
 					<div>
-						<a tabindex="0" class="btn btn-secondary" role="button" data-toggle="popover" data-trigger="focus" data-placement="right" data-content="Added" onclick="addNewSection()">
+						<a tabindex="0" class="btn btn-secondary" role="button" data-toggle="popover" data-trigger="focus" data-placement="bottom" data-content="Added" onclick="addNewSection()">
 							<i class="far fa-plus-square"></i>
 						</a>
 					</div>
 					<div>
-						wad
+						<a tabindex="0" class="btn btn-secondary" role="button" data-toggle="popover" data-trigger="focus" data-placement="right" data-content="Removed" onclick="removeSection()">
+							<i class="far fa-trash-alt"></i>
+						</a>
 					</div>
 					<div>
 						wad
@@ -135,12 +157,10 @@
 					Try Again
 				</p>
 			</div>
-			<div id="tempTextarea">
-
-			</div>
+			<textarea id="tempTextarea"></textarea>
 		</div>
 
-		<div>
+		<div id="tempDiv">
 
 		</div>
 	</div>
