@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en-SG">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Redoing Lesson Plan</title>
+	<link rel="shortcut icon" type="image/jpeg" href="favicon.jpg" />
+	<link rel="stylesheet" href="css/extraStylesheet.css" />
+	<!-- My Script -->
+	<script src="js/Personal/ExtraTools.js" defer></script>
+	<!-- JQuery UI -->
+	<link rel="stylesheet" href="css/jquery-ui.min.css" />
+	<!-- Bootstrap -->
+	<link rel="stylesheet" href="css/bootstrap.min.css" />
+	<!-- Font Awesome -->
+	<link rel="stylesheet" href="css/fontawesome/css/all.min.css" />
+	<!-- Font Awesome -->
+	<link rel="stylesheet" href="css/prettify.css" />
+</head>
+
+<body onscroll="checkElement()">
+	<div id="page1" class="bg-dark">
+		<div id="page1TopDiv">
+			<div id="page1TopDivTitleDiv">
+				<p id="page1TopDivTitle">
+					Interactive Components
+				</p>
+				<div id="page1TopDivButtonDiv">
+					<div>
+						<button class="btn" onclick="createNewButton()">Create New</button>
+						<button class="btn" onclick="importPresetShowModal()">Import Existing</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="modal fade" id="importDiv" tabindex="-1" role="dialog" aria-labelledby="importDiv" aria-hidden="true">
+			<div class="modal-dialog modal-dialog-centered" id="importDivBox" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title">Enter or paste your codes</h5>
+					</div>
+					<div class="modal-body">
+						<textarea class="form-control" id="importTextarea"></textarea>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+						<button type="button" class="btn btn-primary" onclick="checkImportTextarea()">Done</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div id="page1BottomDiv">
+			<div id="page1BottomAccordionTitleDiv" class="page1Title">
+				<p id="page1BottomDivTitle">
+					<b>
+						Information
+					</b>
+				</p>
+				<p id="page1BottomDivSubtitle">
+					Details on the 2 components
+				</p>
+			</div>
+			<div class="page1BottomExample">
+				<p id="page1BottomAccordionTitle">
+					What is an Accordion?
+				</p>
+				<div>
+					<p id="page1BottomAccordionDetails">
+						An accordion has several windows that are stacked on each other. All of them are "shaded", so only their captions are visible. If one of them is clicked, to make it active, it is "unshaded" or "maximized". Other windows in accordion are
+						displaced around top or bottom edge.
+					</p>
+					<div id="page1BottomAccordionDetailsExample">
+
+					</div>
+				</div>
+			</div>
+			<div class="page1BottomExample">
+				<p id="page1BottomCardTitle">
+					What is a Flash Card?
+				</p>
+				<div>
+					<p id="page1BottomCardDetails">
+						A flashcard or flash card is a card bearing information, as words or numbers, on either or both sides, used in classroom drills or in private study. One writes a question on a side and an answer overleaf. Flashcards can bear vocabulary,
+						historical dates, formulae or any subject matter that can be learned via a question-and-answer format. Flashcards are widely used as a learning drill to aid memorization. They are often associated with spaced repetition, i.e. reviewed at
+						expanding time intervals.
+					</p>
+					<div id="page1BottomCardDetailsExample" style="color: red">
+						<b>
+							*** Flash card is current highly breakable... Dont not use it until it is fixed (If I got time to fix)<br />
+							It breaks everytime you click when the animation is still moving ***
+						</b>
+					</div>
+				</div>
+			</div>
+			<div id="page1BottomWhyTitleDiv" class="page1Title">
+				<p id="page1BottomDivWhyTitle">
+					<b>
+						Why use this tool?
+					</b>
+				</p>
+			</div>
+			<div class="page1BottomExample">
+				<p id="page1BottomWhyTitle">
+					Main objective
+				</p>
+				<div>
+					<p id="page1BottomWhyDetails">
+						This tool is to generate a simple basic HTML component "framework" without having the knowledge of HTML coding. We aim to assist people with no knowledge of HTML and those who found their BlackBoard's html code view too overwhelming. <br /><br />
+						This tool however would not have text formating to prevent overlapping with BlackBoard's text format (<i>also because in order to perfect my codes to match BlackBoard's would take too much time</i>)<br /><br />
+
+						TL;DR Use blackboard for text format and this tool to generate
+					</p>
+				</div>
+			</div>
+		</div>
+	</div>
+
+
+	<div id="page2">
+		<div id="page2TopBarDiv" class="bg-dark">
+			<div id="page2TopBarDivBackbutton" onclick="animatePage1In()">
+				<i class="fas fa-caret-left"></i>
+				<p>
+					Back
+				</p>
+			</div>
+			<div id="page2TopBarDivTitle">
+				<p>
+					Title
+				</p>
+			</div>
+		</div>
+		<div id="page2BottomDiv">
+			<div id="page2BottomLeftDiv">
+				<div id="page2BottomLeftDivLeftDiv">
+					<div id="templateMainDiv">
+						<div class="templateDivs">
+							<img src="Capture.PNG" alt="" onclick="loadAccordionPreset()" />
+							<p onclick="loadAccordionPreset()">
+								Accordion
+							</p>
+						</div>
+						<div class="templateDivs">
+							<img src="Capture.PNG" alt="" onclick="loadAccordionAltPreset()" />
+							<p onclick="loadAccordionAltPreset()">
+								Accordion (Alt)
+							</p>
+						</div>
+						<div class="templateDivs">
+							<img src="Capture.PNG" alt="" />
+							<p>
+								Card
+							</p>
+						</div>
+						<div class="templateDivs">
+							<img src="Capture.PNG" alt="" />
+							<p>
+								Card (Alt)
+							</p>
+						</div>
+						<div class="templateDivs">
+							<img src="Capture.PNG" alt="" />
+							<p>
+								Flash Card
+							</p>
+						</div>
+						<div class="templateDivs">
+							<img src="Capture.PNG" alt="" />
+							<p>
+								Tabs
+							</p>
+						</div>
+						<div class="templateDivs">
+							<img src="Capture.PNG" alt="" />
+							<p>
+								Lists
+							</p>
+						</div>
+					</div>
+					<!-- Extra space for rightDiv but I dont know what to put yet-->
+					<div id="hiddenCodeTextarea">
+						<pre id="rawTextarea" onkeydown="PR.prettyPrint();" onkeypress="updateComponentsDiv()" class="prettyprint linenums" contenteditable>
+							wdwadwad
+							awdwadad
+							adadwad
+							wadwadwda
+							dwadwadwa
+						</pre>
+					</div>
+				</div>
+				<div id="page2BottomLeftDivRightDiv">
+					<div>
+						<a class="btn btn-secondary" onclick="showTemplates()">
+							<i class="fas fa-cube"></i>
+						</a>
+					</div>
+					<div>
+						<a tabindex="0" class="btn btn-secondary" role="button" data-toggle="popover" data-trigger="focus" data-placement="bottom" data-content="Added" onclick="addNewSection()">
+							<i class="far fa-plus-square"></i>
+						</a>
+					</div>
+					<div>
+						<a tabindex="0" class="btn btn-secondary" role="button" data-toggle="popover" data-trigger="focus" data-placement="right" data-content="Removed" onclick="removeSection()">
+							<i class="far fa-trash-alt"></i>
+						</a>
+					</div>
+					<div>
+						<a class="btn btn-secondary" onclick="toggleHiddenCodes()">
+							<i class="fas fa-ghost"></i>
+						</a>
+					</div>
+					<div class="clearSpace"></div>
+					<hr />
+					<div>
+						<a class="btn btn-secondary" onclick="page2Output()">
+							<i class="far fa-save"></i>
+						</a>
+					</div>
+				</div>
+			</div>
+			<div id="page2BottomRightDiv">
+				<div id="componentsDiv">
+					<!-- START -->
+					<!-- END -->
+				</div>
+			</div>
+		</div>
+	</div>
+
+
+	<div id="page3">
+		<div>
+			<div>
+				<p onclick="animatePage3Out()">
+					Again
+				</p>
+				<p onclick="animatePage2In()">
+					Try Again
+				</p>
+			</div>
+			<textarea id="tempTextarea"></textarea>
+		</div>
+
+		<div id="tempDiv">
+
+		</div>
+	</div>
+
+	<!-- JQuery -->
+	<script src="js/jquery-3.3.1.min.js"></script>
+	<!-- JQuery UI -->
+	<script src="js/jquery-ui.min.js"></script>
+	<!-- Bootstrap -->
+	<script src="js/popper.min.js"></script>
+	<script src="js/bootstrap.min.js"></script>
+	<!-- Goo -->
+	<script src="js/prettify.js"></script>
+</body>
+
+</html>

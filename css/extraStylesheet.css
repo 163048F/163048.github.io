@@ -63,7 +63,7 @@ p {
 }
 
 #page1TopDivTitle {
-   font-size: 20vw;
+   font-size: 15vw;
    font-family: 'RobotoB', sans-serif;
    width: 100%;
    text-shadow: 0 0.032em 0 #b0b0b0, 0px 0.15em 0.11em rgba(0,0,0,0.15), 0px 0.25em 0.021em rgba(0,0,0,0.1), 0px 0.32em 0.32em rgba(0,0,0,0.1);
@@ -75,7 +75,7 @@ p {
    text-align: center;
 }
 
-#page1TopDivButtonDiv > button {
+#page1TopDivButtonDiv button {
    border: 2px solid white;
    background-color: #343a40;
    color: white;
@@ -89,9 +89,14 @@ p {
    opacity: 0.9;
 }
 
-#page1TopDivButtonDiv > button:hover {
+#page1TopDivButtonDiv button:hover {
    opacity: 1;
    box-shadow: -0.45rem 0.55rem 2px #888888;
+}
+
+#page1TopDivButtonDiv > div > button {
+   width: 60%;
+   max-width: 540px;
 }
 
 #page1BottomDiv {
@@ -143,7 +148,7 @@ p {
 #page1TopDivTitle, #page1TopDivButtonDiv, #page1BottomDivTitle,
 #page1BottomDivSubtitle, #page1BottomAccordionTitle, #page1BottomAccordionDetails,
 #page1BottomAccordionExample, #page1BottomCardTitle,  #page1BottomCardDetails,
-#page1BottomCardDetailsImage, #page1BottomDivWhyTitle, #page1BottomWhyTitle,
+#page1BottomCardDetailsExample, #page1BottomDivWhyTitle, #page1BottomWhyTitle,
 #page1BottomWhyDetails {
    opacity: 0;
 }
@@ -217,6 +222,42 @@ p {
 
 #page2BottomLeftDivLeftDiv {
    height: 0;
+   background-color: rgba(255, 108, 123, 0.6);
+   transition-property: height;
+   transition-duration: 1s;
+   transition-timing-function: ease-in-out;
+}
+
+#page2BottomLeftDivLeftDiv.expand {
+   height: 180px;
+}
+
+#templateMainDiv {
+   width: 100%;
+   height: 100%;
+   display: flex;
+   overflow: hidden;
+   overflow-x: auto;
+}
+
+.templateDivs {
+   display: flex;
+   flex-direction: column;
+   justify-content: center;
+   align-items: center;
+   padding: 24px;
+}
+
+.templateDivs > * {
+   cursor: pointer;
+}
+
+.templateDivs > img {
+   width: 200px;
+   padding: .25rem;
+   background-color: #fff;
+   border: 1px solid #dee2e6;
+   border-radius: .25rem;
 }
 
 #page2BottomLeftDivRightDiv {
@@ -313,46 +354,73 @@ p {
    cursor: auto;
 }
 
-.accordionDiv > .accordion {
-   margin: 0;
+.accordion {
+   background-color: rgba(233, 207, 249, 0.5);
 }
 
-.accordion {
+.accordionAlternate {
+   background-color: rgba(0, 0, 0, .03);
+}
+
+.accordion, .accordionAlternate {
    width: 100%;
-   text-align: center;
    cursor: pointer;
    padding: 0 .75rem;
-   margin-bottom: 24px;
    color: inherit;
-   background-color: rgba(0, 0, 0, .03);
    border-bottom: 1px solid rgba(0, 0, 0, .125);
    border-radius: 5px;
 }
 
-.accordion>:first-child {
+.accordion > div:first-child, .accordionAlternate > div:first-child {
+   position: relative;
+   width: 100%;
+   cursor: pointer;
+   display: flex;
+   justify-content: center;
+   align-items: center;
+}
+
+.accordion > div:first-child > :first-child, .accordionAlternate > div:first-child > :first-child {
    margin: 0;
    padding: 16px 0;
 }
 
-.accordion .accordionContent {
+.accordionAlternate > div:first-child::after {
+   content: '+';
+   position: absolute;
+   top: calc(50% - 18px);
+   right: 24px;
+   font-size: 24px;
+   font-weight: 500;
+}
+
+.accordion .accordionContent, .accordionAlternate .accordionAlternateContent {
    border-top-style: solid;
    border-top-width: 0;
    background-color: white;
    border-radius: 2px;
    overflow: auto;
    max-height: 0;
-   transition-property: max-height, border-top-width;
+   padding: 0;
+   cursor: auto;
+   transition-property: padding, max-height, border-top-width;
    transition-duration: 0.5s;
    transition-timing-function: ease-in-out;
 }
 
-.expand.accordionContent {
-   max-height: 5000px !important;
+.expand.accordion > .accordionContent, .expand.accordionAlternate > .accordionAlternateContent {
+   max-height: 10000px !important;
    border-top-width: 1px !important;
    border-top-color: rgba(133, 133, 133, .75);
    margin-bottom: 8px;
+   padding: 24px;
 }
 
+.expand.accordionAlternate > div:first-child::after {
+   content: '_';
+   top: calc(50% - 26px);
+   font-size: 22px;
+}
 
 .cardAnimationDiv {
 	position: relative;
@@ -426,14 +494,14 @@ p {
 }
 
 @media only screen and (min-width: 768px) {
-   #page1TopDivButtonDiv > button {
+   #page1TopDivButtonDiv button {
       font-size: 42px;
       width: 30%;
       max-width: 250px;
    }
 
    #page1TopDivTitle {
-      font-size: 160px;
+      font-size: 120px;
    }
    #page1BottomDivTitle, #page1BottomDivWhyTitle {
       font-size: 56px;
@@ -459,8 +527,30 @@ p {
    }
 
    #page2BottomLeftDivLeftDiv {
-      width: unset;
-      height: 0;
+      height: unset;
+      width: 0;
+      transition-property: width;
+      transition-duration: 1s;
+      transition-timing-function: ease-in-out;
+   }
+   #page2BottomLeftDivLeftDiv.expand {
+      width: 250px;
+      height: 100%;
+   }
+
+   #templateMainDiv {
+      flex-direction: column;
+      height: 100%;
+      overflow-x: hidden;
+      overflow-y: auto;
+   }
+
+   .templateDivs {
+      margin: 72px 0;
+   }
+
+   .templateDivs > img {
+      width: 100%;
    }
 
    #page2BottomLeftDivRightDiv {

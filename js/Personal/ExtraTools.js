@@ -18,6 +18,9 @@ $(function() {
          }
       }
    });
+
+   $(document).on("keydown", "[contentEditable]", setHiddenHTML);
+   $(document).on("keyup", "[contentEditable]", setHiddenHTML);
 });
 
 // For every element you want to have animation, insert id here and set opacity to 0 in the CSS
@@ -42,6 +45,8 @@ let isAccordion = !1;
 let cardCurrent;
 let cardCurrentIndex;
 let selectedAccordionForDeletion;
+// Track double click
+let latestTap;
 
 function checkElement() {
    for (i = 0; i < elementsArray.length; i++) {
@@ -166,8 +171,153 @@ function animatePage3Out() {
    });
 }
 
-function loadAccordionPreset() {
+function createNewButton() {
+   // Replace the hidden area with template
+   $("#componentsDiv").empty();
+   animatePage1Out();
+
+   let page2BottomLeftDivLeftDiv = document.getElementById("page2BottomLeftDivLeftDiv");
+   document.getElementById("hiddenCodeTextarea").style.display = "none";
+   document.getElementById("templateMainDiv").style.display = "flex";
+   page2BottomLeftDivLeftDiv.className = "expand";
+}
+
+function importPresetShowModal() {
+   $("#importTextarea").val("");
+   $('#importDiv').modal('show');
+}
+
+function hideImportModal() {
+   $('#importDiv').modal('hide');
+}
+
+function checkImportTextarea() {
+   let importedText = $("#importTextarea").val();
+   if(importedText) {
+      let tempDiv = $('<div>').append($(importedText).clone());
+      if(tempDiv.find(".accordion").html()) {
+         loadImportedAccordion(tempDiv);
+         return !0;
+      }else if(tempDiv.find(".cardAnimationDiv").html()) {
+         loadImportedCard(tempDiv);
+         return !0;
+      }
+   }
+   alert("None detected");
+}
+
+function loadImportedAccordion(tempDiv) {
+   $("#componentsDiv").empty();
+
+   tempDiv.find(".accordion").each(function() {
+      let accordionDivDiv = document.createElement("div");
+      accordionDivDiv.className = "accordionDiv";
+      // Draggable
+      let accordionDraggableDiv = document.createElement("div");
+      accordionDraggableDiv.className = "accordionDraggableDiv progress-bar-striped bg-success";
+
+      // Accordion
+      let accordionTitle = $(this).children().eq(0)[0];
+      accordionTitle.contentEditable = "true";
+      accordionTitle.setAttribute("onclick", "doubletap(this)");
+
+      let accordionContent = $(this).find(".accordionContent")[0];
+      accordionContent.className = "accordionContent contenteditableBr";
+      accordionContent.contentEditable = "true";
+
+      accordionDivDiv.appendChild(accordionDraggableDiv);
+      accordionDivDiv.appendChild(this);
+
+      $("#componentsDiv").append(accordionDivDiv);
+   });
+
    isAccordion = !0;
+   $("#page2TopBarDivTitle > p").text("Accordion");
+   makeSortable();
+   hideImportModal();
+   animatePage1Out();
+}
+
+function loadImportedCard(tempDiv) {
+   $("#componentsDiv").empty();
+
+   let cardAnimationDiv = document.createElement("div");
+   cardAnimationDiv.className = "cardAnimationDiv";
+   tempDiv.find(".cardSwipeDiv").each(function() {
+      this.removeAttribute("onmousedown");
+      this.removeAttribute("onmouseup");
+      this.removeAttribute("ontouchstart");
+      this.removeAttribute("ontouchend");
+      this.setAttribute("ondblclick", "ifDblClicked(this)");
+
+      let cardAnimationDivTitle = $(this).children().eq(0)[0];
+      cardAnimationDivTitle.className = "contenteditableBr";
+      cardAnimationDivTitle.contentEditable = "true";
+
+      let cardSwipeContent = $(this).find(".cardSwipeContent");
+      cardSwipeContent.className = "cardSwipeContent contenteditableBr";
+      cardSwipeContent.contentEditable = "true";
+
+      cardAnimationDiv.appendChild(this);
+   });
+   $("#componentsDiv").append(cardAnimationDiv);
+
+   // Div to contain the buttons
+   let cardIndicatorDiv = document.createElement("div");
+   cardIndicatorDiv.id = "cardIndicatorDiv";
+   // Adding buttons for navigation
+   let backBtn = document.createElement("button");
+   backBtn.className = "btn btn-info";
+   backBtn.setAttribute("onclick", "goLeft(null)");
+   backBtn.appendChild(document.createTextNode("View Previous Slide"));
+   let forwardBtn = document.createElement("button");
+   forwardBtn.className = "btn btn-info";
+   forwardBtn.setAttribute("onclick", "ifDblClicked(null)");
+   forwardBtn.appendChild(document.createTextNode("View Next Slide"));
+
+   let totalCardChild = $(".cardAnimationDiv").children().length;
+   let cardIndexIndicator = document.createElement("p");
+   cardIndexIndicator.id = "cardIndexIndicator";
+   cardIndexIndicator.className = "text-success";
+
+   cardIndicatorDiv.appendChild(backBtn);
+   cardIndicatorDiv.appendChild(cardIndexIndicator);
+   cardIndicatorDiv.appendChild(forwardBtn);
+   $("#componentsDiv").append(cardIndicatorDiv);
+
+   cardCurrentIndex = 0;
+   if(!cardCurrent) {
+      cardCurrent = $(cardAnimationDiv).find(".cardSwipeDiv").eq(0)[0];
+   }
+
+   $("#page2TopBarDivTitle > p").text("Card");
+   startupCardWithoutHide();
+   setCardIndicator();
+   hideImportModal();
+   animatePage1Out();
+}
+
+function showTemplates() {
+   let page2BottomLeftDivLeftDiv = document.getElementById("page2BottomLeftDivLeftDiv");
+   if($(page2BottomLeftDivLeftDiv).hasClass("expand")) {
+      if(document.getElementById("templateMainDiv").style.display==="none") {
+         document.getElementById("hiddenCodeTextarea").style.display = "none";
+         document.getElementById("templateMainDiv").style.display = "flex";
+      } else {
+         page2BottomLeftDivLeftDiv.className = "";
+      }
+   }else {
+      document.getElementById("hiddenCodeTextarea").style.display = "none";
+      document.getElementById("templateMainDiv").style.display = "flex";
+      page2BottomLeftDivLeftDiv.className = "expand";
+   }
+}
+
+// Components Presets
+function loadAccordionPreset() {
+   showTemplates();
+   isAccordion = 0;
+   $("#page2TopBarDivTitle > p").text("Accordion");
    let componentsDiv = document.getElementById("componentsDiv");
    let accordionDiv = addNewAccordion();
    $(componentsDiv).empty();
@@ -176,65 +326,23 @@ function loadAccordionPreset() {
    animatePage1Out();
 }
 
-function addNewAccordion() {
-   let accordionDivDiv = document.createElement("div");
-   accordionDivDiv.className = "accordionDiv";
-   // Draggable
-   let accordionDraggableDiv = document.createElement("div");
-   accordionDraggableDiv.className = "accordionDraggableDiv progress-bar-striped bg-success";
-   // Accordion
-   let accordionDiv = document.createElement("div");
-   accordionDiv.className = "accordion";
-   let accordionTitle = document.createElement("p");
-   accordionTitle.contentEditable = "true";
-   accordionTitle.appendChild(document.createTextNode("Enter Title Here"));
-   // Double click for editing... remember to change on output
-   accordionTitle.setAttribute("onclick", "doubletap(this)");
-   contentEditableBr(accordionTitle);
-
-   let accordionContent = document.createElement("div");
-   // Contenteditable for editing... remember to change on output
-   accordionContent.className = "accordionContent contenteditableBr";
-   accordionContent.contentEditable = "true";
-   accordionContent.innerHTML = "<p>Enter Content Here</p>";
-
-   contentEditableBr();
-
-   accordionDiv.appendChild(accordionTitle);
-   accordionDiv.appendChild(accordionContent);
-
-   accordionDivDiv.appendChild(accordionDraggableDiv);
-   accordionDivDiv.appendChild(accordionDiv);
-
-   return accordionDivDiv;
-}
-
-function removeSection() {
-   if(isAccordion) {
-      if(selectedAccordionForDeletion) {
-         $(selectedAccordionForDeletion).remove();
-      }
-   }else{
-      if(cardCurrentIndex) {
-         if(cardCurrentIndex > 0) {
-            goLeft();
-            // Compensate for goLeft
-            $(".cardAnimationDiv").children().eq(cardCurrentIndex + 1).remove();
-         }else if(cardCurrentIndex === 0 && $(".cardAnimationDiv").children().length > 1) {
-            goRight();
-            // Compensate for goRight
-            $(".cardAnimationDiv").children().eq(cardCurrentIndex - 1).remove();
-         }
-         setCardIndicator();
-         startupCardWithoutHide();
-      }
-   }
+function loadAccordionAltPreset() {
+   showTemplates();
+   isAccordion = 1;
+   $("#page2TopBarDivTitle > p").text("Accordion Alternate");
+   let componentsDiv = document.getElementById("componentsDiv");
+   let accordionDiv = addNewAltAccordion();
+   $(componentsDiv).empty();
+   componentsDiv.appendChild(accordionDiv);
+   makeSortable();
+   animatePage1Out();
 }
 
 function loadCardPreset() {
    isAccordion = !1;
    cardCurrentIndex = 0;
 
+   $("#page2TopBarDivTitle > p").text("Card");
    // Adding the card
    let cardAnimationDiv = document.createElement("div");
    cardAnimationDiv.className = "cardAnimationDiv";
@@ -272,6 +380,98 @@ function loadCardPreset() {
    animatePage1Out();
 }
 
+// Adding and Removing
+function addNewAccordion() {
+   let accordionDivDiv = document.createElement("div");
+   accordionDivDiv.className = "accordionDiv";
+   // Draggable
+   let accordionDraggableDiv = document.createElement("div");
+   accordionDraggableDiv.className = "accordionDraggableDiv progress-bar-striped bg-success";
+   // Accordion
+   let accordionDiv = document.createElement("div");
+   accordionDiv.className = "accordion";
+   let accordionTitleDiv = document.createElement("div");
+   // Double click for editing... remember to change on output
+   accordionTitleDiv.setAttribute("onclick", "accordionDoubletap(this)");;
+   accordionTitleDiv.contentEditable = "true";
+   let accordionTitle = document.createElement("p");
+   accordionTitle.appendChild(document.createTextNode("Enter Title Here"));
+   contentEditableBr();
+
+   let accordionContent = document.createElement("div");
+   // Contenteditable for editing... remember to change on output
+   accordionContent.className = "accordionContent";
+   accordionContent.contentEditable = "true";
+   accordionContent.innerHTML = "<p>Enter Content Here</p>";
+
+   contentEditableBr();
+
+   accordionTitleDiv.appendChild(accordionTitle);
+   accordionDiv.appendChild(accordionTitleDiv);
+   accordionDiv.appendChild(accordionContent);
+
+   accordionDivDiv.appendChild(accordionDraggableDiv);
+   accordionDivDiv.appendChild(accordionDiv);
+
+   return accordionDivDiv;
+}
+
+function addNewAltAccordion() {
+   let accordionDivDiv = document.createElement("div");
+   accordionDivDiv.className = "accordionDiv";
+   // Draggable
+   let accordionDraggableDiv = document.createElement("div");
+   accordionDraggableDiv.className = "accordionDraggableDiv progress-bar-striped bg-success";
+   // Accordion
+   let accordionDiv = document.createElement("div");
+   accordionDiv.className = "accordionAlternate";
+   let accordionTitleDiv = document.createElement("div");
+   // Double click for editing... remember to change on output
+   accordionTitleDiv.setAttribute("onclick", "accordionAltDoubletap(this)");;
+   accordionTitleDiv.contentEditable = "true";
+   let accordionTitle = document.createElement("p");
+   accordionTitle.appendChild(document.createTextNode("Enter Title Here"));
+   contentEditableBr();
+
+   let accordionContent = document.createElement("div");
+   // Contenteditable for editing... remember to change on output
+   accordionContent.className = "accordionAlternateContent";
+   accordionContent.contentEditable = "true";
+   accordionContent.innerHTML = "<p>Enter Content Here</p>";
+
+   contentEditableBr();
+
+   accordionTitleDiv.appendChild(accordionTitle);
+   accordionDiv.appendChild(accordionTitleDiv);
+   accordionDiv.appendChild(accordionContent);
+
+   accordionDivDiv.appendChild(accordionDraggableDiv);
+   accordionDivDiv.appendChild(accordionDiv);
+
+   return accordionDivDiv;
+}
+
+function removeSection() {
+   if(isAccordion) {
+      if(selectedAccordionForDeletion) {
+         $(selectedAccordionForDeletion).remove();
+      }
+   }else{
+      if(cardCurrentIndex > 0) {
+         goLeft();
+         // Compensate for goLeft
+         $(".cardAnimationDiv").children().eq(cardCurrentIndex + 1).remove();
+      }else if(cardCurrentIndex === 0 && $(".cardAnimationDiv").children().length > 1) {
+         ifDblClicked();
+         // Compensate for goRight
+         $(".cardAnimationDiv").children().eq(cardCurrentIndex - 1).remove();
+         cardCurrentIndex = 0;
+      }
+      setCardIndicator();
+      startupCardWithoutHide();
+   }
+}
+
 function addNewCard() {
    let cardAnimationDivTitle = document.createElement("p");
    cardAnimationDivTitle.className = "contenteditableBr";
@@ -298,14 +498,22 @@ function addNewCard() {
 }
 
 function addNewSection() {
-   if (isAccordion) {
-      document.getElementById("componentsDiv").appendChild(addNewAccordion());
-      makeSortable()
-   } else {
-      let newCard = addNewCard();
-      document.getElementsByClassName("cardAnimationDiv")[0].appendChild(newCard);
-      startupCardWithoutHide();
-      setCardIndicator();
+   setHiddenHTML();
+   switch(isAccordion) {
+      case 0:
+         document.getElementById("componentsDiv").appendChild(addNewAccordion());
+         makeSortable();
+         break;
+      case 1:
+         document.getElementById("componentsDiv").appendChild(addNewAltAccordion());
+         makeSortable();
+         break;
+      default:
+         let newCard = addNewCard();
+         document.getElementsByClassName("cardAnimationDiv")[0].appendChild(newCard);
+         startupCardWithoutHide();
+         setCardIndicator();
+         break;
    }
 }
 
@@ -313,9 +521,41 @@ function setCardIndicator() {
    $("#cardIndexIndicator").html((cardCurrentIndex + 1) + " <span style='color:#6c757d'>-</span> <span style='color:#dc3545'>" + $(".cardAnimationDiv").children().length + "</span>");
 }
 
+function toggleHiddenCodes() {
+   let page2BottomLeftDivLeftDiv = document.getElementById("page2BottomLeftDivLeftDiv");
+   if($(page2BottomLeftDivLeftDiv).hasClass("expand")) {
+      if(document.getElementById("hiddenCodeTextarea").style.display==="none") {
+         document.getElementById("templateMainDiv").style.display = "none";
+         document.getElementById("hiddenCodeTextarea").style.display = "flex";
+      } else {
+         page2BottomLeftDivLeftDiv.className = "";
+      }
+   }else {
+      document.getElementById("templateMainDiv").style.display = "none";
+      document.getElementById("hiddenCodeTextarea").style.display = "flex";
+      page2BottomLeftDivLeftDiv.className = "expand";
+   }
+   setHiddenHTML();
+}
+
+function updateComponentsDiv() {
+   let tempDiv = $('<div>').append($("#rawTextarea").clone());
+   if(isAccordion) {
+      if(tempDiv.find(".accordion").html()) {
+         loadImportedAccordion(tempDiv);
+      }
+   }else {
+
+   }
+}
+
+function setHiddenHTML() {
+   $("#rawTextarea").val($("#componentsDiv").html());
+}
+
+// Output page2
 function page2Output() {
    $("#tempTextarea").val("");
-   $("#tempDiv").html("");
    let componentsDiv = $("#componentsDiv").clone();
    if(isAccordion) {
       componentsDiv.find(".accordion").each(function() {
@@ -324,12 +564,12 @@ function page2Output() {
          let accordionContent = accordion.children().eq(1)[0];
 
          // Remove contentEditable
+         accordion[0].className = "accordion";
          accordionTitle.removeAttribute("contentEditable");
          accordionContent.removeAttribute("contentEditable");
-         accordionContent.className = "accordionContent";
 
          // Changing dblclick to click
-         accordionTitle.setAttribute("onclick", "this.nextElementSibling.className='accordionContent'===this.nextElementSibling.className?'accordionContent expand':'accordionContent';");
+         accordionTitle.setAttribute("onclick", "this.parentElement.className='accordion'===this.parentElement.className?'accordion expand':'accordion';");
          $("#tempTextarea")[0].value += accordion[0].outerHTML;
          $("#tempDiv")[0].innerHTML += accordion[0].outerHTML;
       });
@@ -396,12 +636,23 @@ function contentEditableBr() {
 }
 
 // Check double click
-let latestTap;
-function doubletap(element) {
+function accordionDoubletap(element) {
    let now = new Date().getTime();
    let timesince = now - latestTap;
    if((timesince < 400) && (timesince > 0)){
-      element.nextElementSibling.className='accordionContent contenteditableBr'===element.nextElementSibling.className?'accordionContent contenteditableBr expand':'accordionContent contenteditableBr';
+      element.parentElement.className='accordion'===element.parentElement.className?'accordion expand':'accordion';
+      latestTap = 0;
+      return !1;
+   }
+
+   latestTap = new Date().getTime();
+}
+
+function accordionAltDoubletap(element) {
+   let now = new Date().getTime();
+   let timesince = now - latestTap;
+   if((timesince < 400) && (timesince > 0)){
+      element.parentElement.className='accordionAlternate'===element.parentElement.className?'accordionAlternate expand':'accordionAlternate';
       latestTap = 0;
       return !1;
    }
