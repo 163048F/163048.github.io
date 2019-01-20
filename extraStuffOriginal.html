@@ -15,8 +15,9 @@
 	<link rel="stylesheet" href="css/bootstrap.min.css" />
 	<!-- Font Awesome -->
 	<link rel="stylesheet" href="css/fontawesome/css/all.min.css" />
-	<!-- Font Awesome -->
-	<link rel="stylesheet" href="css/prettify.css" />
+	<!-- Code Mirror -->
+	<link rel="stylesheet" href="js/codemirror-5.42.2/lib/codemirror.css" />
+	<link rel="stylesheet" href="js/codemirror-5.42.2/theme/shadowfox.css" />
 </head>
 
 <body onscroll="checkElement()">
@@ -138,33 +139,39 @@
 				<div id="page2BottomLeftDivLeftDiv">
 					<div id="templateMainDiv">
 						<div class="templateDivs">
-							<img src="Capture.PNG" alt="" onclick="loadAccordionPreset()" />
+							<img src="Capture.PNG" alt="Accordion Template" onclick="loadAccordionPreset()" />
 							<p onclick="loadAccordionPreset()">
 								Accordion
 							</p>
 						</div>
 						<div class="templateDivs">
-							<img src="Capture.PNG" alt="" onclick="loadAccordionAltPreset()" />
+							<img src="Capture.PNG" alt="Accordion Alternate Template" onclick="loadAccordionAltPreset()" />
 							<p onclick="loadAccordionAltPreset()">
 								Accordion (Alt)
 							</p>
 						</div>
 						<div class="templateDivs">
-							<img src="Capture.PNG" alt="" />
-							<p>
+							<img src="Capture.PNG" alt="Card Template" onclick="loadCardPreset()" />
+							<p onclick="loadCardPreset()">
 								Card
 							</p>
 						</div>
 						<div class="templateDivs">
-							<img src="Capture.PNG" alt="" />
-							<p>
+							<img src="Capture.PNG" alt="Card Alternate Template" onclick="loadCardAltPreset()" />
+							<p onclick="loadCardAltPreset()">
 								Card (Alt)
 							</p>
 						</div>
 						<div class="templateDivs">
-							<img src="Capture.PNG" alt="" />
-							<p>
+							<img src="Capture.PNG" alt="Flashcard Template" onclick="loadFlashCardPreset()" />
+							<p onclick="loadFlashCardPreset()">
 								Flash Card
+							</p>
+						</div>
+						<div class="templateDivs">
+							<img src="Capture.PNG" alt="Checklist Template" onclick="loadChecklistPreset()" />
+							<p onclick="loadChecklistPreset()">
+								Checklist
 							</p>
 						</div>
 						<div class="templateDivs">
@@ -182,13 +189,8 @@
 					</div>
 					<!-- Extra space for rightDiv but I dont know what to put yet-->
 					<div id="hiddenCodeTextarea">
-						<pre id="rawTextarea" onkeydown="PR.prettyPrint();" onkeypress="updateComponentsDiv()" class="prettyprint linenums" contenteditable>
-							wdwadwad
-							awdwadad
-							adadwad
-							wadwadwda
-							dwadwadwa
-						</pre>
+						<p onclick="updateComponentsDiv()">If the codes is not showing up, click on the editor. <br><b>Click here to update</b></p>
+						<textarea id="rawTextarea"></textarea>
 					</div>
 				</div>
 				<div id="page2BottomLeftDivRightDiv">
@@ -256,8 +258,13 @@
 	<!-- Bootstrap -->
 	<script src="js/popper.min.js"></script>
 	<script src="js/bootstrap.min.js"></script>
-	<!-- Goo -->
-	<script src="js/prettify.js"></script>
+	<!-- Crypto -->
+	<script src="js/sjcl.js"></script>
+	<script src="js/isaac.js"></script>
+	<!-- Beautify -->
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.9.0-beta3/beautify-html.min.js"></script>
+	<!-- RequireJS -->
+	<script src="js/require.js"></script>
 </body>
 
 </html>
