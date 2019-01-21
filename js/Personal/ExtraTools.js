@@ -14,21 +14,28 @@ let elementsArray = [
    "page1BottomWhyTitle",
    "page1BottomWhyDetails"
 ];
+// Only works if element is in #componentsDiv > *
 let excludeInHidden = [
    "#cardIndicatorDiv"
 ];
-
+// CodeMirror object
 let cm;
-let isAccordion = !1;
+// Current template selected
+let isAccordion = 0;
 // To track card current slide
 let cardCurrent;
 let cardCurrentIndex;
-let selectedAccordionForDeletion;
+// To track number list index
+let numberListIndex;
+// Elements to be removed
+let selectedAccordionForDeletion, selectedFlashCardForDeletion, selectedChecklistForDeletion, selectedTabForDeletion, selectedNumberListForDeletion;
 // Track double click
 let latestTap;
 
 $(function () {
+   // Random generator for checklist
    sjcl.random.startCollectors();
+   // Check if elements need to be animated for page1
    checkElement();
 
    require([
@@ -46,6 +53,7 @@ $(function () {
       trigger: 'focus'
    });
 
+   // Remember to <break;> otherwise will freeze the browser
    $(document).on("click", function (e) {
       let i = 0;
       let nodeYouWant = e.target;
@@ -55,6 +63,15 @@ $(function () {
             break;
          } else if (nodeYouWant.className === "cardFlipDiv") {
             selectedFlashCardForDeletion = nodeYouWant;
+            break;
+         } else if (nodeYouWant.className === "checkboxContainer"){
+            selectedChecklistForDeletion = nodeYouWant;
+            break;
+         } else if (nodeYouWant.classList.contains("tabComponentLinks") || nodeYouWant.classList.contains("tabComponentContent")) {
+            selectedTabForDeletion = Array.prototype.indexOf.call(nodeYouWant.parentElement.children, nodeYouWant);
+            break;
+         } else if (nodeYouWant.className === "fancyNumbers") {
+            selectedNumberListForDeletion = nodeYouWant;
             break;
          } else {
             nodeYouWant = nodeYouWant.parentNode;
@@ -89,6 +106,9 @@ function animateElement(theElement) {
 }
 
 function animatePage1Out() {
+   document.body.scrollTop = 0;
+   document.documentElement.scrollTop = 0;
+   $("body").css("overflow", "hidden");
    // Show page2
    let page2 = $("#page2");
    page2.css("display", "flex");
@@ -99,6 +119,7 @@ function animatePage1Out() {
    // Hide page1
    let page1 = $("#page1");
    page1.hide("fold", 1200, function () {
+      $("body").css("overflow", "auto");
       page1.css("display", "none");
 
       page2.css("position", "");
@@ -111,12 +132,13 @@ function animatePage1Out() {
          if ($(element).css("opacity") == 0) {
             continue;
          }
-         element.style.opacity = "0";
+         element.style.opacity = 0;
       }
    });
 }
 
 function animatePage1In() {
+   $("body").css("overflow", "hidden");
    cardCurrent = null;
    cardCurrentIndex = 0;
    let page2 = $("#page2");
@@ -126,6 +148,7 @@ function animatePage1In() {
 
    let page1 = $("#page1");
    page1.show("fold", 1200, function () {
+      $("body").css("overflow", "auto");
       page2.css("display", "none");
       page2.css("position", "");
       page2.css("top", "");
@@ -135,6 +158,7 @@ function animatePage1In() {
 }
 
 function animatePage2Out() {
+   $("body").css("overflow", "hidden");
    // Show page3
    let page3 = $("#page3");
    page3.css("display", "flex");
@@ -147,6 +171,7 @@ function animatePage2Out() {
    page2.hide("drop", {
       direction: "down"
    }, 1200, function () {
+      $("body").css("overflow", "auto");
       page2.css("display", "none");
 
       page3.css("position", "");
@@ -156,6 +181,7 @@ function animatePage2Out() {
 }
 
 function animatePage2In() {
+   $("body").css("overflow", "hidden");
    // Show page3
    let page3 = $("#page3");
    page3.css("position", "absolute");
@@ -167,6 +193,7 @@ function animatePage2In() {
    page2.show("drop", {
       direction: "down"
    }, 1200, function () {
+      $("body").css("overflow", "auto");
       page3.css("display", "none");
       page3.css("position", "");
       page3.css("top", "");
@@ -175,6 +202,7 @@ function animatePage2In() {
 }
 
 function animatePage3Out() {
+   $("body").css("overflow", "hidden");
    let page3 = $("#page3");
    page3.css("position", "absolute");
    page3.css("top", "0");
@@ -182,6 +210,7 @@ function animatePage3Out() {
 
    let page1 = $("#page1");
    page1.show("fold", 1200, function () {
+      $("body").css("overflow", "auto");
       page3.css("display", "none");
       page3.css("position", "");
       page3.css("top", "");
@@ -436,7 +465,47 @@ function loadChecklistPreset() {
    checkBoxPageDiv.appendChild(addNewChecklist());
    $(componentsDiv).empty();
    componentsDiv.appendChild(checkBoxPageDiv);
-   startupChecklist();
+}
+
+function loadTabsPreset() {
+   showTemplates();
+   isAccordion = 6;
+   $("#page2TopBarDivTitle > p").text("Tabs");
+   let componentsDiv = document.getElementById("componentsDiv");
+   let tabComponent = document.createElement("div");
+   tabComponent.className = "tabComponent";
+   let tabComponentLinks = document.createElement("div");
+   tabComponentLinks.className = "tabComponentLinks tabComponentActive";
+   tabComponentLinks.setAttribute("ondblclick", tabsOnClick);
+   tabComponentLinks.contentEditable = "true";
+   let tabComponentLinksP = document.createElement("p");
+   tabComponentLinksP.appendChild(document.createTextNode("Type Here"));
+   let tabComponentContentDiv = document.createElement("div");
+   tabComponentContentDiv.className = "tabComponentContentDiv";
+   let tabComponentContent = document.createElement("div");
+   tabComponentContent.className = "tabComponentContent tabActiveContent";
+   tabComponentContent.contentEditable = "true";
+   let tabComponentContentP = document.createElement("p");
+   tabComponentContentP.appendChild(document.createTextNode("Type Here"));
+
+   tabComponentLinks.appendChild(tabComponentLinksP);
+   tabComponent.appendChild(tabComponentLinks);
+   tabComponentContent.appendChild(tabComponentContentP);
+   tabComponentContentDiv.appendChild(tabComponentContent);
+   $(componentsDiv).empty();
+   componentsDiv.appendChild(tabComponent);
+   componentsDiv.appendChild(tabComponentContentDiv);
+   contentEditableBr();
+}
+
+function loadNumberListPreset() {
+   showTemplates();
+   isAccordion = 7;
+   $("#page2TopBarDivTitle > p").text("Lists");
+   let componentsDiv = document.getElementById("componentsDiv");
+   $(componentsDiv).empty();
+   componentsDiv.appendChild(addNewNumberList());
+   getNumberListIndex();
 }
 
 // Adding and Removing
@@ -461,7 +530,14 @@ function addNewSection() {
       break;
    case 5:
       $(".checkBoxPageDiv").append(addNewChecklist());
-      startupChecklist();
+      break;
+   case 6:
+      let newTab = addNewTabs();
+      $(".tabComponent").append(newTab.tabComponentLinksTab);
+      $(".tabComponentContentDiv").append(newTab.tabComponentContentTab);
+      break;
+   case 7:
+      $("#componentsDiv").append(addNewNumberList());
       break;
    }
    setHiddenHTML();
@@ -513,6 +589,24 @@ function removeSection() {
    case 4:
       if (selectedFlashCardForDeletion) {
          $(selectedFlashCardForDeletion).remove();
+      }
+      break;
+   case 5:
+      if (selectedChecklistForDeletion) {
+         $(selectedChecklistForDeletion).remove();
+      }
+      break;
+   case 6:
+      if(!isNaN(selectedTabForDeletion)) {
+         let tabComponent = document.getElementsByClassName("tabComponent")[0];
+         let tabComponentContentDiv = document.getElementsByClassName("tabComponentContentDiv")[0];
+         tabComponent.removeChild(tabComponent.childNodes[selectedTabForDeletion]);
+         tabComponentContentDiv.removeChild(tabComponentContentDiv.childNodes[selectedTabForDeletion]);
+      }
+      break;
+   case 7:
+      if (selectedNumberListForDeletion) {
+         $(selectedNumberListForDeletion).remove();
       }
       break;
    }
@@ -624,13 +718,13 @@ function addNewFlashCard() {
    let cardFlipDivDiv = document.createElement("div");
    cardFlipDivDiv.className = "cardFlipDivDiv";
    let cardFlipFront = document.createElement("div");
-   cardFlipFront.className = "cardFlipFront contenteditableBr";
+   cardFlipFront.className = "cardFlipFront";
    cardFlipFront.setAttribute("ondblclick", "this.style.display='none'");
    cardFlipFront.contentEditable = "true";
    let cardFlipFrontP = document.createElement("p");
    cardFlipFrontP.appendChild(document.createTextNode("Type Here"));
    let cardFlipBack = document.createElement("div");
-   cardFlipBack.className = "cardFlipBack contenteditableBr";
+   cardFlipBack.className = "cardFlipBack";
    cardFlipBack.setAttribute("ondblclick", "this.previousElementSibling.style.display='flex'");
    let cardFlipBackP = document.createElement("p");
    cardFlipBackP.appendChild(document.createTextNode("Type Here"));
@@ -665,6 +759,52 @@ function addNewChecklist() {
    return checkboxContainer;
 }
 
+function addNewTabs() {
+   let tabComponentLinks = document.createElement("div");
+   tabComponentLinks.className = "tabComponentLinks";
+   tabComponentLinks.setAttribute("ondblclick", tabsOnClick);
+   tabComponentLinks.contentEditable = "true";
+   let tabComponentLinksP = document.createElement("p");
+   tabComponentLinksP.appendChild(document.createTextNode("Type Here"));
+   let tabComponentContent = document.createElement("div");
+   tabComponentContent.className = "tabComponentContent";
+   tabComponentContent.contentEditable = "true";
+   let tabComponentContentP = document.createElement("p");
+   tabComponentContentP.appendChild(document.createTextNode("Type Here"));
+
+   tabComponentLinks.appendChild(tabComponentLinksP);
+   tabComponentContent.appendChild(tabComponentContentP);
+   contentEditableBr();
+
+   return {
+      tabComponentLinksTab: tabComponentLinks,
+      tabComponentContentTab: tabComponentContent
+   }
+}
+
+function addNewNumberList() {
+   getNumberListIndex();
+   let fancyNumbers = document.createElement("div");
+   fancyNumbers.className = "fancyNumbers";
+   let fancyNumbersCircle = document.createElement("div");
+   fancyNumbersCircle.className = "fancyNumbersCircle";
+   fancyNumbersCircle.contentEditable = "true";
+   let fancyNumbersCircleP = document.createElement("p");
+   fancyNumbersCircleP.appendChild(document.createTextNode(numberListIndex));
+   let fancyNumbersContent = document.createElement("div");
+   fancyNumbersContent.contentEditable = "true";
+   let fancyNumbersContentP = document.createElement("p");
+   fancyNumbersContentP.appendChild(document.createTextNode("Type Here"));
+   contentEditableBr();
+
+   fancyNumbersCircle.appendChild(fancyNumbersCircleP);
+   fancyNumbersContent.appendChild(fancyNumbersContentP);
+   fancyNumbers.appendChild(fancyNumbersCircle);
+   fancyNumbers.appendChild(fancyNumbersContent);
+
+   return fancyNumbers;
+}
+
 // Hidden HTML
 function toggleHiddenCodes() {
    let page2BottomLeftDivLeftDiv = document.getElementById("page2BottomLeftDivLeftDiv");
@@ -695,6 +835,10 @@ function updateComponentsDiv() {
       }
    }
    $("#componentsDiv").html(output.innerHTML);
+   if(isAccordion === 2) {
+      startupCard();
+      setCardIndicator();
+   }
 }
 
 function setHiddenHTML() {
@@ -746,11 +890,9 @@ function page2Output() {
          // Changing dblclick to click
          accordionTitle.setAttribute("onclick", "this.parentElement.className='accordionAlternate'===this.parentElement.className?'accordionAlternate expand':'accordionAlternate';");
          $("#tempTextarea")[0].value += accordion[0].outerHTML;
-         $("#tempDiv")[0].innerHTML += accordion[0].outerHTML;
       });
       break;
    case 2: // Card
-      $("#tempTextarea")[0].value = "<div class='cardAnimationDiv'>";
       componentsDiv.find(".cardAnimationDiv > .cardSwipeDivDiv > .cardSwipeDiv").each(function () {
          let card = $(this);
          let cardTitle = card.children().eq(0)[0];
@@ -762,6 +904,7 @@ function page2Output() {
          cardTitle.removeAttribute("class");
          cardContent.className = "cardSwipeContent";
          this.removeAttribute("style");
+         this.removeAttribute("ondblclick");
          this.setAttribute("onmousedown",
             cardMouseDown
          );
@@ -774,15 +917,30 @@ function page2Output() {
          this.setAttribute("ontouchend",
             cardMouseUp
          );
-         this.setAttribute("ondblclick",
+         this.setAttribute("onclick",
             cardDblClick
          );
-         $("#tempTextarea")[0].value += this.outerHTML;
       });
+      $("#tempTextarea")[0].value += componentsDiv.find(".cardAnimationDiv")[0].outerHTML;
       $("#tempTextarea")[0].value += "</div><script>" + cardStartup + "</script>";
       break;
    case 3: // Card Alternate
    case 4: // Flash Card
+      componentsDiv.find(".cardFlipDiv > .cardFlipDivDiv").each(function () {
+         let cardFlipDivDiv = $(this);
+         let cardFlipFront = cardFlipDivDiv.children().eq(0)[0];
+         let cardFlipBack = cardFlipDivDiv.children().eq(1)[0];
+
+         // Remove contentEditable
+         cardFlipFront.removeAttribute("ondblclick");
+         cardFlipFront.removeAttribute("contenteditable");
+         cardFlipFront.removeAttribute("style");
+         cardFlipBack.removeAttribute("ondblclick");
+         cardFlipBack.removeAttribute("contenteditable");
+         cardFlipBack.removeAttribute("style");
+      });
+      $("#tempTextarea")[0].value = componentsDiv.html();
+      break;
    case 5: // Checklist
       let checkBoxTitle = componentsDiv.find(".checkBoxPageDiv > :first-child")[0];
       checkBoxTitle.removeAttribute("contenteditable");
@@ -793,12 +951,54 @@ function page2Output() {
 
          checkboxLabel.htmlFor = checkboxInput.id;
          // Remove contentEditable
-         checkboxLabel.removeAttribute("contentEditable");
+         checkboxLabel.removeAttribute("contenteditable");
+      });
+      $("#tempTextarea")[0].value = componentsDiv.html();
+      $("#tempTextarea")[0].value += "<script>" + checklistStartup + "</script>";
+      break;
+   case 6: // Tabs
+      let first = !0;
+      componentsDiv.find(".tabComponentLinks").each(function () {
+         let tabComponentLinks = this;
+         if(first) {
+            tabComponentLinks.className = "tabComponentLinks tabComponentActive";
+            first = !1;
+         } else {
+            tabComponentLinks.className = "tabComponentLinks";
+         }
+
+         // Remove contentEditable
+         tabComponentLinks.setAttribute("onclick", tabsOnClick);
+         tabComponentLinks.removeAttribute("ondblclick");
+         tabComponentLinks.removeAttribute("contenteditable");
+      });
+      first = !0;
+      componentsDiv.find(".tabComponentContent").each(function () {
+         let tabComponentContent = this;
+         if(first) {
+            tabComponentContent.className = "tabComponentContent tabActiveContent";
+            first = !1;
+         } else {
+            tabComponentContent.className = "tabComponentContent";
+         }
+
+         // Remove contentEditable
+         tabComponentContent.removeAttribute("contenteditable");
       });
       $("#tempTextarea")[0].value = componentsDiv.html();
       break;
-   case 6: // Tabs
    case 7: // Lists
+      componentsDiv.find(".fancyNumbers").each(function () {
+         let fancyNumbers = $(this);
+         let fancyNumbersCircle = fancyNumbers.children().eq(0)[0];
+         let fancyNumbersContent = fancyNumbers.children().eq(1)[0];
+
+         // Remove contentEditable
+         fancyNumbersCircle.removeAttribute("contenteditable");
+         fancyNumbersContent.removeAttribute("contenteditable");
+      });
+      $("#tempTextarea")[0].value = componentsDiv.html();
+      break;
    }
 
    animatePage2Out();
@@ -846,10 +1046,9 @@ function accordionDoubletap(element) {
    if ((timesince < 400) && (timesince > 0)) {
       element.parentElement.className = 'accordion' === element.parentElement.className ? 'accordion expand' : 'accordion';
       latestTap = 0;
-      return !1;
+   }else {
+      latestTap = new Date().getTime();
    }
-
-   latestTap = new Date().getTime();
 }
 
 function accordionAltDoubletap(element) {
@@ -859,9 +1058,9 @@ function accordionAltDoubletap(element) {
       element.parentElement.className = 'accordionAlternate' === element.parentElement.className ? 'accordionAlternate expand' : 'accordionAlternate';
       latestTap = 0;
       return !1;
+   } else {
+      latestTap = new Date().getTime();
    }
-
-   latestTap = new Date().getTime();
 }
 
 // Sortable
@@ -984,20 +1183,26 @@ function ifDblClicked(clickedParent) {
    setCardIndicator();
 }
 
-// Checklist functions
-function startupChecklist() {
-   document.querySelectorAll(".checkboxContainer input").forEach(function(a){"true"===localStorage.getItem(a.id)&&(a.checked=!0)});
+// Number list function
+function getNumberListIndex() {
+   numberListIndex = document.getElementsByClassName("fancyNumbers").length + 1;
 }
+
+// Checklist functions
+let checklistStartup = "document.querySelectorAll('.checkboxContainer input').forEach(function(a){'true'===localStorage.getItem(a.id)&&(a.checked=!0)})";
+
+// Tabs functions
+let tabsOnClick = "for(var elementIndex=Array.prototype.indexOf.call(this.parentNode.children,this),a=this.parentElement.nextElementSibling.children,b=0;b<a.length;b++)a[b].className=b===elementIndex?'tabComponentContent tabActiveContent':'tabComponentContent';for(var a$0=this.parentElement.children,b$1=0;b$1<a$0.length;b$1++)a$0[b$1].className='tabComponentLinks';this.className='tabComponentLinks'===this.className?'tabComponentLinks tabComponentActive':'tabComponentLinks'";
 
 // Messy stuff
 // CardStartup script
-let cardStartup = "let cardSwipeDivDiv=document.getElementsByClassName('cardSwipeDivDiv'),oriPos,latestTap=0;for(i=0;i!=cardSwipeDivDiv.length;i++){let cardSwipeDiv=cardSwipeDivDiv[i].getElementsByClassName('cardSwipeDiv');j=0;for(k=cardSwipeDiv.length;j!=cardSwipeDiv.length;j++,k--)cardSwipeDiv[j].style.zIndex=k,cardSwipeDiv[j].style.display='flex',cardSwipeDiv[j].style.opacity=1}";
+let cardStartup = "var cardSwipeDivDiv=document.getElementsByClassName('cardSwipeDivDiv'),oriPos,latestTap=0;for(i=0;i!=cardSwipeDivDiv.length;i++){var cardSwipeDiv=cardSwipeDivDiv[i].getElementsByClassName('cardSwipeDiv');j=0;for(k=cardSwipeDiv.length;j!=cardSwipeDiv.length;j++,k--)cardSwipeDiv[j].style.zIndex=k,cardSwipeDiv[j].style.display='flex',cardSwipeDiv[j].style.opacity=1};";
 
 // Mousedown / Touchstart
 let cardMouseDown = "oriPos=event.clientX;void 0==oriPos&&(oriPos=event.changedTouches[0].clientX);";
 
 // Mouseup
-let cardMouseUp = "let nowCursor=event.clientX;void 0==nowCursor&&(nowCursor=event.changedTouches[0].clientX);for(let clickedParent=this;'cardSwipeDivDiv'!==clickedParent.className;)clickedParent=clickedParent.parentElement;if(nowCursor<oriPos-.16*clickedParent.clientWidth){let cardSwipeDivDivChildren=clickedParent.children;for(i=0;i<cardSwipeDivDivChildren.length-1;i++)if('flex'===cardSwipeDivDivChildren[i].style.display){cardSwipeDivDivChildren[i].style.pointerEvents='none';cardSwipeDivDivChildren[i+1].style.pointerEvents='none';cardSwipeDivDivChildren[i].style.left='-50px';cardSwipeDivDivChildren[i].style.opacity=0;setTimeout(function(){cardSwipeDivDivChildren[i].style.pointerEvents='auto';cardSwipeDivDivChildren[i+1].style.pointerEvents='auto';cardSwipeDivDivChildren[i].style.display='none'},500);break}}else if(nowCursor>oriPos+.16*clickedParent.clientWidth&&(cardSwipeDivDivChildren=clickedParent.children,'none'===cardSwipeDivDivChildren[0].style.display))for(i=1;i<cardSwipeDivDivChildren.length;i++)if('flex'===cardSwipeDivDivChildren[i].style.display){cardSwipeDivDivChildren[i].style.pointerEvents='none';cardSwipeDivDivChildren[i-1].style.pointerEvents='none';cardSwipeDivDivChildren[i-1].style.display='flex';setTimeout(function(){cardSwipeDivDivChildren[i-1].style.left=0;cardSwipeDivDivChildren[i-1].style.opacity=1},10);setTimeout(function(){cardSwipeDivDivChildren[i].style.pointerEvents='auto';cardSwipeDivDivChildren[i-1].style.pointerEvents='auto'},510);break};";
+let cardMouseUp = "var nowCursor=event.clientX;void 0==nowCursor&&(nowCursor=event.changedTouches[0].clientX);for(var clickedParent=this;'cardSwipeDivDiv'!==clickedParent.className;)clickedParent=clickedParent.parentElement;if(nowCursor<oriPos-.16*clickedParent.clientWidth){var cardSwipeDivDivChildren=clickedParent.children;for(i=0;i<cardSwipeDivDivChildren.length-1;i++)if('flex'===cardSwipeDivDivChildren[i].style.display){cardSwipeDivDivChildren[i].style.pointerEvents='none';cardSwipeDivDivChildren[i+1].style.pointerEvents='none';cardSwipeDivDivChildren[i].style.left='-50px';cardSwipeDivDivChildren[i].style.opacity=0;setTimeout(function(){cardSwipeDivDivChildren[i].style.pointerEvents='auto';cardSwipeDivDivChildren[i+1].style.pointerEvents='auto';cardSwipeDivDivChildren[i].style.display='none'},500);break}}else if(nowCursor>oriPos+.16*clickedParent.clientWidth&&(cardSwipeDivDivChildren=clickedParent.children,'none'===cardSwipeDivDivChildren[0].style.display))for(i=1;i<cardSwipeDivDivChildren.length;i++)if('flex'===cardSwipeDivDivChildren[i].style.display){cardSwipeDivDivChildren[i].style.pointerEvents='none';cardSwipeDivDivChildren[i-1].style.pointerEvents='none';cardSwipeDivDivChildren[i-1].style.display='flex';setTimeout(function(){cardSwipeDivDivChildren[i-1].style.left=0;cardSwipeDivDivChildren[i-1].style.opacity=1},10);setTimeout(function(){cardSwipeDivDivChildren[i].style.pointerEvents='auto';cardSwipeDivDivChildren[i-1].style.pointerEvents='auto'},510);break};";
 
 // DblClick
-let cardDblClick = "let now=(new Date).getTime(),timesince=now-latestTap;latestTap=(new Date).getTime();if(400>timesince&&0<timesince){for(let clickedParent=event.target;'cardSwipeDivDiv'!==clickedParent.className;)clickedParent=clickedParent.parentElement;let cardSwipeDivDivChildren=clickedParent.children;for(i=0;i<cardSwipeDivDivChildren.length-1;i++)if('flex'===cardSwipeDivDivChildren[i].style.display){cardSwipeDivDivChildren[i].style.pointerEvents='none';cardSwipeDivDivChildren[i+1].style.pointerEvents='none';cardSwipeDivDivChildren[i].style.left='-50px';cardSwipeDivDivChildren[i].style.opacity=0;setTimeout(function(){cardSwipeDivDivChildren[i].style.pointerEvents='auto';cardSwipeDivDivChildren[i+1].style.pointerEvents='auto';cardSwipeDivDivChildren[i].style.display='none'},500);break}latestTap=0};";
+let cardDblClick = "let now=(new Date).getTime(),timesince=now-latestTap;if(400>timesince&&0<timesince){for(var clickedParent=event.target;'cardSwipeDivDiv'!==clickedParent.className;)clickedParent=clickedParent.parentElement;let cardSwipeDivDivChildren=clickedParent.children;for(i=0;i<cardSwipeDivDivChildren.length-1;i++)if('flex'===cardSwipeDivDivChildren[i].style.display){cardSwipeDivDivChildren[i].style.pointerEvents='none';cardSwipeDivDivChildren[i+1].style.pointerEvents='none';cardSwipeDivDivChildren[i].style.left='-50px';cardSwipeDivDivChildren[i].style.opacity=0;setTimeout(function(){cardSwipeDivDivChildren[i].style.pointerEvents='auto';cardSwipeDivDivChildren[i+1].style.pointerEvents='auto';cardSwipeDivDivChildren[i].style.display='none'},500);break}latestTap=0}else latestTap=(new Date).getTime();";

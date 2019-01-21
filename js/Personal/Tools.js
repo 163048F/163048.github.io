@@ -1738,6 +1738,15 @@ function recreatePage1() {
       $(lessonSubtitleTextInput).val($(this).find(".lessonHeader").children().eq(1).text());
       $(lessonSubtitleTextInput).css("display", "none"); // Hiding real input
 
+      // Lesson color
+      let lessonSubtitleColorInput = document.createElement("input");
+      lessonSubtitleColorInput.setAttribute("onchange", "setActualValue()");
+      lessonSubtitleColorInput.setAttribute("type", "color");
+      lessonSubtitleColorInput.className = "form-control showAllInput";
+      $(lessonSubtitleColorInput).css("display", "none"); // Hiding real input
+      let lessonSubtitleColorInputColor = $(this).find(".lessonHeader").css("background-color");
+      $(lessonSubtitleColorInput).val(rgb2hex(lessonSubtitleColorInputColor));
+
       // Appending lessonTitle
       lessonSection.appendChild(lessonTitleP);
       lessonSection.appendChild(lessonTitleTextInputDiv);
@@ -1745,6 +1754,7 @@ function recreatePage1() {
       lessonSection.appendChild(lessonSubtitleP);
       lessonSection.appendChild(lessonSubtitleTextInputDiv);
       lessonSection.appendChild(lessonSubtitleTextInput);
+      lessonSection.appendChild(lessonSubtitleColorInput);
 
       mainSection.appendChild(lessonSection);
 
@@ -2046,6 +2056,7 @@ function recreatePage2() {
       // Create Lesson
       let lesson = document.createElement("div");
       let lessonHeader = document.createElement("div");
+      lessonHeader.style.backgroundColor = $(this).find(".lessonTitle > :last-child").val();
       // Lesson Title
       let lessonTitle = document.createElement("p");
       $(lessonTitle).html($(this).find(".lessonTitleInput").val());
