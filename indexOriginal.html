@@ -8,7 +8,7 @@
 	<link rel="shortcut icon" type="image/jpeg" href="favicon.jpg" />
 	<link rel="stylesheet" href="css/stylesheet.css" />
 	<!-- My Script -->
-	<script src="js/Personal/AGiftForYou.js" defer></script>
+	<script src="js/Personal/Tools.js" defer></script>
 	<!-- JQuery UI -->
 	<link rel="stylesheet" href="css/jquery-ui.min.css" />
 	<!-- Bootstrap -->
@@ -17,7 +17,7 @@
 	<link rel="stylesheet" href="css/fontawesome/css/all.min.css" />
 </head>
 
-<body>
+<body onresize="checkImage()">
 	<div id="masterDiv">
 		<div id="startupDiv" class="bg-dark">
 			<div id="carousel" class="carousel slide">
@@ -325,6 +325,72 @@
 						<button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="hideExcelBox()">Cancel</button>
 						<button type="button" class="btn btn-primary" onclick="startProcessingExcel()">Confirm</button>
 					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Instruction Page -->
+		<div id="instructionPage">
+			<div id="instructionPageModal">
+				<div id="instructionPageTitle">
+					<p>
+						Tutorial
+					</p>
+				</div>
+				<div id="instructionPageContent">
+					<div class="instructionPageContentContents">
+						<p>
+							Adding new lesson/ICA
+						</p>
+						<div>
+							<img  />
+						</div>
+					</div>
+					<div class="instructionPageContentContents">
+						<p>
+							Adding new lesson
+						</p>
+						<div>
+							<img  />
+						</div>
+					</div>
+					<div class="instructionPageContentContents">
+						<p>
+							Deleting Lesson
+						</p>
+						<div>
+							<img  />
+						</div>
+					</div>
+					<div class="instructionPageContentContents">
+						<p>
+							Sorting Lesson
+						</p>
+						<div>
+							<img  />
+						</div>
+					</div>
+					<div class="instructionPageContentContents">
+						<p>
+							Creating Link
+						</p>
+						<div>
+							<img  />
+						</div>
+					</div>
+					<div class="instructionPageContentContents">
+						<p>
+							Changing color
+						</p>
+						<div>
+							<img  />
+						</div>
+					</div>
+
+				</div>
+				<div id="instructionPageButtonDiv">
+					<button class="btn btn-secondary" id="instructionPageCloseBtn">Close</button>
+					<button class="btn btn-primary" onclick="instructionPageButtonDivNext(this)">Next</button>
 				</div>
 			</div>
 		</div>

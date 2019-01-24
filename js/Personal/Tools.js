@@ -143,6 +143,17 @@ $(function() {
    // Prevent creating div on enter
    contentEditableBr();
 
+   $(document).on("click", "#instructionPage,#instructionPageCloseBtn", function() {
+      localStorage.setItem("instructionViewed", true);
+      localStorage.setItem("instructionViewedTime", new Date().getTime());
+      $("#instructionPage").fadeOut('slow');
+      document.body.style.overflow = "auto";
+   });
+
+   $(document).on("click", "#instructionPageModal", function(event) {
+      event.stopPropagation();
+   });
+
    // Change cursor back to pointer
    document.body.style.cursor = "auto";
 });
@@ -202,6 +213,25 @@ function createNew() {
    $("#startupDiv").fadeOut();
 
    $("#masterDiv").css("overflow", "auto");
+
+   // If he never view before
+   if(localStorage.instructionViewed) {
+      // Expries after a week
+      if(localStorage.instructionViewedTime && ((new Date().getTime() - localStorage.instructionViewedTime) > (7 * 24 * 60 * 60 * 100))) {
+         localStorage.removeItem("instructionViewed");
+         localStorage.removeItem("instructionViewedTime");
+         document.body.style.overflow = "hidden";
+         $("#instructionPageContent").children().first().css("display", "block");
+         getInstructionGif(0);
+         $("#instructionPage").fadeIn("slow");
+      }
+   } else {
+      document.body.style.overflow = "hidden";
+      $("#instructionPageContent").children().first().css("display", "block");
+      getInstructionGif(0);
+      $("#instructionPage").fadeIn("slow");
+   }
+
    $("#masterDiv").css("height", "unset");
    // Clear Page1
    $("#page1").empty();
@@ -1243,25 +1273,27 @@ function clearImportTextarea() {
 }
 
 function makeSortable() {
-   // Making contentDivDiv sortable
-   $(".mainSection").sortable({
-      connectWith: ".mainSection",
-      items: ".contentDivDiv",
-      handle: ".contentDivDivDraggableDiv",
-      cancel: ".inputDiv, textarea, input, button",
-      update: function() {
-         setActualValue();
-      },
-      axis: "y",
-      cursor: "move",
-      opacity: 0.5
-   });
+   //if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+      // Making contentDivDiv sortable
+      $(".mainSection").sortable({
+         connectWith: ".mainSection",
+         items: ".contentDivDiv",
+         handle: ".contentDivDivDraggableDiv",
+         cancel: ".inputDiv, textarea, input, button",
+         update: function() {
+            setActualValue();
+         },
+         axis: "y",
+         cursor: "move",
+         opacity: 0.5
+      });
 
-   // Making mainSection sortable
-   $("#page1").sortable({
-      items: ".mainSection",
-      cancel: ":not('.draggableDiv')"
-   });
+      // Making mainSection sortable
+      $("#page1").sortable({
+         items: ".mainSection",
+         cancel: ":not('.draggableDiv')"
+      });
+   //}
 }
 
 function removeLessonContent(closeImg) {
@@ -2476,6 +2508,75 @@ function showAllInput(button) {
       $(".showAllInput").css("display", "none");
       button.innerHTML = "Show All Hidden HTML";
       notClicked = true;
+   }
+}
+
+function checkImage() {
+   for(i=0;i<$("#instructionPageContent > .instructionPageContentContents").length;i++) {
+      getInstructionGif(i);
+   }
+}
+
+function getInstructionGif(index) {
+   let img = $("#instructionPageContent > .instructionPageContentContents").eq(index).find("img")[0];
+   let img0, img1, img2, img3, img4, img5;
+
+   // Checking screen size
+   if($(window).width() > $(window).height()) {
+      img0 = "images/LessonPlanGenerator/Desktop/addNewICA.gif";
+      img1 = "images/LessonPlanGenerator/Desktop/addNewLesson.gif";
+      img2 = "images/LessonPlanGenerator/Desktop/removingLesson.gif";
+      img3 = "images/LessonPlanGenerator/Desktop/sorting.gif";
+      img4 = "images/LessonPlanGenerator/Desktop/link.gif";
+      img5 = "images/LessonPlanGenerator/Desktop/changingColour.gif";
+   } else {
+      img0 = "images/LessonPlanGenerator/Mobile/M-addNewICA.gif";
+      img1 = "images/LessonPlanGenerator/Mobile/M-addNewLesson.gif";
+      img2 = "images/LessonPlanGenerator/Mobile/M-removingLesson.gif";
+      img3 = "images/LessonPlanGenerator/Mobile/M-sorting.gif";
+      img4 = "images/LessonPlanGenerator/Mobile/M-link.gif";
+      img5 = "images/LessonPlanGenerator/Mobile/M-changingColour.gif";
+   }
+
+   switch(index) {
+      case 0:
+         img.src = img0;
+         break;
+      case 1:
+         img.src = img1;
+         break;
+      case 2:
+         img.src = img2;
+         break;
+      case 3:
+         img.src = img3;
+         break;
+      case 4:
+         img.src = img4;
+         break;
+      case 5:
+         img.src = img5;
+         break;
+      default:
+         break;
+   }
+}
+
+function instructionPageButtonDivNext(nextBtn) {
+   let instructionPageContentContents = document.getElementById("instructionPageContent").children;
+   for (i = 0; i < instructionPageContentContents.length; i++) {
+      let current = instructionPageContentContents[i];
+      if (i === instructionPageContentContents.length - 2) {
+         $(nextBtn).prev().text("Finish");
+         $(nextBtn).prev()[0].className = "btn btn-primary";
+         $(nextBtn).remove();
+      }
+      if($(current).css("display") === "block") {
+         getInstructionGif(i+1);
+         current.style.display = "none";
+         instructionPageContentContents[i+1].style.display = "block";
+         break;
+      }
    }
 }
 
