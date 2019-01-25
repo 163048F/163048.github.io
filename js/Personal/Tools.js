@@ -67,11 +67,13 @@ $(function() {
                left: e.pageX,
                top: e.pageY
             });
+
+            var evt = e || window.event;
             e.preventDefault();
          }
       }, false);
    } else { // IE < 9
-      $("body").on("contextmenu", ".inputDiv", function(e) {
+      $(document).on("contextmenu", ".inputDiv", function(e) {
          // Get focused Input
          focusedInput = $(":focus");
 
@@ -102,7 +104,9 @@ $(function() {
                top: e.pageY
             });
 
-            window.event.returnValue = false;
+            var evt = e || window.event;
+            evt.returnValue = false;
+            return false;
          }
       });
    }
@@ -2114,16 +2118,16 @@ function recreatePage2() {
          // LecPracDiv
          let lecPracDiv = document.createElement("div");
          let lecPracDivP = document.createElement("p");
-         $(lecPracDiv).css("background-color", $(this).find(".leftDiv input:nth-child(3)").val());
+         $(lecPracDiv).css("background-color", $(this).find(".leftDiv input").val());
          $(lecPracDivP).html($(this).find(".leftDiv :nth-child(2)").val());
          lecPracDiv.appendChild(lecPracDivP);
          // Lesson Plan Content
          let lessonPlanContent = document.createElement("div");
          // Lesson Plan Title
          let lessonPlanContentTitleP = document.createElement("p");
-         $(lessonPlanContentTitleP).html($(this).find(".rightDiv .page1Content :nth-child(2)").html());
+         $(lessonPlanContentTitleP).html($(this).find(".rightDiv .page1Content .inputDiv").eq(0).html());
          // Lesson Plan Topics
-         let lines = $(this).find(".rightDiv .page1Content :nth-child(5)").html();
+         let lines = $(this).find(".rightDiv .page1Content .inputDiv").eq(1).html();
          $(lessonPlanContent).html(lines);
 
          // Adding all classes

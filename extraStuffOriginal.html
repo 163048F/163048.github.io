@@ -20,7 +20,7 @@
 	<link rel="stylesheet" href="js/codemirror-5.42.2/theme/shadowfox.css" />
 </head>
 
-<body onscroll="checkElement()">
+<body onscroll="checkElement()" onresize="checkSizes()">
 	<div id="page1" class="bg-dark">
 		<div id="page1TopDiv">
 			<div id="page1TopDivTitleDiv">
@@ -219,7 +219,7 @@
 				</div>
 				<div id="page2BottomLeftDivRightDiv">
 					<div>
-						<a class="btn btn-primary" onclick="showTemplates()" data-toggle="tooltip" data-placement="right" title="Templates">
+						<a class="btn btn-primary" data-toggle="tooltip" data-placement="right" title="Templates" id="templateSelectionButton">
 							<i class="fas fa-cube"></i>
 						</a>
 					</div>
@@ -229,7 +229,7 @@
 						</a>
 					</div>
 					<div>
-						<a tabindex="0" class="btn btn-danger" role="button" data-toggle="popover" data-trigger="focus" data-placement="right" data-content="Removed" onclick="removeSection()">
+						<a tabindex="0" class="btn btn-danger" role="button" data-toggle="popover" data-trigger="focus" data-placement="right" data-content="Removed" id="removeSectionButton">
 							<i class="far fa-trash-alt" data-toggle="tooltip" data-placement="right" title="Remove Selected"></i>
 						</a>
 					</div>

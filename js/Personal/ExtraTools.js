@@ -31,6 +31,9 @@ let numberListIndex;
 let selectedAccordionForDeletion, selectedFlashCardForDeletion, selectedChecklistForDeletion, selectedTabForDeletion, selectedNumberListForDeletion;
 // Track double click
 let latestTap;
+// Spinning box
+let n = 0, isAnimating = !1;
+let rotateBox;
 
 $(function() {
    // Random generator for checklist
@@ -83,10 +86,44 @@ $(function() {
    $(document).on("keydown", "[contentEditable]", setHiddenHTML);
    $(document).on("keyup", "[contentEditable]", setHiddenHTML);
 
-   $('#importDiv').on('hidden.bs.modal', function (e) {
+   $('#importDiv').on('hidden.bs.modal', function(e) {
       document.body.style.overflow = "auto";
+   });
+
+   // Animate Trashcan
+   $(document).on("click", "#removeSectionButton", function() {
+      $(this.children[0]).effect("bounce", "fast");
+      removeSection();
+   });
+
+   $(document).on("click", "#templateSelectionButton", function() {
+      if(!isAnimating) {
+         showTemplates();
+      }
    })
+
+   // Rotate first
+   rotateDIV(document.getElementById("templateSelectionButton").children[0]);
 });
+
+function rotateDIV(boxIcon) {
+   isAnimating = !0;
+   clearInterval(rotateBox);
+   rotateBox = setInterval(function() {
+      n = n + 2;
+      boxIcon.style.transform = "rotate(" + n + "deg)"
+      boxIcon.style.webkitTransform = "rotate(" + n + "deg)"
+      boxIcon.style.OTransform = "rotate(" + n + "deg)"
+      boxIcon.style.MozTransform = "rotate(" + n + "deg)"
+      if (n === 180 || n === 360) {
+         clearInterval(rotateBox);
+         if (n == 360) {
+            n = 0;
+         }
+         isAnimating = !1;
+      }
+   }, 10);
+}
 
 function checkElement() {
    for (i = 0; i < elementsArray.length; i++) {
@@ -109,10 +146,44 @@ function animateElement(theElement) {
    }, 1500);
 }
 
+function checkSizes() {
+   if($(window).width() < 768) {
+      $("#selectTemplateHelp .tooltiptext").css("left", "50%");
+      $("#selectTemplateHelp .tooltiptext").css("margin-left", "-60px");
+   } else {
+      $("#selectTemplateHelp .tooltiptext").css("left", "40px");
+      $("#selectTemplateHelp .tooltiptext").css("margin-left", "");
+   }
+}
+
+function addTooltip(textContent, btnText, destinationID) {
+   let tooltip = document.createElement("div");
+   tooltip.className = "tooltips";
+   tooltip.id = btnText;
+   let tooltiptext = document.createElement("span");
+   tooltiptext.className = "tooltiptext";
+   tooltiptext.appendChild(document.createTextNode(textContent));
+   let tooltiptextBtn = document.createElement("button");
+   tooltiptextBtn.appendChild(document.createTextNode("Close"));
+   let tooltiptextBtn2 = document.createElement("button");
+   tooltiptextBtn2.appendChild(document.createTextNode("Close and never show again"));
+   tooltiptext.appendChild(tooltiptextBtn2);
+   tooltiptext.appendChild(tooltiptextBtn);
+   tooltip.appendChild(tooltiptext);
+   document.getElementById(destinationID).appendChild(tooltip);
+}
+
 function animatePage1Out() {
    document.body.scrollTop = 0;
    document.documentElement.scrollTop = 0;
    $("body").css("overflow", "hidden");
+
+   // Add in first tooltip
+   if(!localStorage.helpNeverSee) {
+      addTooltip("Select the component you want", "selectTemplateHelp", "templateMainDivLeft");
+      checkSizes();
+   }
+
    // Show page2
    let page2 = $("#page2");
    page2.css("display", "flex");
@@ -229,6 +300,12 @@ function animatePage3Out() {
 function createNewButton() {
    // Replace the hidden area with template
    $("#componentsDiv").empty();
+   $("#page2TopBarDivTitle > p").text("Title");
+   let activeTemplateSelectionLabelDiv = document.getElementsByClassName("templateSelectionLabelDiv active")[0];
+   if(activeTemplateSelectionLabelDiv) {
+      activeTemplateSelectionLabelDiv.className = "templateSelectionLabelDiv";
+   }
+   document.getElementById("templateMainDivRight").className = "";
    animatePage1Out();
 
    let page2BottomLeftDivLeftDiv = document.getElementById("page2BottomLeftDivLeftDiv");
@@ -254,7 +331,7 @@ function checkImportTextarea() {
       if (tempDiv.find(".accordion").html()) {
          loadImportedAccordion(tempDiv);
          return !0;
-      } else if(tempDiv.find(".accordionAlternate").html()) {
+      } else if (tempDiv.find(".accordionAlternate").html()) {
          loadImportedAccordionAlt(tempDiv);
          return !0;
       } else if (tempDiv.find(".cardAnimationDiv").html()) {
@@ -476,16 +553,21 @@ function showTemplates() {
          document.getElementById("templateMainDiv").style.display = "flex";
       } else {
          page2BottomLeftDivLeftDiv.className = "";
+         rotateDIV(document.getElementById("templateSelectionButton").children[0]);
       }
    } else {
       document.getElementById("hiddenCodeTextarea").style.display = "none";
       document.getElementById("templateMainDiv").style.display = "flex";
       page2BottomLeftDivLeftDiv.className = "expand";
+      rotateDIV(document.getElementById("templateSelectionButton").children[0]);
    }
 }
 
 function showRightTemplate(labelDiv, index) {
    if (labelDiv.className !== "templateSelectionLabelDiv active") {
+      if($("#selectTemplateHelp").html()) {
+         
+      }
       $("#templateMainDivLeft").children().each(function() {
          this.className = "templateSelectionLabelDiv";
       });
@@ -496,13 +578,13 @@ function showRightTemplate(labelDiv, index) {
       switch (index) {
          case 0:
             obj = {
-               src: "images/Accordion.png",
+               src: "images/InteractiveComponent/Accordion.png",
                alt: "Accordion Template",
                onclick: "loadAccordionPreset()",
                text: "Accordion"
             };
             obj2 = {
-               src: "images/AccordionAlt.png",
+               src: "images/InteractiveComponent/AccordionAlt.png",
                alt: "Accordion Alternate Template",
                onclick: "loadAccordionAltPreset()",
                text: "Accordion (Alt)"
@@ -512,13 +594,13 @@ function showRightTemplate(labelDiv, index) {
             break;
          case 1:
             obj = {
-               src: "images/Card.png",
+               src: "images/InteractiveComponent/Card.png",
                alt: "Card Template",
                onclick: "loadCardPreset()",
                text: "Card"
             };
             obj2 = {
-               src: "images/FlashCard.png",
+               src: "images/InteractiveComponent/FlashCard.png",
                alt: "Flashcard Template",
                onclick: "loadFlashCardPreset()",
                text: "Flash Card"
@@ -528,7 +610,7 @@ function showRightTemplate(labelDiv, index) {
             break;
          case 2:
             obj = {
-               src: "images/Checklist.png",
+               src: "images/InteractiveComponent/Checklist.png",
                alt: "Checklist Template",
                onclick: "loadChecklistPreset()",
                text: "Checklist"
@@ -537,7 +619,7 @@ function showRightTemplate(labelDiv, index) {
             break;
          case 3:
             obj = {
-               src: "images/Tabs.png",
+               src: "images/InteractiveComponent/Tabs.png",
                alt: "Tabs Template",
                onclick: "loadTabsPreset()",
                text: "Tabs"
@@ -546,7 +628,7 @@ function showRightTemplate(labelDiv, index) {
             break;
          case 4:
             obj = {
-               src: "images/NumberList.png",
+               src: "images/InteractiveComponent/NumberList.png",
                alt: "Lists Template",
                onclick: "loadNumberListPreset()",
                text: "Lists"
@@ -606,9 +688,15 @@ function loadAccordionPreset() {
    isAccordion = 0;
    $("#page2TopBarDivTitle > p").text("Accordion");
    let componentsDiv = document.getElementById("componentsDiv");
-   let accordionDiv = addNewAccordion();
    $(componentsDiv).empty();
+   // Making first opened
+   let accordionDiv = addNewAccordion("London", "London is the capital city of England.");
+   $(accordionDiv).find(".accordion")[0].className = "accordion expand";
+   let accordionDiv2 = addNewAccordion("Paris", "Paris is the capital of France.");
+   let accordionDiv3 = addNewAccordion("Tokyo", "Tokyo is the capital of Japan.");
    componentsDiv.appendChild(accordionDiv);
+   componentsDiv.appendChild(accordionDiv2);
+   componentsDiv.appendChild(accordionDiv3);
    makeSortable();
 }
 
@@ -617,9 +705,15 @@ function loadAccordionAltPreset() {
    isAccordion = 1;
    $("#page2TopBarDivTitle > p").text("Accordion Alternate");
    let componentsDiv = document.getElementById("componentsDiv");
-   let accordionDiv = addNewAltAccordion();
    $(componentsDiv).empty();
+   // Making first opened
+   let accordionDiv = addNewAltAccordion("London", "London is the capital city of England.");
+   $(accordionDiv).find(".accordionAlternate")[0].className = "accordionAlternate expand";
+   let accordionDiv2 = addNewAltAccordion("Paris", "Paris is the capital of France.");
+   let accordionDiv3 = addNewAltAccordion("Tokyo", "Tokyo is the capital of Japan.");
    componentsDiv.appendChild(accordionDiv);
+   componentsDiv.appendChild(accordionDiv2);
+   componentsDiv.appendChild(accordionDiv3);
    makeSortable();
 }
 
@@ -635,7 +729,9 @@ function loadCardPreset() {
    // CardSwipeDivDiv is for Alt but left in for original also
    let cardSwipeDivDiv = document.createElement("div");
    cardSwipeDivDiv.className = "cardSwipeDivDiv";
-   cardSwipeDivDiv.appendChild(addNewCard());
+   cardSwipeDivDiv.appendChild(addNewCard("London", "London is the capital city of England."));
+   cardSwipeDivDiv.appendChild(addNewCard("Paris", "Paris is the capital of France."));
+   cardSwipeDivDiv.appendChild(addNewCard("Tokyo", "Tokyo is the capital of Japan."));
    let componentsDiv = document.getElementById("componentsDiv");
    $(componentsDiv).empty();
    cardAnimationDiv.appendChild(cardSwipeDivDiv);
@@ -668,6 +764,7 @@ function loadCardPreset() {
    cardIndicatorDiv.appendChild(forwardBtn);
    componentsDiv.appendChild(cardIndicatorDiv);
 
+   startupCard();
    setCardIndicator();
 }
 
@@ -678,9 +775,10 @@ function loadFlashCardPreset() {
    let componentsDiv = document.getElementById("componentsDiv");
    let cardFlipMasterDiv = document.createElement("div");
    cardFlipMasterDiv.className = "cardFlipMasterDiv";
-   let cardFlipDiv = addNewFlashCard();
    $(componentsDiv).empty();
-   cardFlipMasterDiv.appendChild(cardFlipDiv);
+   cardFlipMasterDiv.appendChild(addNewFlashCard("London", "London is the capital city of England."));
+   cardFlipMasterDiv.appendChild(addNewFlashCard("Paris", "Paris is the capital of France."));
+   cardFlipMasterDiv.appendChild(addNewFlashCard("Tokyo", "Tokyo is the capital of Japan."));
    componentsDiv.appendChild(cardFlipMasterDiv);
 }
 
@@ -692,12 +790,13 @@ function loadChecklistPreset() {
    let checkBoxPageDiv = document.createElement("div");
    checkBoxPageDiv.className = "checkBoxPageDiv";
    let checkBoxPageDivP = document.createElement("p");
-   checkBoxPageDivP.appendChild(document.createTextNode("Type Here"));
+   checkBoxPageDivP.appendChild(document.createTextNode("Captital Cities"));
    checkBoxPageDivP.contentEditable = "true";
-
    checkBoxPageDiv.appendChild(checkBoxPageDivP);
-   checkBoxPageDiv.appendChild(addNewChecklist());
    $(componentsDiv).empty();
+   checkBoxPageDiv.appendChild(addNewChecklist("London"));
+   checkBoxPageDiv.appendChild(addNewChecklist("Paris"));
+   checkBoxPageDiv.appendChild(addNewChecklist("Tokyo"));
    componentsDiv.appendChild(checkBoxPageDiv);
 }
 
@@ -713,24 +812,25 @@ function loadTabsPreset() {
    tabComponentLinks.setAttribute("ondblclick", tabsOnClick);
    tabComponentLinks.contentEditable = "true";
    let tabComponentLinksP = document.createElement("p");
-   tabComponentLinksP.appendChild(document.createTextNode("Type Here"));
+   tabComponentLinksP.appendChild(document.createTextNode("London"));
    let tabComponentContentDiv = document.createElement("div");
    tabComponentContentDiv.className = "tabComponentContentDiv";
    let tabComponentContent = document.createElement("div");
    tabComponentContent.className = "tabComponentContent tabActiveContent";
    tabComponentContent.contentEditable = "true";
    let tabComponentContentP = document.createElement("p");
-   tabComponentContentP.appendChild(document.createTextNode("Type Here"));
-
-   // For clearing
-   let tabComponentLinksClear = document.createElement("div");
-   tabComponentLinksClear.className = "tabComponentLinks tabComponentLinksClear";
+   tabComponentContentP.appendChild(document.createTextNode("London is the capital city of England."));
 
    tabComponentLinks.appendChild(tabComponentLinksP);
+   let tab2 = addNewTabs("Paris", "Paris is the capital of France.");
+   let tab3 = addNewTabs("Tokyo", "Tokyo is the capital of Japan.");
    tabComponent.appendChild(tabComponentLinks);
-   tabComponent.appendChild(tabComponentLinksClear);
+   tabComponent.appendChild(tab2.tabComponentLinksTab);
+   tabComponent.appendChild(tab3.tabComponentLinksTab);
    tabComponentContent.appendChild(tabComponentContentP);
    tabComponentContentDiv.appendChild(tabComponentContent);
+   tabComponentContentDiv.appendChild(tab2.tabComponentContentTab);
+   tabComponentContentDiv.appendChild(tab3.tabComponentContentTab);
    $(componentsDiv).empty();
    componentsDiv.appendChild(tabComponent);
    componentsDiv.appendChild(tabComponentContentDiv);
@@ -743,7 +843,9 @@ function loadNumberListPreset() {
    $("#page2TopBarDivTitle > p").text("Lists");
    let componentsDiv = document.getElementById("componentsDiv");
    $(componentsDiv).empty();
-   componentsDiv.appendChild(addNewNumberList());
+   componentsDiv.appendChild(addNewNumberList("London"));
+   componentsDiv.appendChild(addNewNumberList("Paris"));
+   componentsDiv.appendChild(addNewNumberList("Tokyo"));
    getNumberListIndex();
 }
 
@@ -752,33 +854,33 @@ function loadNumberListPreset() {
 function addNewSection() {
    switch (isAccordion) {
       case 0:
-         document.getElementById("componentsDiv").appendChild(addNewAccordion());
+         document.getElementById("componentsDiv").appendChild(addNewAccordion(null));
          makeSortable();
          break;
       case 1:
-         document.getElementById("componentsDiv").appendChild(addNewAltAccordion());
+         document.getElementById("componentsDiv").appendChild(addNewAltAccordion(null));
          makeSortable();
          break;
       case 2:
-         let newCard = addNewCard();
+         let newCard = addNewCard(null);
          document.getElementsByClassName("cardSwipeDivDiv")[0].appendChild(newCard);
          startupCard();
          setCardIndicator();
          break;
       case 4:
-         document.getElementsByClassName("cardFlipMasterDiv")[0].appendChild(addNewFlashCard());
+         document.getElementsByClassName("cardFlipMasterDiv")[0].appendChild(addNewFlashCard(null,null));
          break;
       case 5:
-         $(".checkBoxPageDiv").append(addNewChecklist());
+         $(".checkBoxPageDiv").append(addNewChecklist(null));
          break;
       case 6:
-         let newTab = addNewTabs();
+         let newTab = addNewTabs(null,null);
          $(".tabComponent").append(newTab.tabComponentLinksTab);
          $(".tabComponentContentDiv").append(newTab.tabComponentContentTab);
          $(".tabComponentLinksClear").remove();
          break;
       case 7:
-         $("#componentsDiv").append(addNewNumberList());
+         $("#componentsDiv").append(addNewNumberList(null));
          break;
       default:
          break;
@@ -853,20 +955,21 @@ function removeSection() {
             // Open previous or next tab is no active
             let gotActive = !1;
             $(tabComponent).children().each(function() {
-               if(this.className==="tabComponentLinks tabComponentActive") {
+               if (this.className === "tabComponentLinks tabComponentActive") {
                   gotActive = !0;
                }
             });
             $(tabComponentContentDiv).children().each(function() {
-               if(this.className==="tabComponentContent tabActiveContent") {
+               if (this.className === "tabComponentContent tabActiveContent") {
                   gotActive = !0;
                }
             });
-            if ($(".tabComponentLinks:not(.tabComponentLinksClear)").length >= 1 && !gotActive) {
-               selectedTabForDeletion--;
-               tabComponent.children[selectedTabForDeletion].className = "tabComponentLinks tabComponentActive";
-               tabComponentContentDiv.children[selectedTabForDeletion].className = "tabComponentContent tabActiveContent";
-            } else {
+            if ($(".tabComponentLinks:not(.tabComponentLinksClear)").length >= 1) {
+               if(selectedTabForDeletion > 0) {
+                  selectedTabForDeletion--;
+               }
+            }
+            if(!gotActive) {
                tabComponent.children[selectedTabForDeletion].className = "tabComponentLinks tabComponentActive";
                tabComponentContentDiv.children[selectedTabForDeletion].className = "tabComponentContent tabActiveContent";
             }
@@ -889,7 +992,11 @@ function removeSection() {
 }
 
 // Adding Section
-function addNewAccordion() {
+function addNewAccordion(labelText, labelText2) {
+   if(!labelText || !labelText2) {
+      labelText = "Accordion";
+      labelText2 = "Accordion Content";
+   }
    let accordionDivDiv = document.createElement("div");
    accordionDivDiv.className = "accordionDiv";
    // Draggable
@@ -903,12 +1010,12 @@ function addNewAccordion() {
    accordionTitleDiv.setAttribute("onclick", "accordionDoubletap(this)");;
    accordionTitleDiv.contentEditable = "true";
    let accordionTitle = document.createElement("p");
-   accordionTitle.appendChild(document.createTextNode("Enter Title Here"));
+   accordionTitle.appendChild(document.createTextNode(labelText));
    let accordionContent = document.createElement("div");
    // Contenteditable for editing... remember to change on output
    accordionContent.className = "accordionContent";
    accordionContent.contentEditable = "true";
-   accordionContent.innerHTML = "<p>Enter Content Here</p>";
+   accordionContent.innerHTML = "<p>" + labelText2 + "</p>";
 
    contentEditableBr();
 
@@ -922,7 +1029,11 @@ function addNewAccordion() {
    return accordionDivDiv;
 }
 
-function addNewAltAccordion() {
+function addNewAltAccordion(labelText, labelText2) {
+   if(!labelText || !labelText2) {
+      labelText = "Accordion";
+      labelText2 = "Accordion Content";
+   }
    let accordionDivDiv = document.createElement("div");
    accordionDivDiv.className = "accordionDiv";
    // Draggable
@@ -936,14 +1047,14 @@ function addNewAltAccordion() {
    accordionTitleDiv.setAttribute("onclick", "accordionAltDoubletap(this)");;
    accordionTitleDiv.contentEditable = "true";
    let accordionTitle = document.createElement("p");
-   accordionTitle.appendChild(document.createTextNode("Enter Title Here"));
+   accordionTitle.appendChild(document.createTextNode(labelText));
    contentEditableBr();
 
    let accordionContent = document.createElement("div");
    // Contenteditable for editing... remember to change on output
    accordionContent.className = "accordionAlternateContent";
    accordionContent.contentEditable = "true";
-   accordionContent.innerHTML = "<p>Enter Content Here</p>";
+   accordionContent.innerHTML = "<p>" + labelText2 +"</p>";
 
    contentEditableBr();
 
@@ -957,18 +1068,22 @@ function addNewAltAccordion() {
    return accordionDivDiv;
 }
 
-function addNewCard() {
+function addNewCard(labelText, labelText2) {
+   if(!labelText || !labelText2) {
+      labelText = "Card";
+      labelText2 = "Card Content";
+   }
    let cardSwipeDiv = document.createElement("div");
    cardSwipeDiv.className = "cardSwipeDiv";
    cardSwipeDiv.setAttribute("ondblclick", "ifDblClicked(this)");
    let cardAnimationDivTitle = document.createElement("p");
    cardAnimationDivTitle.contentEditable = "true";
-   cardAnimationDivTitle.appendChild(document.createTextNode("Type here"));
+   cardAnimationDivTitle.appendChild(document.createTextNode(labelText));
    let cardSwipeContent = document.createElement("div");
    cardSwipeContent.className = "cardSwipeContent";
    cardSwipeContent.contentEditable = "true";
    let cardSwipeContentP = document.createElement("p");
-   cardSwipeContentP.appendChild(document.createTextNode("Type here"));
+   cardSwipeContentP.appendChild(document.createTextNode(labelText2));
 
    cardSwipeContent.appendChild(cardSwipeContentP);
    cardSwipeDiv.appendChild(cardAnimationDivTitle);
@@ -987,7 +1102,11 @@ function setCardIndicator() {
    $("#cardIndexIndicator").html((cardCurrentIndex + 1) + " <span style='color:#6c757d'>-</span> <span style='color:#dc3545'>" + $(".cardSwipeDivDiv").children().length + "</span>");
 }
 
-function addNewFlashCard() {
+function addNewFlashCard(labelText, labelText2) {
+   if(!labelText || !labelText2) {
+      labelText = "Flash Card Front";
+      labelText2 = "Flash Card Back";
+   }
    let cardFlipDiv = document.createElement("div");
    cardFlipDiv.className = "cardFlipDiv";
    let cardFlipDivDiv = document.createElement("div");
@@ -997,12 +1116,12 @@ function addNewFlashCard() {
    cardFlipFront.setAttribute("ondblclick", "this.style.display='none'");
    cardFlipFront.contentEditable = "true";
    let cardFlipFrontP = document.createElement("p");
-   cardFlipFrontP.appendChild(document.createTextNode("Type Here"));
+   cardFlipFrontP.appendChild(document.createTextNode(labelText));
    let cardFlipBack = document.createElement("div");
    cardFlipBack.className = "cardFlipBack";
    cardFlipBack.setAttribute("ondblclick", "this.previousElementSibling.style.display='flex'");
    let cardFlipBackP = document.createElement("p");
-   cardFlipBackP.appendChild(document.createTextNode("Type Here"));
+   cardFlipBackP.appendChild(document.createTextNode(labelText2));
    cardFlipBack.contentEditable = "true";
 
    cardFlipFront.appendChild(cardFlipFrontP);
@@ -1015,7 +1134,10 @@ function addNewFlashCard() {
    return cardFlipDiv;
 }
 
-function addNewChecklist() {
+function addNewChecklist(labelText) {
+   if(!labelText) {
+      labelText = "CheckList";
+   }
    let randomGenerated = getRandomWords();
    let checkboxContainer = document.createElement("div");
    checkboxContainer.className = "checkboxContainer";
@@ -1025,7 +1147,7 @@ function addNewChecklist() {
    checkboxContainerCheckbox.id = randomGenerated;
    let checkboxContainerCheckboxLabel = document.createElement("label");
    checkboxContainerCheckboxLabel.className = "checkboxContainerCheckmark";
-   checkboxContainerCheckboxLabel.appendChild(document.createTextNode("Type Here"));
+   checkboxContainerCheckboxLabel.appendChild(document.createTextNode(labelText));
    checkboxContainerCheckboxLabel.contentEditable = "true";
 
    checkboxContainer.appendChild(checkboxContainerCheckbox);
@@ -1034,18 +1156,22 @@ function addNewChecklist() {
    return checkboxContainer;
 }
 
-function addNewTabs() {
+function addNewTabs(labelText, labelText2) {
+   if(!labelText || !labelText2) {
+      labelText = "Tab Title";
+      labelText2 = "Tab Content";
+   }
    let tabComponentLinks = document.createElement("div");
    tabComponentLinks.className = "tabComponentLinks";
    tabComponentLinks.setAttribute("ondblclick", tabsOnClick);
    tabComponentLinks.contentEditable = "true";
    let tabComponentLinksP = document.createElement("p");
-   tabComponentLinksP.appendChild(document.createTextNode("Type Here"));
+   tabComponentLinksP.appendChild(document.createTextNode(labelText));
    let tabComponentContent = document.createElement("div");
    tabComponentContent.className = "tabComponentContent";
    tabComponentContent.contentEditable = "true";
    let tabComponentContentP = document.createElement("p");
-   tabComponentContentP.appendChild(document.createTextNode("Type Here"));
+   tabComponentContentP.appendChild(document.createTextNode(labelText2));
 
    tabComponentLinks.appendChild(tabComponentLinksP);
    tabComponentContent.appendChild(tabComponentContentP);
@@ -1057,10 +1183,18 @@ function addNewTabs() {
    }
 }
 
-function addNewNumberList() {
+function addNewNumberList(labelText) {
+   if(!labelText) {
+      labelText = "List";
+   }
    getNumberListIndex();
    let fancyNumbers = document.createElement("div");
    fancyNumbers.className = "fancyNumbers";
+   let fancyNumbersColorInput = document.createElement("input");
+   fancyNumbersColorInput.type = "color";
+   fancyNumbersColorInput.value = "#6600cc";
+   fancyNumbersColorInput.className = "form-control";
+   fancyNumbersColorInput.setAttribute("onchange", "this.nextElementSibling.style.backgroundColor = this.value");
    let fancyNumbersCircle = document.createElement("div");
    fancyNumbersCircle.className = "fancyNumbersCircle";
    fancyNumbersCircle.contentEditable = "true";
@@ -1069,11 +1203,12 @@ function addNewNumberList() {
    let fancyNumbersContent = document.createElement("div");
    fancyNumbersContent.contentEditable = "true";
    let fancyNumbersContentP = document.createElement("p");
-   fancyNumbersContentP.appendChild(document.createTextNode("Type Here"));
+   fancyNumbersContentP.appendChild(document.createTextNode(labelText));
    contentEditableBr();
 
    fancyNumbersCircle.appendChild(fancyNumbersCircleP);
    fancyNumbersContent.appendChild(fancyNumbersContentP);
+   fancyNumbers.appendChild(fancyNumbersColorInput);
    fancyNumbers.appendChild(fancyNumbersCircle);
    fancyNumbers.appendChild(fancyNumbersContent);
 
@@ -1131,7 +1266,7 @@ function setHiddenHTML() {
 
 // Output page2
 function page2Output() {
-   if($("#componentsDiv").html()) {
+   if ($("#componentsDiv").html()) {
       $("#page2OutputTextarea").val("");
       $("#tempDiv").empty();
       let componentsDiv = $("#componentsDiv").clone();
@@ -1266,13 +1401,16 @@ function page2Output() {
          case 7: // Lists
             componentsDiv.find(".fancyNumbers").each(function() {
                let fancyNumbers = $(this);
-               let fancyNumbersCircle = fancyNumbers.children().eq(0)[0];
-               let fancyNumbersContent = fancyNumbers.children().eq(1)[0];
+               let fancyNumbersCircle = fancyNumbers.children().eq(1)[0];
+               let fancyNumbersContent = fancyNumbers.children().eq(2)[0];
 
                // Remove contentEditable
                fancyNumbersCircle.removeAttribute("contenteditable");
                fancyNumbersContent.removeAttribute("contenteditable");
             });
+            componentsDiv.find("[type='color']").each(function() {
+               $(this).remove();
+            })
             $("#page2OutputTextarea")[0].value = componentsDiv.html();
             break;
       }
