@@ -32,18 +32,17 @@ let selectedAccordionForDeletion, selectedFlashCardForDeletion, selectedChecklis
 // Track double click
 let latestTap;
 // Spinning box
-let n = 0, isAnimating = !1;
+let n = 0,
+   isAnimating = !1;
 let rotateBox;
 
-$(function() {
+$(function () {
    // Random generator for checklist
    sjcl.random.startCollectors();
-   // Check if elements need to be animated for page1
-   checkElement();
 
    require([
       "js/codemirror-5.42.2/lib/codemirror", "js/codemirror-5.42.2/mode/htmlmixed/htmlmixed", "js/codemirror-5.42.2/addon/selection/active-line"
-   ], function(CodeMirror) {
+   ], function (CodeMirror) {
       cm = CodeMirror.fromTextArea(document.getElementById("rawTextarea"), {
          styleActiveLine: true,
          matchBrackets: true,
@@ -56,11 +55,15 @@ $(function() {
       trigger: 'focus'
    });
 
+   // Check if elements need to be animated for page1
+   checkElement();
+
    // Remember to <break;> otherwise will freeze the browser
-   $(document).on("click", function(e) {
+   // Increase the i < <max> to be "less sensitive"
+   $(document).on("click", function (e) {
       let i = 0;
       let nodeYouWant = e.target;
-      while (nodeYouWant && i < 3) {
+      while (nodeYouWant && i < 4) {
          if (nodeYouWant.className === "accordionDiv") {
             selectedAccordionForDeletion = nodeYouWant;
             break;
@@ -68,12 +71,30 @@ $(function() {
             selectedFlashCardForDeletion = nodeYouWant;
             break;
          } else if (nodeYouWant.className === "checkboxContainer") {
+            if ($("#removeCheckboxSelectHelp").html()) {
+               $("#removeCheckboxSelectHelp").remove();
+               setTimeout(function () {
+                  addTooltip("Click on the Trash to remove checkbox", "removeHelp", "page2BottomRightDiv", !1);
+               }, 500);
+            }
             selectedChecklistForDeletion = nodeYouWant;
             break;
-         } else if (nodeYouWant.classList.contains("tabComponentLinks") || nodeYouWant.classList.contains("tabComponentContent")) {
+         } else if (nodeYouWant.classList && (nodeYouWant.classList.contains("tabComponentLinks") || nodeYouWant.classList.contains("tabComponentContent"))) {
+            if ($("#removeTabSelectHelp").html()) {
+               $("#removeTabSelectHelp").remove();
+               setTimeout(function () {
+                  addTooltip("Click on the Trash to remove Tab", "removeHelp", "page2BottomRightDiv", !1);
+               }, 500);
+            }
             selectedTabForDeletion = Array.prototype.indexOf.call(nodeYouWant.parentElement.children, nodeYouWant);
             break;
          } else if (nodeYouWant.className === "fancyNumbers") {
+            if ($("#removeTabSelectHelp").html()) {
+               $("#removeTabSelectHelp").remove();
+               setTimeout(function () {
+                  addTooltip("Click on the Trash to remove Checkbox", "removeHelp", "page2BottomRightDiv", !1);
+               }, 500);
+            }
             selectedNumberListForDeletion = nodeYouWant;
             break;
          } else {
@@ -86,18 +107,18 @@ $(function() {
    $(document).on("keydown", "[contentEditable]", setHiddenHTML);
    $(document).on("keyup", "[contentEditable]", setHiddenHTML);
 
-   $('#importDiv').on('hidden.bs.modal', function(e) {
+   $('#importDiv').on('hidden.bs.modal', function (e) {
       document.body.style.overflow = "auto";
    });
 
    // Animate Trashcan
-   $(document).on("click", "#removeSectionButton", function() {
+   $(document).on("click", "#removeSectionButton", function () {
       $(this.children[0]).effect("bounce", "fast");
       removeSection();
    });
 
-   $(document).on("click", "#templateSelectionButton", function() {
-      if(!isAnimating) {
+   $(document).on("click", "#templateSelectionButton", function () {
+      if (!isAnimating) {
          showTemplates();
       }
    })
@@ -109,7 +130,7 @@ $(function() {
 function rotateDIV(boxIcon) {
    isAnimating = !0;
    clearInterval(rotateBox);
-   rotateBox = setInterval(function() {
+   rotateBox = setInterval(function () {
       n = n + 2;
       boxIcon.style.transform = "rotate(" + n + "deg)"
       boxIcon.style.webkitTransform = "rotate(" + n + "deg)"
@@ -131,8 +152,14 @@ function checkElement() {
       if ($(element).css("opacity") == 1) {
          continue;
       }
-      if (window.pageYOffset >= ($(element).position().top - $(window).height() * 0.8)) {
-         animateElement(element);
+      if ($(window).width() < 425) {
+         if (window.pageYOffset >= ($(element).position().top - $(window).height() * 0.9)) {
+            animateElement(element);
+         }
+      } else {
+         if (window.pageYOffset >= ($(element).position().top - $(window).height() * 0.7)) {
+            animateElement(element);
+         }
       }
    }
 }
@@ -147,7 +174,7 @@ function animateElement(theElement) {
 }
 
 function checkSizes() {
-   if($(window).width() < 768) {
+   if ($(window).width() < 768) {
       $("#selectTemplateHelp .tooltiptext").css("left", "50%");
       $("#selectTemplateHelp .tooltiptext").css("margin-left", "-60px");
    } else {
@@ -156,20 +183,38 @@ function checkSizes() {
    }
 }
 
-function addTooltip(textContent, btnText, destinationID) {
+function removeHelp() {
+   $(".tooltips").each(function () {
+      $(this).fadeOut(function () {
+         $(this).remove();
+      });
+   });
+}
+
+function addTooltip(textContent, btnText, destinationID, b) {
    let tooltip = document.createElement("div");
    tooltip.className = "tooltips";
    tooltip.id = btnText;
    let tooltiptext = document.createElement("span");
    tooltiptext.className = "tooltiptext";
    tooltiptext.appendChild(document.createTextNode(textContent));
-   let tooltiptextBtn = document.createElement("button");
-   tooltiptextBtn.appendChild(document.createTextNode("Close"));
-   let tooltiptextBtn2 = document.createElement("button");
-   tooltiptextBtn2.appendChild(document.createTextNode("Close and never show again"));
-   tooltiptext.appendChild(tooltiptextBtn2);
-   tooltiptext.appendChild(tooltiptextBtn);
+   let tooltipBottom = document.createElement("div");
+   tooltipBottom.className = "tooltipBottom";
+   let tooltipBottomBtn = document.createElement("button");
+   if (b) {
+      tooltipBottomBtn.className = "btn btn-primary";
+      tooltipBottomBtn.appendChild(document.createTextNode("Finish"));
+   } else {
+      tooltipBottomBtn.className = "btn btn-light";
+      tooltipBottomBtn.appendChild(document.createTextNode("Skip"));
+      let tooltipBottomText = document.createElement("p");
+      tooltipBottomText.appendChild(document.createTextNode("Waiting for input..."));
+      tooltipBottom.appendChild(tooltipBottomText);
+   }
+   tooltipBottom.appendChild(tooltipBottomBtn);
+   tooltipBottomBtn.setAttribute("onclick", "removeHelp()");
    tooltip.appendChild(tooltiptext);
+   tooltip.appendChild(tooltipBottom);
    document.getElementById(destinationID).appendChild(tooltip);
 }
 
@@ -179,9 +224,10 @@ function animatePage1Out() {
    $("body").css("overflow", "hidden");
 
    // Add in first tooltip
-   if(!localStorage.helpNeverSee) {
-      addTooltip("Select the component you want", "selectTemplateHelp", "templateMainDivLeft");
-      checkSizes();
+   if (!localStorage.helpNeverSee && void 0 == $("#selectTemplateHelp").html()) {
+      setTimeout(function () {
+         addTooltip("Select the component you want", "selectTemplateHelp", "templateMainDivLeft", !1);
+      }, 1000);
    }
 
    // Show page2
@@ -193,7 +239,7 @@ function animatePage1Out() {
 
    // Hide page1
    let page1 = $("#page1");
-   page1.hide("fold", 1200, function() {
+   page1.hide("fold", 1200, function () {
       $("body").css("overflow", "auto");
       page1.css("display", "none");
 
@@ -223,7 +269,7 @@ function animatePage1In() {
    page2.css("left", "0");
 
    let page1 = $("#page1");
-   page1.show("fold", 1200, function() {
+   page1.show("fold", 1200, function () {
       $("body").css("overflow", "auto");
       page2.css("display", "none");
       page2.css("position", "");
@@ -246,7 +292,7 @@ function animatePage2Out() {
    let page2 = $("#page2");
    page2.hide("drop", {
       direction: "down"
-   }, 1200, function() {
+   }, 1200, function () {
       $("body").css("overflow", "auto");
       page2.css("display", "none");
 
@@ -270,7 +316,7 @@ function animatePage2In() {
    let page2 = $("#page2");
    page2.show("drop", {
       direction: "down"
-   }, 1200, function() {
+   }, 1200, function () {
       $("body").css("overflow", "auto");
       page3.css("display", "none");
       page3.css("position", "");
@@ -287,7 +333,7 @@ function animatePage3Out() {
    page3.css("left", "0");
 
    let page1 = $("#page1");
-   page1.show("fold", 1200, function() {
+   page1.show("fold", 1200, function () {
       $("body").css("overflow", "auto");
       page3.css("display", "none");
       page3.css("position", "");
@@ -302,7 +348,7 @@ function createNewButton() {
    $("#componentsDiv").empty();
    $("#page2TopBarDivTitle > p").text("Title");
    let activeTemplateSelectionLabelDiv = document.getElementsByClassName("templateSelectionLabelDiv active")[0];
-   if(activeTemplateSelectionLabelDiv) {
+   if (activeTemplateSelectionLabelDiv) {
       activeTemplateSelectionLabelDiv.className = "templateSelectionLabelDiv";
    }
    document.getElementById("templateMainDivRight").className = "";
@@ -357,7 +403,7 @@ function checkImportTextarea() {
 function loadImportedAccordion(tempDiv) {
    $("#componentsDiv").empty();
 
-   tempDiv.find(".accordion").each(function() {
+   tempDiv.find(".accordion").each(function () {
       let accordionDivDiv = document.createElement("div");
       accordionDivDiv.className = "accordionDiv";
       // Draggable
@@ -389,7 +435,7 @@ function loadImportedAccordion(tempDiv) {
 function loadImportedAccordionAlt(tempDiv) {
    $("#componentsDiv").empty();
 
-   tempDiv.find(".accordionAlternate").each(function() {
+   tempDiv.find(".accordionAlternate").each(function () {
       let accordionDivDiv = document.createElement("div");
       accordionDivDiv.className = "accordionDiv";
       // Draggable
@@ -421,7 +467,7 @@ function loadImportedAccordionAlt(tempDiv) {
 function loadImportedCard(tempDiv) {
    $("#componentsDiv").empty();
 
-   tempDiv.find(".cardSwipeDiv").each(function() {
+   tempDiv.find(".cardSwipeDiv").each(function () {
       this.removeAttribute("onmousedown");
       this.removeAttribute("onmouseup");
       this.removeAttribute("ontouchstart");
@@ -470,7 +516,7 @@ function loadImportedCard(tempDiv) {
 function loadImportedFlashCardPreset(tempDiv) {
    $("#componentsDiv").empty();
 
-   tempDiv.find(".cardFlipDivDiv").each(function() {
+   tempDiv.find(".cardFlipDivDiv").each(function () {
       let cardFlipFront = $(this).find(".cardFlipFront")[0];
       let cardFlipBack = $(this).find(".cardFlipBack")[0];
 
@@ -491,7 +537,7 @@ function loadImportedChecklistPreset(tempDiv) {
    $("#componentsDiv").empty();
 
    tempDiv.children().first()[0].contentEditable = "true";
-   tempDiv.find(".checkboxContainer").each(function() {
+   tempDiv.find(".checkboxContainer").each(function () {
       let checkboxContainerCheckmark = $(this).find(".checkboxContainerCheckmark");
       checkboxContainerCheckmark[0].removeAttribute("for");
       checkboxContainerCheckmark.contentEditable = "true";
@@ -507,14 +553,14 @@ function loadImportedChecklistPreset(tempDiv) {
 function loadImportedTabsPreset(tempDiv) {
    $("#componentsDiv").empty();
 
-   tempDiv.find(".tabComponentLinks:not(.tabComponentLinksClear)").each(function() {
+   tempDiv.find(".tabComponentLinks:not(.tabComponentLinksClear)").each(function () {
       let tabComponentLinks = this;
       tabComponentLinks.className = "tabComponentLinks";
       tabComponentLinks.removeAttribute("onclick");
       tabComponentLinks.contentEditable = "true";
       tabComponentLinks.setAttribute("ondblclick", tabsOnClick);
    });
-   tempDiv.find(".tabComponentContentDiv").each(function() {
+   tempDiv.find(".tabComponentContentDiv").each(function () {
       let tabComponentContentDiv = this;
       tabComponentContentDiv.className = "tabComponentContentDiv";
       tabComponentContentDiv.contentEditable = "true";
@@ -532,7 +578,7 @@ function loadImportedTabsPreset(tempDiv) {
 function loadImportedNumberListPreset(tempDiv) {
    $("#componentsDiv").empty();
 
-   tempDiv.find(".fancyNumbers").each(function() {
+   tempDiv.find(".fancyNumbers").each(function () {
       let fancyNumbers = $(this);
       fancyNumbers.find(".fancyNumbersCircle")[0].contentEditable = "true";
       fancyNumbers.find(".fancyNumbersCircle ~ *")[0].contentEditable = "true";
@@ -553,22 +599,54 @@ function showTemplates() {
          document.getElementById("templateMainDiv").style.display = "flex";
       } else {
          page2BottomLeftDivLeftDiv.className = "";
+         if ($("#selectTemplateHelp").html() || $("#selectTemplateRightHelp").html()) {
+            $("#selectTemplateHelp").fadeOut();
+            $("#selectTemplateRightHelp").fadeOut();
+         }
+         // Add and remove section add expand
+         if ($("#addNewSectionHelp").html()) {
+            $("#addNewSectionHelp")[0].className = "tooltips";
+         }
+         if ($("#removeHelp").html()) {
+            $("#removeHelp")[0].className = "tooltips";
+         }
+         if ($("#completedHelp").html()) {
+            $("#completedHelp")[0].className = "tooltips";
+         }
          rotateDIV(document.getElementById("templateSelectionButton").children[0]);
       }
    } else {
       document.getElementById("hiddenCodeTextarea").style.display = "none";
       document.getElementById("templateMainDiv").style.display = "flex";
       page2BottomLeftDivLeftDiv.className = "expand";
+      if ($("#selectTemplateHelp").html() || $("#selectTemplateRightHelp").html()) {
+         $("#selectTemplateHelp").fadeIn();
+         $("#selectTemplateRightHelp").fadeIn();
+      }
+      // Add and remove section add expand
+      if ($("#addNewSectionHelp").html()) {
+         $("#addNewSectionHelp")[0].className = "tooltips expand";
+      }
+      if ($("#removeHelp").html()) {
+         $("#removeHelp")[0].className = "tooltips expand";
+      }
+      if ($("#completedHelp").html()) {
+         $("#completedHelp")[0].className = "tooltips expand";
+      }
       rotateDIV(document.getElementById("templateSelectionButton").children[0]);
    }
 }
 
 function showRightTemplate(labelDiv, index) {
    if (labelDiv.className !== "templateSelectionLabelDiv active") {
-      if($("#selectTemplateHelp").html()) {
-         
+      // Remove tooltip if any and display next
+      let gotHelp = !1;
+      if (void 0 != $("#selectTemplateHelp").html()) {
+         $("#selectTemplateHelp").remove();
+         gotHelp = !0;
       }
-      $("#templateMainDivLeft").children().each(function() {
+
+      $("#templateMainDivLeft").children().each(function () {
          this.className = "templateSelectionLabelDiv";
       });
       labelDiv.className = "templateSelectionLabelDiv active";
@@ -576,72 +654,72 @@ function showRightTemplate(labelDiv, index) {
       let obj;
       let obj2;
       switch (index) {
-         case 0:
-            obj = {
-               src: "images/InteractiveComponent/Accordion.png",
-               alt: "Accordion Template",
-               onclick: "loadAccordionPreset()",
-               text: "Accordion"
-            };
-            obj2 = {
-               src: "images/InteractiveComponent/AccordionAlt.png",
-               alt: "Accordion Alternate Template",
-               onclick: "loadAccordionAltPreset()",
-               text: "Accordion (Alt)"
-            };
-            photoArray.push(obj);
-            photoArray.push(obj2);
-            break;
-         case 1:
-            obj = {
-               src: "images/InteractiveComponent/Card.png",
-               alt: "Card Template",
-               onclick: "loadCardPreset()",
-               text: "Card"
-            };
-            obj2 = {
-               src: "images/InteractiveComponent/FlashCard.png",
-               alt: "Flashcard Template",
-               onclick: "loadFlashCardPreset()",
-               text: "Flash Card"
-            };
-            photoArray.push(obj);
-            photoArray.push(obj2);
-            break;
-         case 2:
-            obj = {
-               src: "images/InteractiveComponent/Checklist.png",
-               alt: "Checklist Template",
-               onclick: "loadChecklistPreset()",
-               text: "Checklist"
-            };
-            photoArray.push(obj);
-            break;
-         case 3:
-            obj = {
-               src: "images/InteractiveComponent/Tabs.png",
-               alt: "Tabs Template",
-               onclick: "loadTabsPreset()",
-               text: "Tabs"
-            };
-            photoArray.push(obj);
-            break;
-         case 4:
-            obj = {
-               src: "images/InteractiveComponent/NumberList.png",
-               alt: "Lists Template",
-               onclick: "loadNumberListPreset()",
-               text: "Lists"
-            };
-            photoArray.push(obj);
-            break;
-         default:
-            break;
+      case 0:
+         obj = {
+            src: "images/InteractiveComponent/Accordion.png",
+            alt: "Accordion Template",
+            onclick: "loadAccordionPreset()",
+            text: "Accordion"
+         };
+         obj2 = {
+            src: "images/InteractiveComponent/AccordionAlt.png",
+            alt: "Accordion Alternate Template",
+            onclick: "loadAccordionAltPreset()",
+            text: "Accordion (Alt)"
+         };
+         photoArray.push(obj);
+         photoArray.push(obj2);
+         break;
+      case 1:
+         obj = {
+            src: "images/InteractiveComponent/Card.png",
+            alt: "Card Template",
+            onclick: "loadCardPreset()",
+            text: "Card"
+         };
+         obj2 = {
+            src: "images/InteractiveComponent/FlashCard.png",
+            alt: "Flashcard Template",
+            onclick: "loadFlashCardPreset()",
+            text: "Flash Card"
+         };
+         photoArray.push(obj);
+         photoArray.push(obj2);
+         break;
+      case 2:
+         obj = {
+            src: "images/InteractiveComponent/Checklist.png",
+            alt: "Checklist Template",
+            onclick: "loadChecklistPreset()",
+            text: "Checklist"
+         };
+         photoArray.push(obj);
+         break;
+      case 3:
+         obj = {
+            src: "images/InteractiveComponent/Tabs.png",
+            alt: "Tabs Template",
+            onclick: "loadTabsPreset()",
+            text: "Tabs"
+         };
+         photoArray.push(obj);
+         break;
+      case 4:
+         obj = {
+            src: "images/InteractiveComponent/NumberList.png",
+            alt: "Lists Template",
+            onclick: "loadNumberListPreset()",
+            text: "Lists"
+         };
+         photoArray.push(obj);
+         break;
+      default:
+         break;
       }
 
       if (document.getElementById("templateMainDivRight").className === "expand") {
          document.getElementById("templateMainDivRight").className = "";
-         setTimeout(function() {
+         setTimeout(function () {
             $("#templateMainDivRight").empty();
             for (i = 0; i < photoArray.length; i++) {
                let templateDivs = document.createElement("div");
@@ -679,11 +757,30 @@ function showRightTemplate(labelDiv, index) {
          }
          document.getElementById("templateMainDivRight").className = "expand";
       }
+
+      if (gotHelp) {
+         setTimeout(function () {
+            addTooltip("Click on the components", "selectTemplateRightHelp", "templateMainDiv", !1);
+         }, 600);
+      }
    }
 }
 
 // Components Presets
 function loadAccordionPreset() {
+   // Close Help tooltip if any
+   if (void 0 != $("#selectTemplateRightHelp").html()) {
+      $("#selectTemplateRightHelp").remove();
+      setTimeout(function () {
+         addTooltip("Add a new accordion", "addNewSectionHelp", "page2BottomLeftDiv", !1);
+      }, 1100);
+   }
+   if (void 0 != $("#addNewSectionHelp").html()) {
+      $("#addNewSectionHelp").remove();
+      setTimeout(function () {
+         addTooltip("Add a new accordion", "addNewSectionHelp", "page2BottomLeftDiv", !1);
+      }, 1100);
+   }
    showTemplates();
    isAccordion = 0;
    $("#page2TopBarDivTitle > p").text("Accordion");
@@ -701,6 +798,19 @@ function loadAccordionPreset() {
 }
 
 function loadAccordionAltPreset() {
+   // Close Help tooltip if any
+   if (void 0 != $("#selectTemplateRightHelp").html()) {
+      $("#selectTemplateRightHelp").remove();
+      setTimeout(function () {
+         addTooltip("Add a new accordion", "addNewSectionHelp", "page2BottomLeftDiv", !1);
+      }, 1100);
+   }
+   if (void 0 != $("#addNewSectionHelp").html()) {
+      $("#addNewSectionHelp").remove();
+      setTimeout(function () {
+         addTooltip("Add a new accordion", "addNewSectionHelp", "page2BottomLeftDiv", !1);
+      }, 1100);
+   }
    showTemplates();
    isAccordion = 1;
    $("#page2TopBarDivTitle > p").text("Accordion Alternate");
@@ -718,6 +828,19 @@ function loadAccordionAltPreset() {
 }
 
 function loadCardPreset() {
+   // Close Help tooltip if any
+   if (void 0 != $("#selectTemplateRightHelp").html()) {
+      $("#selectTemplateRightHelp").remove();
+      setTimeout(function () {
+         addTooltip("Add a new card", "addNewSectionHelp", "page2BottomLeftDiv", !1);
+      }, 1100);
+   }
+   if (void 0 != $("#addNewSectionHelp").html()) {
+      $("#addNewSectionHelp").remove();
+      setTimeout(function () {
+         addTooltip("Add a new card", "addNewSectionHelp", "page2BottomLeftDiv", !1);
+      }, 1100);
+   }
    showTemplates();
    isAccordion = 2;
    cardCurrentIndex = 0;
@@ -746,12 +869,12 @@ function loadCardPreset() {
    let backBtn = document.createElement("button");
    backBtn.className = "btn btn-info";
    backBtn.id = "cardBackButton";
-   backBtn.setAttribute("onclick", "goLeft(this.parentElement.previousElementSibling.children[0])");
+   backBtn.setAttribute("onclick", "goLeft(document.getElementsByClassName('cardSwipeDivDiv')[0])");
    backBtn.appendChild(document.createTextNode("View Previous Slide"));
    let forwardBtn = document.createElement("button");
    forwardBtn.className = "btn btn-info";
    forwardBtn.id = "cardNextButton";
-   forwardBtn.setAttribute("onclick", "ifDblClicked(this.parentElement.previousElementSibling.children[0])");
+   forwardBtn.setAttribute("onclick", "ifDblClicked(document.getElementsByClassName('cardSwipeDivDiv')[0])");
    forwardBtn.appendChild(document.createTextNode("View Next Slide"));
 
    let totalCardChild = $(".cardAnimationDiv").children().length;
@@ -769,6 +892,19 @@ function loadCardPreset() {
 }
 
 function loadFlashCardPreset() {
+   // Close Help tooltip if any
+   if (void 0 != $("#selectTemplateRightHelp").html()) {
+      $("#selectTemplateRightHelp").remove();
+      setTimeout(function () {
+         addTooltip("Add a new Flash Card", "addNewSectionHelp", "page2BottomLeftDiv", !1);
+      }, 1100);
+   }
+   if (void 0 != $("#addNewSectionHelp").html()) {
+      $("#addNewSectionHelp").remove();
+      setTimeout(function () {
+         addTooltip("Add a new Flash Card", "addNewSectionHelp", "page2BottomLeftDiv", !1);
+      }, 1100);
+   }
    showTemplates();
    isAccordion = 4;
    $("#page2TopBarDivTitle > p").text("Flash Card");
@@ -783,6 +919,19 @@ function loadFlashCardPreset() {
 }
 
 function loadChecklistPreset() {
+   // Close Help tooltip if any
+   if (void 0 != $("#selectTemplateRightHelp").html()) {
+      $("#selectTemplateRightHelp").remove();
+      setTimeout(function () {
+         addTooltip("Add a new checkbox", "addNewSectionHelp", "page2BottomLeftDiv", !1);
+      }, 1100);
+   }
+   if (void 0 != $("#addNewSectionHelp").html()) {
+      $("#addNewSectionHelp").remove();
+      setTimeout(function () {
+         addTooltip("Add a new checkbox", "addNewSectionHelp", "page2BottomLeftDiv", !1);
+      }, 1100);
+   }
    showTemplates();
    isAccordion = 5;
    $("#page2TopBarDivTitle > p").text("Checklist");
@@ -790,7 +939,7 @@ function loadChecklistPreset() {
    let checkBoxPageDiv = document.createElement("div");
    checkBoxPageDiv.className = "checkBoxPageDiv";
    let checkBoxPageDivP = document.createElement("p");
-   checkBoxPageDivP.appendChild(document.createTextNode("Captital Cities"));
+   checkBoxPageDivP.appendChild(document.createTextNode("Capital Cities"));
    checkBoxPageDivP.contentEditable = "true";
    checkBoxPageDiv.appendChild(checkBoxPageDivP);
    $(componentsDiv).empty();
@@ -801,6 +950,19 @@ function loadChecklistPreset() {
 }
 
 function loadTabsPreset() {
+   // Close Help tooltip if any
+   if (void 0 != $("#selectTemplateRightHelp").html()) {
+      $("#selectTemplateRightHelp").remove();
+      setTimeout(function () {
+         addTooltip("Add a new Tab", "addNewSectionHelp", "page2BottomLeftDiv", !1);
+      }, 1100);
+   }
+   if (void 0 != $("#addNewSectionHelp").html()) {
+      $("#addNewSectionHelp").remove();
+      setTimeout(function () {
+         addTooltip("Add a new Tab", "addNewSectionHelp", "page2BottomLeftDiv", !1);
+      }, 1100);
+   }
    showTemplates();
    isAccordion = 6;
    $("#page2TopBarDivTitle > p").text("Tabs");
@@ -809,7 +971,7 @@ function loadTabsPreset() {
    tabComponent.className = "tabComponent";
    let tabComponentLinks = document.createElement("div");
    tabComponentLinks.className = "tabComponentLinks tabComponentActive";
-   tabComponentLinks.setAttribute("ondblclick", tabsOnClick);
+   tabComponentLinks.setAttribute("onclick", "tabsDoubletap(this)");
    tabComponentLinks.contentEditable = "true";
    let tabComponentLinksP = document.createElement("p");
    tabComponentLinksP.appendChild(document.createTextNode("London"));
@@ -838,6 +1000,19 @@ function loadTabsPreset() {
 }
 
 function loadNumberListPreset() {
+   // Close Help tooltip if any
+   if (void 0 != $("#selectTemplateRightHelp").html()) {
+      $("#selectTemplateRightHelp").remove();
+      setTimeout(function () {
+         addTooltip("Add a new list", "addNewSectionHelp", "page2BottomLeftDiv", !1);
+      }, 1100);
+   }
+   if (void 0 != $("#addNewSectionHelp").html()) {
+      $("#addNewSectionHelp").remove();
+      setTimeout(function () {
+         addTooltip("Add a new list", "addNewSectionHelp", "page2BottomLeftDiv", !1);
+      }, 1100);
+   }
    showTemplates();
    isAccordion = 7;
    $("#page2TopBarDivTitle > p").text("Lists");
@@ -853,147 +1028,202 @@ function loadNumberListPreset() {
 // 3 was intended to be Card (Alt), he's dead...
 function addNewSection() {
    switch (isAccordion) {
-      case 0:
-         document.getElementById("componentsDiv").appendChild(addNewAccordion(null));
-         makeSortable();
-         break;
-      case 1:
-         document.getElementById("componentsDiv").appendChild(addNewAltAccordion(null));
-         makeSortable();
-         break;
-      case 2:
-         let newCard = addNewCard(null);
-         document.getElementsByClassName("cardSwipeDivDiv")[0].appendChild(newCard);
-         startupCard();
-         setCardIndicator();
-         break;
-      case 4:
-         document.getElementsByClassName("cardFlipMasterDiv")[0].appendChild(addNewFlashCard(null,null));
-         break;
-      case 5:
-         $(".checkBoxPageDiv").append(addNewChecklist(null));
-         break;
-      case 6:
-         let newTab = addNewTabs(null,null);
-         $(".tabComponent").append(newTab.tabComponentLinksTab);
-         $(".tabComponentContentDiv").append(newTab.tabComponentContentTab);
-         $(".tabComponentLinksClear").remove();
-         break;
-      case 7:
-         $("#componentsDiv").append(addNewNumberList(null));
-         break;
-      default:
-         break;
+   case 0:
+      // Remove help
+      if ($("#addNewSectionHelp").html()) {
+         $("#addNewSectionHelp").remove();
+         setTimeout(function () {
+            addTooltip("Double click on an accordion to open/close it", "doubleClickAccordionHelp", "page2BottomRightDiv", !1);
+         }, 500);
+      }
+      document.getElementById("componentsDiv").appendChild(addNewAccordion(null));
+      makeSortable();
+      break;
+   case 1:
+      // Remove help
+      if ($("#addNewSectionHelp").html()) {
+         $("#addNewSectionHelp").remove();
+         setTimeout(function () {
+            addTooltip("Double click on an accordion to open/close it", "doubleClickAccordionHelp", "page2BottomRightDiv", !1);
+         }, 500);
+      }
+      document.getElementById("componentsDiv").appendChild(addNewAltAccordion(null));
+      makeSortable();
+      break;
+   case 2:
+      // Remove help
+      if ($("#addNewSectionHelp").html()) {
+         $("#addNewSectionHelp").remove();
+         setTimeout(function () {
+            if($(window).height() < 740) {
+               window.scroll({
+                  top: 1000,
+                  left: 0,
+                  behavior: 'smooth'
+               });
+            }
+            addTooltip("Click on 'View Next Slide' to view next card", "viewNextHelp", "page2BottomRightDiv", !1);
+         }, 500);
+      }
+      let newCard = addNewCard(null);
+      document.getElementsByClassName("cardSwipeDivDiv")[0].appendChild(newCard);
+      startupCard();
+      setCardIndicator();
+      break;
+   case 4:
+      document.getElementsByClassName("cardFlipMasterDiv")[0].appendChild(addNewFlashCard(null, null));
+      break;
+   case 5:
+      // Remove help
+      if ($("#addNewSectionHelp").html()) {
+         $("#addNewSectionHelp").remove();
+         setTimeout(function () {
+            addTooltip("To remove a checkbox click on one", "removeCheckboxSelectHelp", "page2BottomRightDiv", !1);
+         }, 500);
+      }
+      $(".checkBoxPageDiv").append(addNewChecklist(null));
+      break;
+   case 6:
+      // Remove help
+      if ($("#addNewSectionHelp").html()) {
+         $("#addNewSectionHelp").remove();
+         setTimeout(function () {
+            addTooltip("Double click to view the tab", "doubleClickTabHelp", "page2BottomRightDiv", !1);
+         }, 500);
+      }
+      let newTab = addNewTabs(null, null);
+      $(".tabComponent").append(newTab.tabComponentLinksTab);
+      $(".tabComponentContentDiv").append(newTab.tabComponentContentTab);
+      $(".tabComponentLinksClear").remove();
+      break;
+   case 7:
+      // Remove help
+      if ($("#addNewSectionHelp").html()) {
+         $("#addNewSectionHelp").remove();
+         setTimeout(function () {
+            addTooltip("To change colour, click on this", "changeColourHelp", "page2BottomRightDiv", !1);
+         }, 500);
+      }
+      $("#componentsDiv").append(addNewNumberList(null));
+      break;
+   default:
+      break;
    }
    setHiddenHTML();
 }
 
 function removeSection() {
+   if (isAccordion >= 0 && $("#removeHelp").html()) {
+      $("#removeHelp").remove();
+      setTimeout(function () {
+         addTooltip("When you are done, click on save to generate the HTML", "completedHelp", "page2BottomRightDiv", !0);
+      }, 500);
+   }
    switch (isAccordion) {
-      case 0:
-      case 1:
-         if (selectedAccordionForDeletion) {
-            $(selectedAccordionForDeletion).remove();
+   case 0:
+   case 1:
+      if (selectedAccordionForDeletion) {
+         $(selectedAccordionForDeletion).remove();
+      }
+      break;
+   case 2:
+   case 3:
+      let cardSwipeDivDivChildren = cardCurrent.parentElement.children;
+      for (i = 0; i < cardSwipeDivDivChildren.length; i++) {
+         // Not first
+         if (cardSwipeDivDivChildren[i].style.display === "flex" && i >= 1) {
+            document.getElementById("cardBackButton").disabled = true;
+            document.getElementById("cardNextButton").disabled = true;
+            goLeft(document.getElementsByClassName("cardSwipeDivDiv")[0]);
+            setTimeout(function () {
+               cardCurrent.parentElement.removeChild(cardSwipeDivDivChildren[i]);
+               // Enable the Prev Slide Button
+               document.getElementById("cardBackButton").disabled = false;
+               document.getElementById("cardNextButton").disabled = false;
+               setCardIndicator();
+            }, 510);
+            cardCurrent = cardSwipeDivDivChildren[i - 1];
+            break;
+         } else if (cardSwipeDivDivChildren[i].style.display === "flex" && i === 0) {
+            document.getElementById("cardBackButton").disabled = true;
+            document.getElementById("cardNextButton").disabled = true;
+            cardCurrentIndex--;
+            ifDblClicked(document.getElementsByClassName("cardSwipeDivDiv")[0]);
+            setTimeout(function () {
+               cardCurrent.parentElement.removeChild(cardSwipeDivDivChildren[i]);
+               // Enable the Prev Slide Button
+               document.getElementById("cardBackButton").disabled = false;
+               document.getElementById("cardNextButton").disabled = false;
+               setCardIndicator();
+            }, 500);
+            cardCurrent = cardSwipeDivDivChildren[i + 1];
+            break;
          }
-         break;
-      case 2:
-      case 3:
-         let cardSwipeDivDivChildren = cardCurrent.parentElement.children;
-         for (i = 0; i < cardSwipeDivDivChildren.length; i++) {
-            // Not first
-            if (cardSwipeDivDivChildren[i].style.display === "flex" && i >= 1) {
-               document.getElementById("cardBackButton").disabled = true;
-               document.getElementById("cardNextButton").disabled = true;
-               goLeft(document.getElementsByClassName("cardSwipeDivDiv")[0]);
-               setTimeout(function() {
-                  cardCurrent.parentElement.removeChild(cardSwipeDivDivChildren[i]);
-                  // Enable the Prev Slide Button
-                  document.getElementById("cardBackButton").disabled = false;
-                  document.getElementById("cardNextButton").disabled = false;
-                  setCardIndicator();
-               }, 510);
-               cardCurrent = cardSwipeDivDivChildren[i - 1];
-               break;
-            } else if (cardSwipeDivDivChildren[i].style.display === "flex" && i === 0) {
-               document.getElementById("cardBackButton").disabled = true;
-               document.getElementById("cardNextButton").disabled = true;
-               cardCurrentIndex--;
-               ifDblClicked(document.getElementsByClassName("cardSwipeDivDiv")[0]);
-               setTimeout(function() {
-                  cardCurrent.parentElement.removeChild(cardSwipeDivDivChildren[i]);
-                  // Enable the Prev Slide Button
-                  document.getElementById("cardBackButton").disabled = false;
-                  document.getElementById("cardNextButton").disabled = false;
-                  setCardIndicator();
-               }, 500);
-               cardCurrent = cardSwipeDivDivChildren[i + 1];
-               break;
-            }
+      }
+      break;
+   case 4:
+      if (selectedFlashCardForDeletion) {
+         $(selectedFlashCardForDeletion).remove();
+      }
+      break;
+   case 5:
+      if (selectedChecklistForDeletion) {
+         $(selectedChecklistForDeletion).remove();
+      }
+      break;
+   case 6:
+      if (!isNaN(selectedTabForDeletion) && $(".tabComponentLinks:not(.tabComponentLinksClear)").length > 1) {
+         let tabComponent = document.getElementsByClassName("tabComponent")[0];
+         let tabComponentContentDiv = document.getElementsByClassName("tabComponentContentDiv")[0];
+         try {
+            tabComponent.removeChild(tabComponent.childNodes[selectedTabForDeletion]);
+            tabComponentContentDiv.removeChild(tabComponentContentDiv.childNodes[selectedTabForDeletion]);
+         } catch (e) {
+            console.log(e.message);
          }
-         break;
-      case 4:
-         if (selectedFlashCardForDeletion) {
-            $(selectedFlashCardForDeletion).remove();
-         }
-         break;
-      case 5:
-         if (selectedChecklistForDeletion) {
-            $(selectedChecklistForDeletion).remove();
-         }
-         break;
-      case 6:
-         if (!isNaN(selectedTabForDeletion) && $(".tabComponentLinks:not(.tabComponentLinksClear)").length > 1) {
-            let tabComponent = document.getElementsByClassName("tabComponent")[0];
-            let tabComponentContentDiv = document.getElementsByClassName("tabComponentContentDiv")[0];
-            try {
-               tabComponent.removeChild(tabComponent.childNodes[selectedTabForDeletion]);
-               tabComponentContentDiv.removeChild(tabComponentContentDiv.childNodes[selectedTabForDeletion]);
-            } catch (e) {
-               console.log(e.message);
-            }
 
-            // Open previous or next tab is no active
-            let gotActive = !1;
-            $(tabComponent).children().each(function() {
-               if (this.className === "tabComponentLinks tabComponentActive") {
-                  gotActive = !0;
-               }
-            });
-            $(tabComponentContentDiv).children().each(function() {
-               if (this.className === "tabComponentContent tabActiveContent") {
-                  gotActive = !0;
-               }
-            });
-            if ($(".tabComponentLinks:not(.tabComponentLinksClear)").length >= 1) {
-               if(selectedTabForDeletion > 0) {
-                  selectedTabForDeletion--;
-               }
+         // Open previous or next tab is no active
+         let gotActive = !1;
+         $(tabComponent).children().each(function () {
+            if (this.className === "tabComponentLinks tabComponentActive") {
+               gotActive = !0;
             }
-            if(!gotActive) {
-               tabComponent.children[selectedTabForDeletion].className = "tabComponentLinks tabComponentActive";
-               tabComponentContentDiv.children[selectedTabForDeletion].className = "tabComponentContent tabActiveContent";
+         });
+         $(tabComponentContentDiv).children().each(function () {
+            if (this.className === "tabComponentContent tabActiveContent") {
+               gotActive = !0;
             }
+         });
+         if ($(".tabComponentLinks:not(.tabComponentLinksClear)").length >= 1) {
+            if (selectedTabForDeletion > 0) {
+               selectedTabForDeletion--;
+            }
+         }
+         if (!gotActive) {
+            tabComponent.children[selectedTabForDeletion].className = "tabComponentLinks tabComponentActive";
+            tabComponentContentDiv.children[selectedTabForDeletion].className = "tabComponentContent tabActiveContent";
+         }
 
-            if ($(".tabComponentLinks:not(.tabComponentLinksClear)").length <= 1) {
-               // For clearing
-               let tabComponentLinksClear = document.createElement("div");
-               tabComponentLinksClear.className = "tabComponentLinks tabComponentLinksClear";
-               tabComponent.appendChild(tabComponentLinksClear);
-            }
+         if ($(".tabComponentLinks:not(.tabComponentLinksClear)").length <= 1) {
+            // For clearing
+            let tabComponentLinksClear = document.createElement("div");
+            tabComponentLinksClear.className = "tabComponentLinks tabComponentLinksClear";
+            tabComponent.appendChild(tabComponentLinksClear);
          }
-         break;
-      case 7:
-         if (selectedNumberListForDeletion) {
-            $(selectedNumberListForDeletion).remove();
-         }
-         break;
+      }
+      break;
+   case 7:
+      if (selectedNumberListForDeletion) {
+         $(selectedNumberListForDeletion).remove();
+      }
+      break;
    }
    setHiddenHTML();
 }
 
 // Adding Section
 function addNewAccordion(labelText, labelText2) {
-   if(!labelText || !labelText2) {
+   if (!labelText || !labelText2) {
       labelText = "Accordion";
       labelText2 = "Accordion Content";
    }
@@ -1030,7 +1260,7 @@ function addNewAccordion(labelText, labelText2) {
 }
 
 function addNewAltAccordion(labelText, labelText2) {
-   if(!labelText || !labelText2) {
+   if (!labelText || !labelText2) {
       labelText = "Accordion";
       labelText2 = "Accordion Content";
    }
@@ -1054,7 +1284,7 @@ function addNewAltAccordion(labelText, labelText2) {
    // Contenteditable for editing... remember to change on output
    accordionContent.className = "accordionAlternateContent";
    accordionContent.contentEditable = "true";
-   accordionContent.innerHTML = "<p>" + labelText2 +"</p>";
+   accordionContent.innerHTML = "<p>" + labelText2 + "</p>";
 
    contentEditableBr();
 
@@ -1069,7 +1299,7 @@ function addNewAltAccordion(labelText, labelText2) {
 }
 
 function addNewCard(labelText, labelText2) {
-   if(!labelText || !labelText2) {
+   if (!labelText || !labelText2) {
       labelText = "Card";
       labelText2 = "Card Content";
    }
@@ -1103,7 +1333,7 @@ function setCardIndicator() {
 }
 
 function addNewFlashCard(labelText, labelText2) {
-   if(!labelText || !labelText2) {
+   if (!labelText || !labelText2) {
       labelText = "Flash Card Front";
       labelText2 = "Flash Card Back";
    }
@@ -1135,8 +1365,8 @@ function addNewFlashCard(labelText, labelText2) {
 }
 
 function addNewChecklist(labelText) {
-   if(!labelText) {
-      labelText = "CheckList";
+   if (!labelText) {
+      labelText = "Checklist";
    }
    let randomGenerated = getRandomWords();
    let checkboxContainer = document.createElement("div");
@@ -1157,13 +1387,13 @@ function addNewChecklist(labelText) {
 }
 
 function addNewTabs(labelText, labelText2) {
-   if(!labelText || !labelText2) {
+   if (!labelText || !labelText2) {
       labelText = "Tab Title";
       labelText2 = "Tab Content";
    }
    let tabComponentLinks = document.createElement("div");
    tabComponentLinks.className = "tabComponentLinks";
-   tabComponentLinks.setAttribute("ondblclick", tabsOnClick);
+   tabComponentLinks.setAttribute("onclick", "tabsDoubletap(this)");
    tabComponentLinks.contentEditable = "true";
    let tabComponentLinksP = document.createElement("p");
    tabComponentLinksP.appendChild(document.createTextNode(labelText));
@@ -1184,7 +1414,7 @@ function addNewTabs(labelText, labelText2) {
 }
 
 function addNewNumberList(labelText) {
-   if(!labelText) {
+   if (!labelText) {
       labelText = "List";
    }
    getNumberListIndex();
@@ -1194,7 +1424,7 @@ function addNewNumberList(labelText) {
    fancyNumbersColorInput.type = "color";
    fancyNumbersColorInput.value = "#6600cc";
    fancyNumbersColorInput.className = "form-control";
-   fancyNumbersColorInput.setAttribute("onchange", "this.nextElementSibling.style.backgroundColor = this.value");
+   fancyNumbersColorInput.setAttribute("onchange", "this.nextElementSibling.style.backgroundColor = this.value;$('#changeColourHelp').html()&&($('#changeColourHelp').remove(),setTimeout(function(){addTooltip('To remove the checkbox, click on the it','removeTabSelectHelp','page2BottomRightDiv',!1)},600));");
    let fancyNumbersCircle = document.createElement("div");
    fancyNumbersCircle.className = "fancyNumbersCircle";
    fancyNumbersCircle.contentEditable = "true";
@@ -1271,148 +1501,147 @@ function page2Output() {
       $("#tempDiv").empty();
       let componentsDiv = $("#componentsDiv").clone();
       switch (isAccordion) {
-         case 0: // Accordion
-            componentsDiv.find(".accordion").each(function() {
-               let accordion = $(this);
-               let accordionTitle = accordion.children().eq(0)[0];
-               let accordionContent = accordion.children().eq(1)[0];
+      case 0: // Accordion
+         componentsDiv.find(".accordion").each(function () {
+            let accordion = $(this);
+            let accordionTitle = accordion.children().eq(0)[0];
+            let accordionContent = accordion.children().eq(1)[0];
 
-               // Remove contentEditable
-               accordion[0].className = "accordion";
-               accordionTitle.removeAttribute("contenteditable");
-               accordionContent.removeAttribute("contenteditable");
+            // Remove contentEditable
+            accordion[0].className = "accordion";
+            accordionTitle.removeAttribute("contenteditable");
+            accordionContent.removeAttribute("contenteditable");
 
-               // Changing dblclick to click
-               accordionTitle.setAttribute("onclick", "this.parentElement.className='accordion'===this.parentElement.className?'accordion expand':'accordion';");
-               $("#page2OutputTextarea")[0].value += accordion[0].outerHTML;
-            });
-            break;
-         case 1: // Accordion Alternate
-            componentsDiv.find(".accordionAlternate").each(function() {
-               let accordion = $(this);
-               let accordionTitle = accordion.children().eq(0)[0];
-               let accordionContent = accordion.children().eq(1)[0];
+            // Changing dblclick to click
+            accordionTitle.setAttribute("onclick", "this.parentElement.className='accordion'===this.parentElement.className?'accordion expand':'accordion';");
+            $("#page2OutputTextarea")[0].value += accordion[0].outerHTML;
+         });
+         break;
+      case 1: // Accordion Alternate
+         componentsDiv.find(".accordionAlternate").each(function () {
+            let accordion = $(this);
+            let accordionTitle = accordion.children().eq(0)[0];
+            let accordionContent = accordion.children().eq(1)[0];
 
-               // Remove contentEditable
-               accordion[0].className = "accordionAlternate";
-               accordionTitle.removeAttribute("contenteditable");
-               accordionContent.removeAttribute("contenteditable");
+            // Remove contentEditable
+            accordion[0].className = "accordionAlternate";
+            accordionTitle.removeAttribute("contenteditable");
+            accordionContent.removeAttribute("contenteditable");
 
-               // Changing dblclick to click
-               accordionTitle.setAttribute("onclick", "this.parentElement.className='accordionAlternate'===this.parentElement.className?'accordionAlternate expand':'accordionAlternate';");
-               $("#page2OutputTextarea")[0].value += accordion[0].outerHTML;
-            });
-            break;
-         case 2: // Card
-            componentsDiv.find(".cardAnimationDiv > .cardSwipeDivDiv > .cardSwipeDiv").each(function() {
-               let card = $(this);
-               let cardTitle = card.children().eq(0)[0];
-               let cardContent = card.children().eq(1)[0];
+            // Changing dblclick to click
+            accordionTitle.setAttribute("onclick", "this.parentElement.className='accordionAlternate'===this.parentElement.className?'accordionAlternate expand':'accordionAlternate';");
+            $("#page2OutputTextarea")[0].value += accordion[0].outerHTML;
+         });
+         break;
+      case 2: // Card
+         componentsDiv.find(".cardAnimationDiv > .cardSwipeDivDiv > .cardSwipeDiv").each(function () {
+            let card = $(this);
+            let cardTitle = card.children().eq(0)[0];
+            let cardContent = card.children().eq(1)[0];
 
-               // Remove contentEditable
-               cardTitle.removeAttribute("contenteditable");
-               cardContent.removeAttribute("contenteditable");
-               cardTitle.removeAttribute("class");
-               cardContent.className = "cardSwipeContent";
-               this.removeAttribute("style");
-               this.removeAttribute("ondblclick");
-               this.setAttribute("onmousedown",
-                  cardMouseDown
-               );
-               this.setAttribute("onmouseup",
-                  cardMouseUp
-               );
-               this.setAttribute("ontouchstart",
-                  cardMouseDown
-               );
-               this.setAttribute("ontouchend",
-                  cardMouseUp
-               );
-               this.setAttribute("onclick",
-                  cardDblClick
-               );
-            });
-            $("#page2OutputTextarea")[0].value += componentsDiv.find(".cardAnimationDiv")[0].outerHTML;
-            $("#page2OutputTextarea")[0].value += "</div><script>" + cardStartup + "</script>";
-            break;
-         case 3: // Card Alternate
-         case 4: // Flash Card
-            componentsDiv.find(".cardFlipDiv > .cardFlipDivDiv").each(function() {
-               let cardFlipDivDiv = $(this);
-               let cardFlipFront = cardFlipDivDiv.children().eq(0)[0];
-               let cardFlipBack = cardFlipDivDiv.children().eq(1)[0];
+            // Remove contentEditable
+            cardTitle.removeAttribute("contenteditable");
+            cardContent.removeAttribute("contenteditable");
+            cardTitle.removeAttribute("class");
+            cardContent.className = "cardSwipeContent";
+            this.removeAttribute("style");
+            this.removeAttribute("ondblclick");
+            this.setAttribute("onmousedown",
+               cardMouseDown
+            );
+            this.setAttribute("onmouseup",
+               cardMouseUp
+            );
+            this.setAttribute("ontouchstart",
+               cardMouseDown
+            );
+            this.setAttribute("ontouchend",
+               cardMouseUp
+            );
+            this.setAttribute("onclick",
+               cardDblClick
+            );
+         });
+         $("#page2OutputTextarea")[0].value += componentsDiv.find(".cardAnimationDiv")[0].outerHTML;
+         $("#page2OutputTextarea")[0].value += "</div><script>" + cardStartup + "</script>";
+         break;
+      case 3: // Card Alternate
+      case 4: // Flash Card
+         componentsDiv.find(".cardFlipDiv > .cardFlipDivDiv").each(function () {
+            let cardFlipDivDiv = $(this);
+            let cardFlipFront = cardFlipDivDiv.children().eq(0)[0];
+            let cardFlipBack = cardFlipDivDiv.children().eq(1)[0];
 
-               // Remove contentEditable
-               cardFlipFront.removeAttribute("ondblclick");
-               cardFlipFront.removeAttribute("contenteditable");
-               cardFlipFront.removeAttribute("style");
-               cardFlipBack.removeAttribute("ondblclick");
-               cardFlipBack.removeAttribute("contenteditable");
-               cardFlipBack.removeAttribute("style");
-            });
-            $("#page2OutputTextarea")[0].value = componentsDiv.html();
-            break;
-         case 5: // Checklist
-            let checkBoxTitle = componentsDiv.find(".checkBoxPageDiv > :first-child")[0];
-            checkBoxTitle.removeAttribute("contenteditable");
-            componentsDiv.find(".checkboxContainer").each(function() {
-               let checkboxContainer = $(this);
-               let checkboxInput = checkboxContainer.children().eq(0)[0];
-               let checkboxLabel = checkboxContainer.children().eq(1)[0];
+            // Remove contentEditable
+            cardFlipFront.removeAttribute("ondblclick");
+            cardFlipFront.removeAttribute("contenteditable");
+            cardFlipFront.removeAttribute("style");
+            cardFlipBack.removeAttribute("ondblclick");
+            cardFlipBack.removeAttribute("contenteditable");
+            cardFlipBack.removeAttribute("style");
+         });
+         $("#page2OutputTextarea")[0].value = componentsDiv.html();
+         break;
+      case 5: // Checklist
+         let checkBoxTitle = componentsDiv.find(".checkBoxPageDiv > :first-child")[0];
+         checkBoxTitle.removeAttribute("contenteditable");
+         componentsDiv.find(".checkboxContainer").each(function () {
+            let checkboxContainer = $(this);
+            let checkboxInput = checkboxContainer.children().eq(0)[0];
+            let checkboxLabel = checkboxContainer.children().eq(1)[0];
 
-               checkboxLabel.htmlFor = checkboxInput.id;
-               // Remove contentEditable
-               checkboxLabel.removeAttribute("contenteditable");
-            });
-            $("#page2OutputTextarea")[0].value = componentsDiv.html();
-            $("#page2OutputTextarea")[0].value += "<script>" + checklistStartup + "</script>";
-            break;
-         case 6: // Tabs
-            let first = !0;
-            componentsDiv.find(".tabComponentLinks").each(function() {
-               let tabComponentLinks = this;
-               if (first) {
-                  tabComponentLinks.className = "tabComponentLinks tabComponentActive";
-                  first = !1;
-               } else {
-                  tabComponentLinks.className = "tabComponentLinks";
-               }
+            checkboxLabel.htmlFor = checkboxInput.id;
+            // Remove contentEditable
+            checkboxLabel.removeAttribute("contenteditable");
+         });
+         $("#page2OutputTextarea")[0].value = componentsDiv.html();
+         $("#page2OutputTextarea")[0].value += "<script>" + checklistStartup + "</script>";
+         break;
+      case 6: // Tabs
+         let first = !0;
+         componentsDiv.find(".tabComponentLinks").each(function () {
+            let tabComponentLinks = this;
+            if (first) {
+               tabComponentLinks.className = "tabComponentLinks tabComponentActive";
+               first = !1;
+            } else {
+               tabComponentLinks.className = "tabComponentLinks";
+            }
 
-               // Remove contentEditable
-               tabComponentLinks.setAttribute("onclick", tabsOnClick);
-               tabComponentLinks.removeAttribute("ondblclick");
-               tabComponentLinks.removeAttribute("contenteditable");
-            });
-            first = !0;
-            componentsDiv.find(".tabComponentContent").each(function() {
-               let tabComponentContent = this;
-               if (first) {
-                  tabComponentContent.className = "tabComponentContent tabActiveContent";
-                  first = !1;
-               } else {
-                  tabComponentContent.className = "tabComponentContent";
-               }
+            // Remove contentEditable
+            tabComponentLinks.setAttribute("onclick", tabsOnClick);
+            tabComponentLinks.removeAttribute("contenteditable");
+         });
+         first = !0;
+         componentsDiv.find(".tabComponentContent").each(function () {
+            let tabComponentContent = this;
+            if (first) {
+               tabComponentContent.className = "tabComponentContent tabActiveContent";
+               first = !1;
+            } else {
+               tabComponentContent.className = "tabComponentContent";
+            }
 
-               // Remove contentEditable
-               tabComponentContent.removeAttribute("contenteditable");
-            });
-            $("#page2OutputTextarea")[0].value = componentsDiv.html();
-            break;
-         case 7: // Lists
-            componentsDiv.find(".fancyNumbers").each(function() {
-               let fancyNumbers = $(this);
-               let fancyNumbersCircle = fancyNumbers.children().eq(1)[0];
-               let fancyNumbersContent = fancyNumbers.children().eq(2)[0];
+            // Remove contentEditable
+            tabComponentContent.removeAttribute("contenteditable");
+         });
+         $("#page2OutputTextarea")[0].value = componentsDiv.html();
+         break;
+      case 7: // Lists
+         componentsDiv.find(".fancyNumbers").each(function () {
+            let fancyNumbers = $(this);
+            let fancyNumbersCircle = fancyNumbers.children().eq(1)[0];
+            let fancyNumbersContent = fancyNumbers.children().eq(2)[0];
 
-               // Remove contentEditable
-               fancyNumbersCircle.removeAttribute("contenteditable");
-               fancyNumbersContent.removeAttribute("contenteditable");
-            });
-            componentsDiv.find("[type='color']").each(function() {
-               $(this).remove();
-            })
-            $("#page2OutputTextarea")[0].value = componentsDiv.html();
-            break;
+            // Remove contentEditable
+            fancyNumbersCircle.removeAttribute("contenteditable");
+            fancyNumbersContent.removeAttribute("contenteditable");
+         });
+         componentsDiv.find("[type='color']").each(function () {
+            $(this).remove();
+         })
+         $("#page2OutputTextarea")[0].value = componentsDiv.html();
+         break;
       }
 
       animatePage2Out();
@@ -1470,9 +1699,21 @@ function accordionDoubletap(element) {
    let timesince = now - latestTap;
    if ((timesince < 400) && (timesince > 0)) {
       element.parentElement.className = 'accordion' === element.parentElement.className ? 'accordion expand' : 'accordion';
+      if ($("#doubleClickAccordionHelp").html()) {
+         $("#doubleClickAccordionHelp").remove();
+         setTimeout(function () {
+            addTooltip("To remove the accordion, click on the accordion", "removeSelectAccordionHelp", "page2BottomRightDiv", !1);
+         }, 600);
+      }
       latestTap = 0;
    } else {
       latestTap = new Date().getTime();
+      if ($("#removeSelectAccordionHelp").html()) {
+         $("#removeSelectAccordionHelp").remove();
+         setTimeout(function () {
+            addTooltip("Click on the Trash to remove accordion", "removeHelp", "page2BottomRightDiv", !1);
+         }, 500);
+      }
    }
 }
 
@@ -1481,10 +1722,53 @@ function accordionAltDoubletap(element) {
    let timesince = now - latestTap;
    if ((timesince < 400) && (timesince > 0)) {
       element.parentElement.className = 'accordionAlternate' === element.parentElement.className ? 'accordionAlternate expand' : 'accordionAlternate';
+      if ($("#doubleClickAccordionHelp").html()) {
+         $("#doubleClickAccordionHelp").remove();
+         setTimeout(function () {
+            addTooltip("To remove the accordion, click on the accordion", "removeSelectAccordionHelp", "page2BottomRightDiv", !1);
+         }, 600);
+      }
       latestTap = 0;
-      return !1;
    } else {
       latestTap = new Date().getTime();
+      if ($("#removeSelectAccordionHelp").html()) {
+         $("#removeSelectAccordionHelp").remove();
+         setTimeout(function () {
+            addTooltip("Click on the Trash to remove accordion", "removeHelp", "page2BottomRightDiv", !1);
+         }, 500);
+      }
+   }
+}
+
+function tabsDoubletap(element) {
+   let now = new Date().getTime();
+   let timesince = now - latestTap;
+   if ((timesince < 400) && (timesince > 0)) {
+      let elementIndex = Array.prototype.indexOf.call(element.parentNode.children, element);
+      for (let a = element.parentElement.nextElementSibling.children, b = 0; b < a.length; b++) {
+         if (b === elementIndex) {
+            a[b].className = "tabComponentContent tabActiveContent";
+         } else {
+            a[b].className = "tabComponentContent";
+         }
+      }
+      for (let a = element.parentElement.children, b = 0; b < a.length; b++) a[b].className = 'tabComponentLinks';
+      element.className = (element.className === 'tabComponentLinks') ? 'tabComponentLinks tabComponentActive' : 'tabComponentLinks';
+      if ($("#doubleClickTabHelp").html()) {
+         $("#doubleClickTabHelp").remove();
+         setTimeout(function () {
+            addTooltip("To remove the Tab, click on the it", "removeTabSelectHelp", "page2BottomRightDiv", !1);
+         }, 600);
+      }
+      latestTap = 0;
+   } else {
+      latestTap = new Date().getTime();
+      if ($("#removeTabSelectHelp").html()) {
+         $("#removeTabSelectHelp").remove();
+         setTimeout(function () {
+            addTooltip("Click on the Trash to remove Tab", "removeHelp", "page2BottomRightDiv", !1);
+         }, 500);
+      }
    }
 }
 
@@ -1557,11 +1841,11 @@ function goLeft(clickedParent) {
             cardSwipeDivDivChildren[i].style.pointerEvents = "none";
             cardSwipeDivDivChildren[i - 1].style.pointerEvents = "none";
             cardSwipeDivDivChildren[i - 1].style.display = "flex";
-            setTimeout(function() {
+            setTimeout(function () {
                cardSwipeDivDivChildren[i - 1].style.left = 0;
                cardSwipeDivDivChildren[i - 1].style.opacity = 1;
             }, 10);
-            setTimeout(function() {
+            setTimeout(function () {
                cardSwipeDivDivChildren[i].style.pointerEvents = "auto";
                cardSwipeDivDivChildren[i - 1].style.pointerEvents = "auto";
                // Enable the Prev Slide Button
@@ -1593,7 +1877,7 @@ function ifDblClicked(clickedParent) {
          cardSwipeDivDivChildren[i + 1].style.pointerEvents = "none";
          cardSwipeDivDivChildren[i].style.left = "-50px";
          cardSwipeDivDivChildren[i].style.opacity = 0;
-         setTimeout(function() {
+         setTimeout(function () {
             cardSwipeDivDivChildren[i].style.pointerEvents = "auto";
             cardSwipeDivDivChildren[i + 1].style.pointerEvents = "auto";
             cardSwipeDivDivChildren[i].style.display = "none";
@@ -1606,6 +1890,19 @@ function ifDblClicked(clickedParent) {
       }
    }
    setCardIndicator();
+   if ($("#viewNextHelp").html()) {
+      $("#viewNextHelp").remove();
+      if($(window).height() < 740) {
+         window.scroll({
+            top: 0,
+            left: 0,
+            behavior: 'smooth'
+         });
+      }
+      setTimeout(function () {
+         addTooltip("Clicking on the Trash will remove the card on the current page", "removeHelp", "page2BottomRightDiv", !1);
+      }, 1500);
+   }
 }
 
 // Number list function
@@ -1617,7 +1914,8 @@ function getNumberListIndex() {
 let checklistStartup = "document.querySelectorAll('.checkboxContainer input').forEach(function(a){'true'===localStorage.getItem(a.id)&&(a.checked=!0)})";
 
 // Tabs functions
-let tabsOnClick = "for(var elementIndex=Array.prototype.indexOf.call(this.parentNode.children,this),a=this.parentElement.nextElementSibling.children,b=0;b<a.length;b++)a[b].className=b===elementIndex?'tabComponentContent tabActiveContent':'tabComponentContent';for(var a$0=this.parentElement.children,b$1=0;b$1<a$0.length;b$1++)a$0[b$1].className='tabComponentLinks';this.className='tabComponentLinks'===this.className?'tabComponentLinks tabComponentActive':'tabComponentLinks'";
+// let tabsOnClick = "for(var elementIndex=Array.prototype.indexOf.call(this.parentNode.children,this),a=this.parentElement.nextElementSibling.children,b=0;b<a.length;b++)a[b].className=b===elementIndex?'tabComponentContent tabActiveContent':'tabComponentContent';for(var a$0=this.parentElement.children,b$1=0;b$1<a$0.length;b$1++)a$0[b$1].className='tabComponentLinks';this.className='tabComponentLinks'===this.className?'tabComponentLinks tabComponentActive':'tabComponentLinks'";
+let tabsOnClick = "var now=(new Date).getTime(),timesince=now-latestTap;if(400>timesince&&0<timesince){for(var elementIndex=Array.prototype.indexOf.call(element.parentNode.children,element),a=element.parentElement.nextElementSibling.children,b=0;b<a.length;b++)a[b].className=b===elementIndex?'tabComponentContent tabActiveContent':'tabComponentContent';for(var a$0=element.parentElement.children,b$1=0;b$1<a$0.length;b$1++)a$0[b$1].className='tabComponentLinks';element.className='tabComponentLinks'===element.className?'tabComponentLinks tabComponentActive':'tabComponentLinks';latestTap=0}else latestTap=(new Date).getTime();";
 
 // Messy stuff
 // CardStartup script
