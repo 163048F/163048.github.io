@@ -166,50 +166,6 @@
 						</div>
 						<div id="templateMainDivRight">
 						</div>
-						<!--
-						<div class="templateDivs">
-							<img src="images/Accordion.png" alt="Accordion Template" onclick="loadAccordionPreset()" />
-							<p onclick="loadAccordionPreset()">
-								Accordion
-							</p>
-						</div>
-						<div class="templateDivs">
-							<img src="images/AccordianAlt.png" alt="Accordion Alternate Template" onclick="loadAccordionAltPreset()" />
-							<p onclick="loadAccordionAltPreset()">
-								Accordion (Alt)
-							</p>
-						</div>
-						<div class="templateDivs">
-							<img src="images/Card.png" height=150 alt="Card Template" onclick="loadCardPreset()" />
-							<p onclick="loadCardPreset()">
-								Card
-							</p>
-						</div>
-						<div class="templateDivs">
-							<img src="images/FlashCard.png" height=150 alt="Flashcard Template" onclick="loadFlashCardPreset()" />
-							<p onclick="loadFlashCardPreset()">
-								Flash Card
-							</p>
-						</div>
-						<div class="templateDivs">
-							<img src="images/Checklist.png" height=150 alt="Checklist Template" onclick="loadChecklistPreset()" />
-							<p onclick="loadChecklistPreset()">
-								Checklist
-							</p>
-						</div>
-						<div class="templateDivs">
-							<img src="images/Tabs.png" height=150 alt="Tabs Template" onclick="loadTabsPreset()" />
-							<p onclick="loadTabsPreset()">
-								Tabs
-							</p>
-						</div>
-						<div class="templateDivs">
-							<img src="images/NumberList.png" height=150 alt="Lists Template" onclick="loadNumberListPreset()" />
-							<p onclick="loadNumberListPreset()">
-								Lists
-							</p>
-						</div>
-						-->
 					</div>
 					<!-- Extra space for rightDiv but I dont know what to put yet-->
 					<div id="hiddenCodeTextarea">
@@ -234,7 +190,7 @@
 						</a>
 					</div>
 					<div>
-						<a class="btn btn-secondary" onclick="toggleHiddenCodes()" data-toggle="tooltip" data-placement="right" title="Show Hidden HTML">
+						<a class="btn btn-secondary" data-toggle="tooltip" data-placement="right" title="Show Hidden HTML" id="hiddenCodesButton">
 							<i class="fas fa-ghost"></i>
 						</a>
 					</div>
@@ -300,12 +256,12 @@
 						<div class="modal-body">
 							<textarea id="page2OutputTextarea" class="form-control" readonly></textarea>
 							<button class="btn btn-primary" onclick="copyToClipboard()">Copy to Clipboard</button>
-							<p>
+							<p id="copiedToClip">
 								Copied to Clipboard.
 							</p>
 						</div>
 						<div class="modal-footer">
-							<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+							<button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="document.getElementById('copiedToClip').style.display='none'">Close</button>
 						</div>
 					</div>
 				</div>

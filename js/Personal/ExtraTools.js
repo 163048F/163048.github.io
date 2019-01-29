@@ -23,7 +23,6 @@ let cm;
 // Current template selected
 let isAccordion;
 // To track card current slide
-let cardCurrent;
 let cardCurrentIndex;
 // To track number list index
 let numberListIndex;
@@ -35,6 +34,10 @@ let latestTap;
 let n = 0,
    isAnimating = !1;
 let rotateBox;
+// Tooltip expand
+let elementsToLoop = ["doubleClickAccordionHelp", "doubleClickTabHelp", "changeColourHelp"];
+// Function to convert rgb to hex so can set type=color
+let hexDigits = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e", "f"];
 
 $(function () {
    // Random generator for checklist
@@ -65,16 +68,31 @@ $(function () {
       let nodeYouWant = e.target;
       while (nodeYouWant && i < 4) {
          if (nodeYouWant.className === "accordionDiv") {
+            if ($("#removeSelectAccordionHelp").html()) {
+               $("#removeSelectAccordionHelp").remove();
+               setTimeout(function () {
+                  addTooltip("Click on the Trash to remove accordion", "removeHelp", "page2BottomLeftDiv", !1);
+                  tooltipShowPositionCheck();
+               }, 500);
+            }
             selectedAccordionForDeletion = nodeYouWant;
             break;
          } else if (nodeYouWant.className === "cardFlipDiv") {
+            if ($("#removeSelectFlashCardHelp").html()) {
+               $("#removeSelectFlashCardHelp").remove();
+               setTimeout(function () {
+                  addTooltip("Click on the Trash to remove checkbox", "removeHelp", "page2BottomLeftDiv", !1);
+                  tooltipShowPositionCheck();
+               }, 500);
+            }
             selectedFlashCardForDeletion = nodeYouWant;
             break;
          } else if (nodeYouWant.className === "checkboxContainer") {
             if ($("#removeCheckboxSelectHelp").html()) {
                $("#removeCheckboxSelectHelp").remove();
                setTimeout(function () {
-                  addTooltip("Click on the Trash to remove checkbox", "removeHelp", "page2BottomRightDiv", !1);
+                  addTooltip("Click on the Trash to remove checkbox", "removeHelp", "page2BottomLeftDiv", !1);
+                  tooltipShowPositionCheck();
                }, 500);
             }
             selectedChecklistForDeletion = nodeYouWant;
@@ -83,16 +101,18 @@ $(function () {
             if ($("#removeTabSelectHelp").html()) {
                $("#removeTabSelectHelp").remove();
                setTimeout(function () {
-                  addTooltip("Click on the Trash to remove Tab", "removeHelp", "page2BottomRightDiv", !1);
+                  addTooltip("Click on the Trash to remove Tab", "removeHelp", "page2BottomLeftDiv", !1);
+                  tooltipShowPositionCheck();
                }, 500);
             }
             selectedTabForDeletion = Array.prototype.indexOf.call(nodeYouWant.parentElement.children, nodeYouWant);
             break;
          } else if (nodeYouWant.className === "fancyNumbers") {
-            if ($("#removeTabSelectHelp").html()) {
-               $("#removeTabSelectHelp").remove();
+            if ($("#removeListSelectHelp").html()) {
+               $("#removeListSelectHelp").remove();
                setTimeout(function () {
-                  addTooltip("Click on the Trash to remove Checkbox", "removeHelp", "page2BottomRightDiv", !1);
+                  addTooltip("Click on the Trash to remove Checkbox", "removeHelp", "page2BottomLeftDiv", !1);
+                  tooltipShowPositionCheck();
                }, 500);
             }
             selectedNumberListForDeletion = nodeYouWant;
@@ -117,10 +137,13 @@ $(function () {
       removeSection();
    });
 
+   // Animate Ghost
+   $(document).on("click", "#hiddenCodesButton", function (event) {
+      toggleHiddenCodes();
+   });
+
    $(document).on("click", "#templateSelectionButton", function () {
-      if (!isAnimating) {
-         showTemplates();
-      }
+      showTemplates();
    })
 
    // Rotate first
@@ -173,16 +196,6 @@ function animateElement(theElement) {
    }, 1500);
 }
 
-function checkSizes() {
-   if ($(window).width() < 768) {
-      $("#selectTemplateHelp .tooltiptext").css("left", "50%");
-      $("#selectTemplateHelp .tooltiptext").css("margin-left", "-60px");
-   } else {
-      $("#selectTemplateHelp .tooltiptext").css("left", "40px");
-      $("#selectTemplateHelp .tooltiptext").css("margin-left", "");
-   }
-}
-
 function removeHelp() {
    $(".tooltips").each(function () {
       $(this).fadeOut(function () {
@@ -204,6 +217,7 @@ function addTooltip(textContent, btnText, destinationID, b) {
    if (b) {
       tooltipBottomBtn.className = "btn btn-primary";
       tooltipBottomBtn.appendChild(document.createTextNode("Finish"));
+      tooltipBottomBtn.style.width = "100%";
    } else {
       tooltipBottomBtn.className = "btn btn-light";
       tooltipBottomBtn.appendChild(document.createTextNode("Skip"));
@@ -218,16 +232,20 @@ function addTooltip(textContent, btnText, destinationID, b) {
    document.getElementById(destinationID).appendChild(tooltip);
 }
 
-function animatePage1Out() {
+function animatePage1Out(show) {
    document.body.scrollTop = 0;
    document.documentElement.scrollTop = 0;
    $("body").css("overflow", "hidden");
 
    // Add in first tooltip
-   if (!localStorage.helpNeverSee && void 0 == $("#selectTemplateHelp").html()) {
+   if (void 0 == $("#selectTemplateHelp").html() && show) {
+      removeHelp();
       setTimeout(function () {
          addTooltip("Select the component you want", "selectTemplateHelp", "templateMainDivLeft", !1);
       }, 1000);
+   } else if(!show) {
+      // Back to normal
+      rotateDIV(document.getElementById("templateSelectionButton").children[0]);
    }
 
    // Show page2
@@ -352,7 +370,7 @@ function createNewButton() {
       activeTemplateSelectionLabelDiv.className = "templateSelectionLabelDiv";
    }
    document.getElementById("templateMainDivRight").className = "";
-   animatePage1Out();
+   animatePage1Out(!0);
 
    let page2BottomLeftDivLeftDiv = document.getElementById("page2BottomLeftDivLeftDiv");
    document.getElementById("hiddenCodeTextarea").style.display = "none";
@@ -375,24 +393,31 @@ function checkImportTextarea() {
    if (importedText) {
       let tempDiv = $('<div>').append($(importedText).clone());
       if (tempDiv.find(".accordion").html()) {
+         removeHelp();
          loadImportedAccordion(tempDiv);
          return !0;
       } else if (tempDiv.find(".accordionAlternate").html()) {
+         removeHelp();
          loadImportedAccordionAlt(tempDiv);
          return !0;
       } else if (tempDiv.find(".cardAnimationDiv").html()) {
+         removeHelp();
          loadImportedCard(tempDiv);
          return !0;
       } else if (tempDiv.find(".cardFlipMasterDiv").html()) {
+         removeHelp();
          loadImportedFlashCardPreset(tempDiv);
          return !0;
       } else if (tempDiv.find(".checkBoxPageDiv").html()) {
+         removeHelp();
          loadImportedChecklistPreset(tempDiv);
          return !0;
       } else if (tempDiv.find(".tabComponent").html()) {
+         removeHelp();
          loadImportedTabsPreset(tempDiv);
          return !0;
       } else if (tempDiv.find(".fancyNumbers").html()) {
+         removeHelp();
          loadImportedNumberListPreset(tempDiv);
          return !0;
       }
@@ -429,7 +454,7 @@ function loadImportedAccordion(tempDiv) {
    $("#page2TopBarDivTitle > p").text("Accordion");
    makeSortable();
    hideImportModal();
-   animatePage1Out();
+   animatePage1Out(!1);
 }
 
 function loadImportedAccordionAlt(tempDiv) {
@@ -461,7 +486,7 @@ function loadImportedAccordionAlt(tempDiv) {
    $("#page2TopBarDivTitle > p").text("Accordion Alternate");
    makeSortable();
    hideImportModal();
-   animatePage1Out();
+   animatePage1Out(!1);
 }
 
 function loadImportedCard(tempDiv) {
@@ -472,12 +497,12 @@ function loadImportedCard(tempDiv) {
       this.removeAttribute("onmouseup");
       this.removeAttribute("ontouchstart");
       this.removeAttribute("ontouchend");
-      this.setAttribute("ondblclick", "ifDblClicked(this)");
+      this.setAttribute("onclick", "ifDblClicked(this)");
 
       this.children[0].contentEditable = "true";
    });
 
-   $("#componentsDiv").append(tempDiv.children().first());
+   $("#componentsDiv").append(tempDiv.find(".cardAnimationDiv").eq(0)[0].outerHTML);
 
    // Div to contain the buttons
    let cardIndicatorDiv = document.createElement("div");
@@ -486,12 +511,12 @@ function loadImportedCard(tempDiv) {
    let backBtn = document.createElement("button");
    backBtn.className = "btn btn-info";
    backBtn.id = "cardBackButton";
-   backBtn.setAttribute("onclick", "goLeft(this.parentElement.previousElementSibling.children[0])");
+   backBtn.setAttribute("onclick", "goLeft(document.getElementsByClassName('cardSwipeDivDiv')[0])");
    backBtn.appendChild(document.createTextNode("View Previous Slide"));
    let forwardBtn = document.createElement("button");
    forwardBtn.className = "btn btn-info";
    forwardBtn.id = "cardNextButton";
-   forwardBtn.setAttribute("onclick", "ifDblClicked(this.parentElement.previousElementSibling.children[0])");
+   forwardBtn.setAttribute("onclick", "ifDblClicked2()");
    forwardBtn.appendChild(document.createTextNode("View Next Slide"));
 
    let totalCardChild = $(".cardAnimationDiv").children().length;
@@ -510,7 +535,7 @@ function loadImportedCard(tempDiv) {
    startupCard();
    setCardIndicator();
    hideImportModal();
-   animatePage1Out();
+   animatePage1Out(!1);
 }
 
 function loadImportedFlashCardPreset(tempDiv) {
@@ -526,28 +551,27 @@ function loadImportedFlashCardPreset(tempDiv) {
       cardFlipBack.contentEditable = "true";
    });
 
-   $("#componentsDiv").append(tempDiv.children().first());
+   $("#componentsDiv").html(tempDiv.find(".cardFlipMasterDiv").eq(0)[0].outerHTML);
    isAccordion = 4;
    $("#page2TopBarDivTitle > p").text("Card");
    hideImportModal();
-   animatePage1Out();
+   animatePage1Out(!1);
 }
 
 function loadImportedChecklistPreset(tempDiv) {
    $("#componentsDiv").empty();
 
-   tempDiv.children().first()[0].contentEditable = "true";
-   tempDiv.find(".checkboxContainer").each(function () {
-      let checkboxContainerCheckmark = $(this).find(".checkboxContainerCheckmark");
-      checkboxContainerCheckmark[0].removeAttribute("for");
-      checkboxContainerCheckmark.contentEditable = "true";
+   tempDiv.find(".checkBoxPageDiv").eq(0).children().first()[0].contentEditable = "true";
+   tempDiv.find(".checkboxContainerCheckmark").each(function () {
+      this.removeAttribute("for");
+      this.contentEditable = "true";
    });
 
-   $("#componentsDiv").append(tempDiv.children().first());
+   $("#componentsDiv").html(tempDiv.find(".checkBoxPageDiv").eq(0)[0].outerHTML);
    isAccordion = 5;
    $("#page2TopBarDivTitle > p").text("Checklist");
    hideImportModal();
-   animatePage1Out();
+   animatePage1Out(!1);
 }
 
 function loadImportedTabsPreset(tempDiv) {
@@ -558,21 +582,23 @@ function loadImportedTabsPreset(tempDiv) {
       tabComponentLinks.className = "tabComponentLinks";
       tabComponentLinks.removeAttribute("onclick");
       tabComponentLinks.contentEditable = "true";
-      tabComponentLinks.setAttribute("ondblclick", tabsOnClick);
+      tabComponentLinks.setAttribute("onclick", "tabsDoubletap(this)");
    });
-   tempDiv.find(".tabComponentContentDiv").each(function () {
-      let tabComponentContentDiv = this;
-      tabComponentContentDiv.className = "tabComponentContentDiv";
-      tabComponentContentDiv.contentEditable = "true";
+   tempDiv.find(".tabComponentContent").each(function () {
+      let tabComponentContent = this;
+      tabComponentContent.className = "tabComponentContent";
+      tabComponentContent.contentEditable = "true";
    });
 
    tempDiv.find(".tabComponentLinks").eq(0)[0].className = "tabComponentLinks tabComponentActive";
-   tempDiv.find(".tabComponentContentDiv").eq(0)[0].className = "tabComponentContentDiv tabActiveContent";
-   $("#componentsDiv").html(tempDiv.html());
+   tempDiv.find(".tabComponentContent").eq(0)[0].className = "tabComponentContent tabActiveContent";
+   let tabComponent = tempDiv.find(".tabComponent").eq(0)[0].outerHTML;
+   let tabComponentContentDiv = tempDiv.find(".tabComponentContentDiv").eq(0)[0].outerHTML;
+   $("#componentsDiv").html(tabComponent + tabComponentContentDiv);
    isAccordion = 6;
    $("#page2TopBarDivTitle > p").text("Tabs");
    hideImportModal();
-   animatePage1Out();
+   animatePage1Out(!1);
 }
 
 function loadImportedNumberListPreset(tempDiv) {
@@ -580,25 +606,34 @@ function loadImportedNumberListPreset(tempDiv) {
 
    tempDiv.find(".fancyNumbers").each(function () {
       let fancyNumbers = $(this);
-      fancyNumbers.find(".fancyNumbersCircle")[0].contentEditable = "true";
+      let fancyNumbersCircle = fancyNumbers.find(".fancyNumbersCircle").eq(0);
+      fancyNumbersCircle[0].contentEditable = "true";
       fancyNumbers.find(".fancyNumbersCircle ~ *")[0].contentEditable = "true";
+      let fancyNumbersColorInput = document.createElement("input");
+      fancyNumbersColorInput.type = "color";
+      fancyNumbersColorInput.className = "form-control";
+      fancyNumbersColorInput.setAttribute("onchange", "this.nextElementSibling.style.backgroundColor = this.value;$('#changeColourHelp').html()&&($('#changeColourHelp').remove(),setTimeout(function(){addTooltip('To remove the checkbox, click on the it','removeListSelectHelp','page2BottomRightDiv',!1);tooltipShowPositionCheck()},600));");
+      fancyNumbers.prepend(fancyNumbersColorInput);
+
+      $("#componentsDiv").append(fancyNumbers);
+      fancyNumbersColorInput.value = rgb2hex(fancyNumbersCircle.css("background-color"));
    });
 
-   $("#componentsDiv").html(tempDiv.html());
    isAccordion = 7;
    $("#page2TopBarDivTitle > p").text("Tabs");
    hideImportModal();
-   animatePage1Out();
+   animatePage1Out(!1);
 }
 
-function showTemplates() {
-   let page2BottomLeftDivLeftDiv = document.getElementById("page2BottomLeftDivLeftDiv");
-   if ($(page2BottomLeftDivLeftDiv).hasClass("expand")) {
-      if (document.getElementById("templateMainDiv").style.display === "none") {
-         document.getElementById("hiddenCodeTextarea").style.display = "none";
-         document.getElementById("templateMainDiv").style.display = "flex";
-      } else {
-         page2BottomLeftDivLeftDiv.className = "";
+function tooltipShowPositionCheck() {
+   if(document.getElementById("page2BottomLeftDivLeftDiv").className === "expand") {
+      tooltipCheck(!1);
+   }
+}
+
+function tooltipCheck(notExpanding) {
+   if($(window).width() < 768) {
+      if(notExpanding) {
          if ($("#selectTemplateHelp").html() || $("#selectTemplateRightHelp").html()) {
             $("#selectTemplateHelp").fadeOut();
             $("#selectTemplateRightHelp").fadeOut();
@@ -613,27 +648,107 @@ function showTemplates() {
          if ($("#completedHelp").html()) {
             $("#completedHelp")[0].className = "tooltips";
          }
+         for(i=0;i<elementsToLoop.length;i++) {
+            let elementId = "#" + elementsToLoop[i];
+            if ($(elementId).html()) {
+               $(elementId).css("top", "");
+            }
+         }
+      } else {
+         if ($("#selectTemplateHelp").html() || $("#selectTemplateRightHelp").html()) {
+            $("#selectTemplateHelp").fadeIn();
+            $("#selectTemplateRightHelp").fadeIn();
+         }
+         // Add and remove section add expand
+         if ($("#addNewSectionHelp").html()) {
+            $("#addNewSectionHelp")[0].className = "tooltips expand";
+         }
+         if ($("#removeHelp").html()) {
+            $("#removeHelp")[0].className = "tooltips expand";
+         }
+         if ($("#completedHelp").html()) {
+            $("#completedHelp")[0].className = "tooltips expand";
+         }
+         for(i=0;i<elementsToLoop.length;i++) {
+            let elementId = "#" + elementsToLoop[i];
+            if ($(elementId).html()) {
+               let leftStr = $(elementId).css("top");
+               leftStr = parseInt(leftStr.substring(0,leftStr.length-2)) + 250;
+               $(elementId).css("top", leftStr+"px");
+            }
+         }
+      }
+   }else {
+      if(notExpanding) {
+         if ($("#selectTemplateHelp").html() || $("#selectTemplateRightHelp").html()) {
+            $("#selectTemplateHelp").fadeOut();
+            $("#selectTemplateRightHelp").fadeOut();
+         }
+         // Add and remove section add expand
+         if ($("#addNewSectionHelp").html()) {
+            $("#addNewSectionHelp")[0].className = "tooltips";
+         }
+         if ($("#removeHelp").html()) {
+            $("#removeHelp")[0].className = "tooltips";
+         }
+         if ($("#completedHelp").html()) {
+            $("#completedHelp")[0].className = "tooltips";
+         }
+         for(i=0;i<elementsToLoop.length;i++) {
+            let elementId = "#" + elementsToLoop[i];
+            if ($(elementId).html()) {
+               $(elementId).css("left", "");
+            }
+         }
+      } else {
+         if ($("#selectTemplateHelp").html() || $("#selectTemplateRightHelp").html()) {
+            $("#selectTemplateHelp").fadeIn();
+            $("#selectTemplateRightHelp").fadeIn();
+         }
+         // Add and remove section add expand
+         if ($("#addNewSectionHelp").html()) {
+            $("#addNewSectionHelp")[0].className = "tooltips expand";
+         }
+         if ($("#removeHelp").html()) {
+            $("#removeHelp")[0].className = "tooltips expand";
+         }
+         if ($("#completedHelp").html()) {
+            $("#completedHelp")[0].className = "tooltips expand";
+         }
+         for(i=0;i<elementsToLoop.length;i++) {
+            if("doubleClickTabHelp" === elementsToLoop[i]) {
+               continue;
+            }
+            let elementId = "#" + elementsToLoop[i];
+            if ($(elementId).html()) {
+               let leftStr = $(elementId).css("left");
+               leftStr = parseInt(leftStr.substring(0,leftStr.length-2)) + 200;
+               $(elementId).css("left", leftStr+"px");
+            }
+         }
+      }
+   }
+}
+
+function showTemplates() {
+   if(!isAnimating) {
+      let page2BottomLeftDivLeftDiv = document.getElementById("page2BottomLeftDivLeftDiv");
+      if ($(page2BottomLeftDivLeftDiv).hasClass("expand")) {
+         if (document.getElementById("templateMainDiv").style.display === "none") {
+            document.getElementById("hiddenCodeTextarea").style.display = "none";
+            document.getElementById("templateMainDiv").style.display = "flex";
+         } else {
+            page2BottomLeftDivLeftDiv.className = "";
+            tooltipCheck(!0);
+            rotateDIV(document.getElementById("templateSelectionButton").children[0]);
+         }
+      } else {
+         document.getElementById("hiddenCodeTextarea").style.display = "none";
+         document.getElementById("templateMainDiv").style.display = "flex";
+         page2BottomLeftDivLeftDiv.className = "expand";
+         tooltipCheck(!1);
          rotateDIV(document.getElementById("templateSelectionButton").children[0]);
       }
-   } else {
-      document.getElementById("hiddenCodeTextarea").style.display = "none";
-      document.getElementById("templateMainDiv").style.display = "flex";
-      page2BottomLeftDivLeftDiv.className = "expand";
-      if ($("#selectTemplateHelp").html() || $("#selectTemplateRightHelp").html()) {
-         $("#selectTemplateHelp").fadeIn();
-         $("#selectTemplateRightHelp").fadeIn();
-      }
-      // Add and remove section add expand
-      if ($("#addNewSectionHelp").html()) {
-         $("#addNewSectionHelp")[0].className = "tooltips expand";
-      }
-      if ($("#removeHelp").html()) {
-         $("#removeHelp")[0].className = "tooltips expand";
-      }
-      if ($("#completedHelp").html()) {
-         $("#completedHelp")[0].className = "tooltips expand";
-      }
-      rotateDIV(document.getElementById("templateSelectionButton").children[0]);
    }
 }
 
@@ -773,12 +888,14 @@ function loadAccordionPreset() {
       $("#selectTemplateRightHelp").remove();
       setTimeout(function () {
          addTooltip("Add a new accordion", "addNewSectionHelp", "page2BottomLeftDiv", !1);
+         tooltipShowPositionCheck();
       }, 1100);
    }
    if (void 0 != $("#addNewSectionHelp").html()) {
       $("#addNewSectionHelp").remove();
       setTimeout(function () {
          addTooltip("Add a new accordion", "addNewSectionHelp", "page2BottomLeftDiv", !1);
+         tooltipShowPositionCheck();
       }, 1100);
    }
    showTemplates();
@@ -803,12 +920,14 @@ function loadAccordionAltPreset() {
       $("#selectTemplateRightHelp").remove();
       setTimeout(function () {
          addTooltip("Add a new accordion", "addNewSectionHelp", "page2BottomLeftDiv", !1);
+         tooltipShowPositionCheck();
       }, 1100);
    }
    if (void 0 != $("#addNewSectionHelp").html()) {
       $("#addNewSectionHelp").remove();
       setTimeout(function () {
          addTooltip("Add a new accordion", "addNewSectionHelp", "page2BottomLeftDiv", !1);
+         tooltipShowPositionCheck();
       }, 1100);
    }
    showTemplates();
@@ -833,12 +952,14 @@ function loadCardPreset() {
       $("#selectTemplateRightHelp").remove();
       setTimeout(function () {
          addTooltip("Add a new card", "addNewSectionHelp", "page2BottomLeftDiv", !1);
+         tooltipShowPositionCheck();
       }, 1100);
    }
    if (void 0 != $("#addNewSectionHelp").html()) {
       $("#addNewSectionHelp").remove();
       setTimeout(function () {
          addTooltip("Add a new card", "addNewSectionHelp", "page2BottomLeftDiv", !1);
+         tooltipShowPositionCheck();
       }, 1100);
    }
    showTemplates();
@@ -874,7 +995,7 @@ function loadCardPreset() {
    let forwardBtn = document.createElement("button");
    forwardBtn.className = "btn btn-info";
    forwardBtn.id = "cardNextButton";
-   forwardBtn.setAttribute("onclick", "ifDblClicked(document.getElementsByClassName('cardSwipeDivDiv')[0])");
+   forwardBtn.setAttribute("onclick", "ifDblClicked2()");
    forwardBtn.appendChild(document.createTextNode("View Next Slide"));
 
    let totalCardChild = $(".cardAnimationDiv").children().length;
@@ -897,12 +1018,14 @@ function loadFlashCardPreset() {
       $("#selectTemplateRightHelp").remove();
       setTimeout(function () {
          addTooltip("Add a new Flash Card", "addNewSectionHelp", "page2BottomLeftDiv", !1);
+         tooltipShowPositionCheck();
       }, 1100);
    }
    if (void 0 != $("#addNewSectionHelp").html()) {
       $("#addNewSectionHelp").remove();
       setTimeout(function () {
          addTooltip("Add a new Flash Card", "addNewSectionHelp", "page2BottomLeftDiv", !1);
+         tooltipShowPositionCheck();
       }, 1100);
    }
    showTemplates();
@@ -924,12 +1047,14 @@ function loadChecklistPreset() {
       $("#selectTemplateRightHelp").remove();
       setTimeout(function () {
          addTooltip("Add a new checkbox", "addNewSectionHelp", "page2BottomLeftDiv", !1);
+         tooltipShowPositionCheck();
       }, 1100);
    }
    if (void 0 != $("#addNewSectionHelp").html()) {
       $("#addNewSectionHelp").remove();
       setTimeout(function () {
          addTooltip("Add a new checkbox", "addNewSectionHelp", "page2BottomLeftDiv", !1);
+         tooltipShowPositionCheck();
       }, 1100);
    }
    showTemplates();
@@ -955,12 +1080,14 @@ function loadTabsPreset() {
       $("#selectTemplateRightHelp").remove();
       setTimeout(function () {
          addTooltip("Add a new Tab", "addNewSectionHelp", "page2BottomLeftDiv", !1);
+         tooltipShowPositionCheck();
       }, 1100);
    }
    if (void 0 != $("#addNewSectionHelp").html()) {
       $("#addNewSectionHelp").remove();
       setTimeout(function () {
          addTooltip("Add a new Tab", "addNewSectionHelp", "page2BottomLeftDiv", !1);
+         tooltipShowPositionCheck();
       }, 1100);
    }
    showTemplates();
@@ -1005,12 +1132,14 @@ function loadNumberListPreset() {
       $("#selectTemplateRightHelp").remove();
       setTimeout(function () {
          addTooltip("Add a new list", "addNewSectionHelp", "page2BottomLeftDiv", !1);
+         tooltipShowPositionCheck();
       }, 1100);
    }
    if (void 0 != $("#addNewSectionHelp").html()) {
       $("#addNewSectionHelp").remove();
       setTimeout(function () {
          addTooltip("Add a new list", "addNewSectionHelp", "page2BottomLeftDiv", !1);
+         tooltipShowPositionCheck();
       }, 1100);
    }
    showTemplates();
@@ -1034,6 +1163,7 @@ function addNewSection() {
          $("#addNewSectionHelp").remove();
          setTimeout(function () {
             addTooltip("Double click on an accordion to open/close it", "doubleClickAccordionHelp", "page2BottomRightDiv", !1);
+            tooltipShowPositionCheck();
          }, 500);
       }
       document.getElementById("componentsDiv").appendChild(addNewAccordion(null));
@@ -1045,6 +1175,7 @@ function addNewSection() {
          $("#addNewSectionHelp").remove();
          setTimeout(function () {
             addTooltip("Double click on an accordion to open/close it", "doubleClickAccordionHelp", "page2BottomRightDiv", !1);
+            tooltipShowPositionCheck();
          }, 500);
       }
       document.getElementById("componentsDiv").appendChild(addNewAltAccordion(null));
@@ -1055,14 +1186,8 @@ function addNewSection() {
       if ($("#addNewSectionHelp").html()) {
          $("#addNewSectionHelp").remove();
          setTimeout(function () {
-            if($(window).height() < 740) {
-               window.scroll({
-                  top: 1000,
-                  left: 0,
-                  behavior: 'smooth'
-               });
-            }
-            addTooltip("Click on 'View Next Slide' to view next card", "viewNextHelp", "page2BottomRightDiv", !1);
+            addTooltip("Click on 'View Next Slide' to view next card", "viewNextHelp", "componentsDiv", !1);
+            tooltipShowPositionCheck();
          }, 500);
       }
       let newCard = addNewCard(null);
@@ -1071,6 +1196,14 @@ function addNewSection() {
       setCardIndicator();
       break;
    case 4:
+      // Remove help
+      if ($("#addNewSectionHelp").html()) {
+         $("#addNewSectionHelp").remove();
+         setTimeout(function () {
+            addTooltip("This is front of the card, double click to view/edit the back", "doubleClickFlashCardHelp", "componentsDiv", !1);
+            tooltipShowPositionCheck();
+         }, 500);
+      }
       document.getElementsByClassName("cardFlipMasterDiv")[0].appendChild(addNewFlashCard(null, null));
       break;
    case 5:
@@ -1079,6 +1212,7 @@ function addNewSection() {
          $("#addNewSectionHelp").remove();
          setTimeout(function () {
             addTooltip("To remove a checkbox click on one", "removeCheckboxSelectHelp", "page2BottomRightDiv", !1);
+            tooltipShowPositionCheck();
          }, 500);
       }
       $(".checkBoxPageDiv").append(addNewChecklist(null));
@@ -1089,6 +1223,7 @@ function addNewSection() {
          $("#addNewSectionHelp").remove();
          setTimeout(function () {
             addTooltip("Double click to view the tab", "doubleClickTabHelp", "page2BottomRightDiv", !1);
+            tooltipShowPositionCheck();
          }, 500);
       }
       let newTab = addNewTabs(null, null);
@@ -1102,6 +1237,7 @@ function addNewSection() {
          $("#addNewSectionHelp").remove();
          setTimeout(function () {
             addTooltip("To change colour, click on this", "changeColourHelp", "page2BottomRightDiv", !1);
+            tooltipShowPositionCheck();
          }, 500);
       }
       $("#componentsDiv").append(addNewNumberList(null));
@@ -1117,6 +1253,7 @@ function removeSection() {
       $("#removeHelp").remove();
       setTimeout(function () {
          addTooltip("When you are done, click on save to generate the HTML", "completedHelp", "page2BottomRightDiv", !0);
+         tooltipShowPositionCheck()
       }, 500);
    }
    switch (isAccordion) {
@@ -1128,36 +1265,37 @@ function removeSection() {
       break;
    case 2:
    case 3:
-      let cardSwipeDivDivChildren = cardCurrent.parentElement.children;
-      for (i = 0; i < cardSwipeDivDivChildren.length; i++) {
-         // Not first
-         if (cardSwipeDivDivChildren[i].style.display === "flex" && i >= 1) {
-            document.getElementById("cardBackButton").disabled = true;
-            document.getElementById("cardNextButton").disabled = true;
-            goLeft(document.getElementsByClassName("cardSwipeDivDiv")[0]);
-            setTimeout(function () {
-               cardCurrent.parentElement.removeChild(cardSwipeDivDivChildren[i]);
-               // Enable the Prev Slide Button
-               document.getElementById("cardBackButton").disabled = false;
-               document.getElementById("cardNextButton").disabled = false;
-               setCardIndicator();
-            }, 510);
-            cardCurrent = cardSwipeDivDivChildren[i - 1];
-            break;
-         } else if (cardSwipeDivDivChildren[i].style.display === "flex" && i === 0) {
-            document.getElementById("cardBackButton").disabled = true;
-            document.getElementById("cardNextButton").disabled = true;
-            cardCurrentIndex--;
-            ifDblClicked(document.getElementsByClassName("cardSwipeDivDiv")[0]);
-            setTimeout(function () {
-               cardCurrent.parentElement.removeChild(cardSwipeDivDivChildren[i]);
-               // Enable the Prev Slide Button
-               document.getElementById("cardBackButton").disabled = false;
-               document.getElementById("cardNextButton").disabled = false;
-               setCardIndicator();
-            }, 500);
-            cardCurrent = cardSwipeDivDivChildren[i + 1];
-            break;
+      let cardSwipeDivDivChildren = $(".cardSwipeDiv");
+      if(cardSwipeDivDivChildren.length > 1) {
+         for (i = 0; i < cardSwipeDivDivChildren.length; i++) {
+            // Not first
+            if (cardSwipeDivDivChildren.eq(i).css("display") === "flex" && i >= 1) {
+               document.getElementById("cardBackButton").disabled = true;
+               document.getElementById("cardNextButton").disabled = true;
+               goLeft(document.getElementsByClassName("cardSwipeDivDiv")[0]);
+               $(".cardSwipeDiv").eq(cardCurrentIndex)[0].style.left = 0;
+               setTimeout(function () {
+                  $(".cardSwipeDiv").eq(cardCurrentIndex + 1).remove();
+                  startupCard();
+                  // Enable the Prev Slide Button
+                  document.getElementById("cardBackButton").disabled = false;
+                  document.getElementById("cardNextButton").disabled = false;
+                  setCardIndicator();
+               }, 510);
+               break;
+            } else if (cardSwipeDivDivChildren.eq(i).css("display") === "flex" && i === 0) {
+               document.getElementById("cardBackButton").disabled = true;
+               document.getElementById("cardNextButton").disabled = true;
+               ifDblClicked(document.getElementsByClassName("cardSwipeDivDiv")[0]);
+               setTimeout(function () {
+                  $(".cardSwipeDiv").eq(cardCurrentIndex).remove();
+                  // Enable the Prev Slide Button
+                  document.getElementById("cardBackButton").disabled = false;
+                  document.getElementById("cardNextButton").disabled = false;
+                  setCardIndicator();
+               }, 500);
+               break;
+            }
          }
       }
       break;
@@ -1173,23 +1311,23 @@ function removeSection() {
       break;
    case 6:
       if (!isNaN(selectedTabForDeletion) && $(".tabComponentLinks:not(.tabComponentLinksClear)").length > 1) {
-         let tabComponent = document.getElementsByClassName("tabComponent")[0];
-         let tabComponentContentDiv = document.getElementsByClassName("tabComponentContentDiv")[0];
+         let tabComponent = $(".tabComponent");
+         let tabComponentContentDiv = $(".tabComponentContentDiv");
          try {
-            tabComponent.removeChild(tabComponent.childNodes[selectedTabForDeletion]);
-            tabComponentContentDiv.removeChild(tabComponentContentDiv.childNodes[selectedTabForDeletion]);
+            tabComponent.find(".tabComponentLinks").eq(selectedTabForDeletion).remove();
+            tabComponentContentDiv.find(".tabComponentContent").eq(selectedTabForDeletion).remove();
          } catch (e) {
             console.log(e.message);
          }
 
          // Open previous or next tab is no active
          let gotActive = !1;
-         $(tabComponent).children().each(function () {
+         tabComponent.find(".tabComponentLinks").each(function () {
             if (this.className === "tabComponentLinks tabComponentActive") {
                gotActive = !0;
             }
          });
-         $(tabComponentContentDiv).children().each(function () {
+         tabComponentContentDiv.find(".tabComponentContent").each(function () {
             if (this.className === "tabComponentContent tabActiveContent") {
                gotActive = !0;
             }
@@ -1200,8 +1338,8 @@ function removeSection() {
             }
          }
          if (!gotActive) {
-            tabComponent.children[selectedTabForDeletion].className = "tabComponentLinks tabComponentActive";
-            tabComponentContentDiv.children[selectedTabForDeletion].className = "tabComponentContent tabActiveContent";
+            tabComponent.children().eq(selectedTabForDeletion)[0].className = "tabComponentLinks tabComponentActive";
+            tabComponentContentDiv.children().eq(selectedTabForDeletion)[0].className = "tabComponentContent tabActiveContent";
          }
 
          if ($(".tabComponentLinks:not(.tabComponentLinksClear)").length <= 1) {
@@ -1305,7 +1443,7 @@ function addNewCard(labelText, labelText2) {
    }
    let cardSwipeDiv = document.createElement("div");
    cardSwipeDiv.className = "cardSwipeDiv";
-   cardSwipeDiv.setAttribute("ondblclick", "ifDblClicked(this)");
+   cardSwipeDiv.setAttribute("onclick", "ifDblClicked(this)");
    let cardAnimationDivTitle = document.createElement("p");
    cardAnimationDivTitle.contentEditable = "true";
    cardAnimationDivTitle.appendChild(document.createTextNode(labelText));
@@ -1320,10 +1458,6 @@ function addNewCard(labelText, labelText2) {
    cardSwipeDiv.appendChild(cardSwipeContent);
 
    contentEditableBr();
-
-   if (!cardCurrent) {
-      cardCurrent = cardSwipeDiv;
-   }
 
    return cardSwipeDiv;
 }
@@ -1343,13 +1477,13 @@ function addNewFlashCard(labelText, labelText2) {
    cardFlipDivDiv.className = "cardFlipDivDiv";
    let cardFlipFront = document.createElement("div");
    cardFlipFront.className = "cardFlipFront";
-   cardFlipFront.setAttribute("ondblclick", "this.style.display='none'");
+   cardFlipFront.setAttribute("onclick", "var now=(new Date).getTime(),timesince=now-latestTap;400>timesince&&0<timesince?(this.style.display='none',$('#doubleClickFlashCardHelp').html()&&($('#doubleClickFlashCardHelp').remove(),setTimeout(function(){addTooltip('This blue side is the back of the card, click on the flash card for removal','removeSelectFlashCardHelp','componentsDiv',!1)},600)),latestTap=0):latestTap=(new Date).getTime();");
    cardFlipFront.contentEditable = "true";
    let cardFlipFrontP = document.createElement("p");
    cardFlipFrontP.appendChild(document.createTextNode(labelText));
    let cardFlipBack = document.createElement("div");
    cardFlipBack.className = "cardFlipBack";
-   cardFlipBack.setAttribute("ondblclick", "this.previousElementSibling.style.display='flex'");
+   cardFlipBack.setAttribute("onclick", "var now=(new Date).getTime(),timesince=now-latestTap;400>timesince&&0<timesince?(this.previousElementSibling.style.display='flex',$('#doubleClickFlashCardHelp').html()&&($('#doubleClickFlashCardHelp').remove(),setTimeout(function(){addTooltip('To remove the flash card, click on it','removeSelectFlashCardHelp','componentsDiv',!1)},600)),latestTap=0):latestTap=(new Date).getTime();");
    let cardFlipBackP = document.createElement("p");
    cardFlipBackP.appendChild(document.createTextNode(labelText2));
    cardFlipBack.contentEditable = "true";
@@ -1424,7 +1558,7 @@ function addNewNumberList(labelText) {
    fancyNumbersColorInput.type = "color";
    fancyNumbersColorInput.value = "#6600cc";
    fancyNumbersColorInput.className = "form-control";
-   fancyNumbersColorInput.setAttribute("onchange", "this.nextElementSibling.style.backgroundColor = this.value;$('#changeColourHelp').html()&&($('#changeColourHelp').remove(),setTimeout(function(){addTooltip('To remove the checkbox, click on the it','removeTabSelectHelp','page2BottomRightDiv',!1)},600));");
+   fancyNumbersColorInput.setAttribute("onchange", "this.nextElementSibling.style.backgroundColor = this.value;$('#changeColourHelp').html()&&($('#changeColourHelp').remove(),setTimeout(function(){addTooltip('To remove the checkbox, click on the it','removeListSelectHelp','page2BottomRightDiv',!1);tooltipShowPositionCheck()},600));");
    let fancyNumbersCircle = document.createElement("div");
    fancyNumbersCircle.className = "fancyNumbersCircle";
    fancyNumbersCircle.contentEditable = "true";
@@ -1447,20 +1581,42 @@ function addNewNumberList(labelText) {
 
 // Hidden HTML
 function toggleHiddenCodes() {
-   let page2BottomLeftDivLeftDiv = document.getElementById("page2BottomLeftDivLeftDiv");
-   if ($(page2BottomLeftDivLeftDiv).hasClass("expand")) {
-      if (document.getElementById("hiddenCodeTextarea").style.display === "none") {
+   if (!isAnimating) {
+      let page2BottomLeftDivLeftDiv = document.getElementById("page2BottomLeftDivLeftDiv");
+      if ($(page2BottomLeftDivLeftDiv).hasClass("expand")) {
+         if (document.getElementById("hiddenCodeTextarea").style.display === "none") {
+            document.getElementById("templateMainDiv").style.display = "none";
+            document.getElementById("hiddenCodeTextarea").style.display = "flex";
+         } else {
+            isAnimating = !0;
+            page2BottomLeftDivLeftDiv.className = "";
+            tooltipCheck(!0);
+            rotateDIV(document.getElementById("templateSelectionButton").children[0]);
+            setTimeout(function() {
+               isAnimating = !0;
+               $("#hiddenCodesButton > :first-child").effect("shake", {distance: 5, times: 5});
+            }, 1000);
+            setTimeout(function() {
+               isAnimating = !1;
+            }, 1500);
+         }
+      } else {
+         isAnimating = !0;
          document.getElementById("templateMainDiv").style.display = "none";
          document.getElementById("hiddenCodeTextarea").style.display = "flex";
-      } else {
-         page2BottomLeftDivLeftDiv.className = "";
+         page2BottomLeftDivLeftDiv.className = "expand";
+         tooltipCheck(!1);
+         rotateDIV(document.getElementById("templateSelectionButton").children[0]);
+         setTimeout(function() {
+            isAnimating = !0;
+            $("#hiddenCodesButton > :first-child").effect("shake", {distance: 5, times: 5});
+         }, 1000);
+         setTimeout(function() {
+            isAnimating = !1;
+         }, 1500);
       }
-   } else {
-      document.getElementById("templateMainDiv").style.display = "none";
-      document.getElementById("hiddenCodeTextarea").style.display = "flex";
-      page2BottomLeftDivLeftDiv.className = "expand";
+      setHiddenHTML();
    }
-   setHiddenHTML();
 }
 
 function updateComponentsDiv() {
@@ -1497,6 +1653,7 @@ function setHiddenHTML() {
 // Output page2
 function page2Output() {
    if ($("#componentsDiv").html()) {
+      removeHelp();
       $("#page2OutputTextarea").val("");
       $("#tempDiv").empty();
       let componentsDiv = $("#componentsDiv").clone();
@@ -1708,12 +1865,6 @@ function accordionDoubletap(element) {
       latestTap = 0;
    } else {
       latestTap = new Date().getTime();
-      if ($("#removeSelectAccordionHelp").html()) {
-         $("#removeSelectAccordionHelp").remove();
-         setTimeout(function () {
-            addTooltip("Click on the Trash to remove accordion", "removeHelp", "page2BottomRightDiv", !1);
-         }, 500);
-      }
    }
 }
 
@@ -1731,12 +1882,6 @@ function accordionAltDoubletap(element) {
       latestTap = 0;
    } else {
       latestTap = new Date().getTime();
-      if ($("#removeSelectAccordionHelp").html()) {
-         $("#removeSelectAccordionHelp").remove();
-         setTimeout(function () {
-            addTooltip("Click on the Trash to remove accordion", "removeHelp", "page2BottomRightDiv", !1);
-         }, 500);
-      }
    }
 }
 
@@ -1853,7 +1998,6 @@ function goLeft(clickedParent) {
                document.getElementById("cardNextButton").disabled = false;
             }, 510);
 
-            cardCurrent = cardSwipeDivDivChildren[i - 1];
             cardCurrentIndex--;
             break;
          }
@@ -1863,28 +2007,63 @@ function goLeft(clickedParent) {
 }
 
 function ifDblClicked(clickedParent) {
-   while (clickedParent && clickedParent.className !== "cardSwipeDivDiv") {
-      clickedParent = clickedParent.parentElement;
+   let now = new Date().getTime();
+   let timesince = now - latestTap;
+   if ((timesince < 400) && (timesince > 0)) {
+      let cardSwipeDivDivChildren = $(".cardSwipeDivDiv > .cardSwipeDiv");
+      // Loop (-1 to prevent last)
+      for (i = 0; i < cardSwipeDivDivChildren.length - 1; i++) {
+         if (cardSwipeDivDivChildren.eq(i).css("display") === "flex") {
+            document.getElementById("cardBackButton").disabled = true;
+            document.getElementById("cardNextButton").disabled = true;
+            cardSwipeDivDivChildren.eq(i)[0].style.pointerEvents = "none";
+            cardSwipeDivDivChildren.eq(i + 1)[0].style.pointerEvents = "none";
+            cardSwipeDivDivChildren.eq(i)[0].style.left = "-50px";
+            cardSwipeDivDivChildren.eq(i)[0].style.opacity = 0;
+            setTimeout(function () {
+               cardSwipeDivDivChildren.eq(i)[0].style.pointerEvents = "auto";
+               cardSwipeDivDivChildren.eq(i + 1)[0].style.pointerEvents = "auto";
+               cardSwipeDivDivChildren.eq(i)[0].style.display = "none";
+               document.getElementById("cardBackButton").disabled = false;
+               document.getElementById("cardNextButton").disabled = false;
+            }, 500);
+            cardCurrentIndex++;
+            break;
+         }
+      }
+      setCardIndicator();
+      if ($("#viewNextHelp").html()) {
+         $("#viewNextHelp").remove();
+         setTimeout(function () {
+            addTooltip("Clicking on the Trash will remove the card on the current page", "removeHelp", "page2BottomRightDiv", !1);
+            tooltipShowPositionCheck();
+         }, 1500);
+      }
+      latestTap = 0;
+   } else {
+      latestTap = new Date().getTime();
    }
-   let cardSwipeDivDivChildren = clickedParent.children;
 
+}
+
+function ifDblClicked2() {
+   let cardSwipeDivDivChildren = $(".cardSwipeDivDiv > .cardSwipeDiv");
    // Loop (-1 to prevent last)
    for (i = 0; i < cardSwipeDivDivChildren.length - 1; i++) {
-      if (cardSwipeDivDivChildren[i].style.display === "flex") {
+      if (cardSwipeDivDivChildren.eq(i).css("display") === "flex") {
          document.getElementById("cardBackButton").disabled = true;
          document.getElementById("cardNextButton").disabled = true;
-         cardSwipeDivDivChildren[i].style.pointerEvents = "none";
-         cardSwipeDivDivChildren[i + 1].style.pointerEvents = "none";
-         cardSwipeDivDivChildren[i].style.left = "-50px";
-         cardSwipeDivDivChildren[i].style.opacity = 0;
+         cardSwipeDivDivChildren.eq(i)[0].style.pointerEvents = "none";
+         cardSwipeDivDivChildren.eq(i + 1)[0].style.pointerEvents = "none";
+         cardSwipeDivDivChildren.eq(i)[0].style.left = "-50px";
+         cardSwipeDivDivChildren.eq(i)[0].style.opacity = 0;
          setTimeout(function () {
-            cardSwipeDivDivChildren[i].style.pointerEvents = "auto";
-            cardSwipeDivDivChildren[i + 1].style.pointerEvents = "auto";
-            cardSwipeDivDivChildren[i].style.display = "none";
+            cardSwipeDivDivChildren.eq(i)[0].style.pointerEvents = "auto";
+            cardSwipeDivDivChildren.eq(i + 1)[0].style.pointerEvents = "auto";
+            cardSwipeDivDivChildren.eq(i)[0].style.display = "none";
             document.getElementById("cardBackButton").disabled = false;
             document.getElementById("cardNextButton").disabled = false;
          }, 500);
-         cardCurrent = cardSwipeDivDivChildren[i + 1];
          cardCurrentIndex++;
          break;
       }
@@ -1892,30 +2071,36 @@ function ifDblClicked(clickedParent) {
    setCardIndicator();
    if ($("#viewNextHelp").html()) {
       $("#viewNextHelp").remove();
-      if($(window).height() < 740) {
-         window.scroll({
-            top: 0,
-            left: 0,
-            behavior: 'smooth'
-         });
-      }
       setTimeout(function () {
          addTooltip("Clicking on the Trash will remove the card on the current page", "removeHelp", "page2BottomRightDiv", !1);
+         tooltipShowPositionCheck();
       }, 1500);
    }
 }
-
 // Number list function
 function getNumberListIndex() {
    numberListIndex = document.getElementsByClassName("fancyNumbers").length + 1;
+}
+
+// Function to convert rgb color to hex format
+function rgb2hex(rgb) {
+   rgb = rgb.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
+   if (!rgb) {
+      return "#000000";
+   } else {
+      return "#" + hex(rgb[1]) + hex(rgb[2]) + hex(rgb[3]);
+   }
+}
+
+function hex(x) {
+   return isNaN(x) ? "00" : hexDigits[(x - x % 16) / 16] + hexDigits[x % 16];
 }
 
 // Checklist functions
 let checklistStartup = "document.querySelectorAll('.checkboxContainer input').forEach(function(a){'true'===localStorage.getItem(a.id)&&(a.checked=!0)})";
 
 // Tabs functions
-// let tabsOnClick = "for(var elementIndex=Array.prototype.indexOf.call(this.parentNode.children,this),a=this.parentElement.nextElementSibling.children,b=0;b<a.length;b++)a[b].className=b===elementIndex?'tabComponentContent tabActiveContent':'tabComponentContent';for(var a$0=this.parentElement.children,b$1=0;b$1<a$0.length;b$1++)a$0[b$1].className='tabComponentLinks';this.className='tabComponentLinks'===this.className?'tabComponentLinks tabComponentActive':'tabComponentLinks'";
-let tabsOnClick = "var now=(new Date).getTime(),timesince=now-latestTap;if(400>timesince&&0<timesince){for(var elementIndex=Array.prototype.indexOf.call(element.parentNode.children,element),a=element.parentElement.nextElementSibling.children,b=0;b<a.length;b++)a[b].className=b===elementIndex?'tabComponentContent tabActiveContent':'tabComponentContent';for(var a$0=element.parentElement.children,b$1=0;b$1<a$0.length;b$1++)a$0[b$1].className='tabComponentLinks';element.className='tabComponentLinks'===element.className?'tabComponentLinks tabComponentActive':'tabComponentLinks';latestTap=0}else latestTap=(new Date).getTime();";
+let tabsOnClick = "for(var elementIndex=Array.prototype.indexOf.call(this.parentNode.children,this),a=this.parentElement.nextElementSibling.children,b=0;b<a.length;b++)a[b].className=b===elementIndex?'tabComponentContent tabActiveContent':'tabComponentContent';for(var a$0=this.parentElement.children,b$1=0;b$1<a$0.length;b$1++)a$0[b$1].className='tabComponentLinks';this.className='tabComponentLinks'===this.className?'tabComponentLinks tabComponentActive':'tabComponentLinks'";
 
 // Messy stuff
 // CardStartup script

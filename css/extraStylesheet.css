@@ -23,6 +23,7 @@
 }
 
 html, body {
+   height: 100%;
    margin: 0;
    scroll-behavior: smooth;
 }
@@ -174,6 +175,7 @@ p {
    display: none;
    flex-direction: column;
    z-index: 2;
+   height: 100%;
    width: 100%;
    background-color: #F5F5F6;
 }
@@ -370,8 +372,8 @@ p {
 }
 
 #componentsDiv {
-   padding: 20px 20px 150px 20px;
-
+   padding: 20px;
+   scroll-behavior: smooth;
 }
 
 .accordionDiv {
@@ -514,6 +516,9 @@ p {
    margin: auto;
    padding: 12px;
    z-index: 99;
+   transition-property: left, top;
+   transition-duration: 1s;
+   transition-timing-function: ease-in-out;
 }
 
 .tooltips .tooltiptext {
@@ -562,9 +567,6 @@ p {
 #addNewSectionHelp {
    top: 115px;
    left: 35px;
-   transition-property: top;
-   transition-duration: 1s;
-   transition-timing-function: ease-in-out;
 }
 
 #addNewSectionHelp .tooltiptext::after {
@@ -574,22 +576,16 @@ p {
 #removeHelp {
    top: 115px;
    left: 65px;
-   transition-property: top;
-   transition-duration: 1s;
-   transition-timing-function: ease-in-out;
 }
 
 #removeHelp .tooltiptext::after {
-   left: 24%;
+   left: 30%;
 }
 
 #completedHelp {
    top: 115px;
    left: unset;
    right: 0;
-   transition-property: top;
-   transition-duration: 1s;
-   transition-timing-function: ease-in-out;
 }
 
 #completedHelp .tooltiptext::after {
@@ -598,32 +594,38 @@ p {
 
 #doubleClickAccordionHelp {
    top: 500px;
-   left: calc((100% - 320px) * .5);
+   left: calc(50% - 88px);
 }
 
 #removeSelectAccordionHelp {
-   top: 560px;
-   left: calc((100% - 320px) * .5);
+   position: relative;
+}
+
+#doubleClickFlashCardHelp {
+   position: relative;
+   margin: auto 24px auto auto;
+}
+
+#removeSelectFlashCardHelp {
+   position: relative;
+   margin: auto 24px auto auto;
 }
 
 #viewNextHelp {
-   top: 700px;
-   left: calc((100% - 203px) * .5);
+   position: relative;
 }
 
 #removeCheckboxSelectHelp {
-   top: 400px;
-   left: calc((100% - 320px) * .5);
+   position: relative;
 }
 
 #doubleClickTabHelp {
    top: 215px;
-   left: calc((100% - 150px) * 0.9);
+   left: calc(90% - 88px);
 }
 
 #removeTabSelectHelp {
-   top: 300px;
-   left: calc((100% - 255px) * .5);
+   position: relative;
 }
 
 #changeColourHelp {
@@ -633,6 +635,10 @@ p {
 
 #changeColourHelp .tooltiptext::after {
    left: 20%;
+}
+
+#removeListSelectHelp {
+   position: relative;
 }
 
 .tooltips.expand {
@@ -1129,10 +1135,6 @@ p {
       font-size: 28px;
    }
 
-   #page2 {
-      height: 100%;
-   }
-
    #page2BottomDiv {
       flex-direction: row;
    }
@@ -1206,26 +1208,6 @@ p {
       margin: 36px;
    }
 
-   .tooltips .tooltiptext {
-      text-align: center;
-   }
-
-   .tooltips .tooltiptext::after {
-      content: " ";
-      position: absolute;
-      bottom: 100%;
-      /* At the bottom of the tooltip */
-      left: 50%;
-      margin-left: -5px;
-      border-width: 5px;
-      border-style: solid;
-      border-color: transparent transparent black transparent;
-   }
-
-   .tooltipBottom {
-      display: flex;
-   }
-
    /* Tooltip helps */
    #selectTemplateHelp {
       top: 320px;
@@ -1252,9 +1234,6 @@ p {
    #addNewSectionHelp {
       top: 80px;
       left: 65px;
-      transition-property: left;
-      transition-duration: 1s;
-      transition-timing-function: ease-in-out;
    }
 
    #addNewSectionHelp .tooltiptext::after {
@@ -1266,11 +1245,8 @@ p {
    }
 
    #removeHelp {
-      top: 150px;
+      top: 130px;
       left: 65px;
-      transition-property: left;
-      transition-duration: 1s;
-      transition-timing-function: ease-in-out;
    }
 
    #removeHelp .tooltiptext::after {
@@ -1282,11 +1258,10 @@ p {
    }
 
    #completedHelp {
+      top: unset;
+      right: unset;
       bottom: 0;
       left: 65px;
-      transition-property: left;
-      transition-duration: 1s;
-      transition-timing-function: ease-in-out;
    }
 
    #completedHelp .tooltiptext::after {
@@ -1299,28 +1274,54 @@ p {
 
    #doubleClickAccordionHelp {
       top: 430px;
-      left: calc((100% - 270px) * .5);
-   }
-
-   #removeSelectAccordionHelp {
-      top: 510px;
-      left: calc((100% - 270px) * .5);
-   }
-
-   #cardIndicatorHelp {
-      top: 510px;
-      left: 406px;
+      left: calc((100% - 50px) * 0.5 - 42px)
    }
 
    #viewNextHelp {
+      left: unset;
+      bottom: unset;
       top: 540px;
       right: 0;
+      position: absolute;
    }
 
    #viewNextHelp .tooltiptext::after {
       border-color: transparent transparent black transparent;
    }
 
+   #doubleClickFlashCardHelp {
+      margin-left: 24px;
+   }
+
+   #removeSelectFlashCardHelp {
+      margin-left: 24px;
+   }
+
+   #doubleClickTabHelp {
+      top: 130px;
+      left: calc((100% - 50px) * 0.9 - 88px);
+   }
+
+   #changeColourHelp {
+      top: 260px;
+      left: 85px;
+   }
+
+   #changeColourHelp .tooltiptext::after {
+      left: 20%;
+   }
+
+   #addNewSectionHelp.expand {
+      top: 80px !important;
+   }
+
+   #removeHelp.expand {
+      top: 130px !important;
+   }
+
+   #completedHelp.expand {
+      top: unset !important;
+   }
 
    .tooltips.expand {
       left: 265px !important;
