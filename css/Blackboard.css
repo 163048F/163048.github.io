@@ -2,17 +2,25 @@ html {
    background-color: red;
 }
 
-@media only screen and (min-width:0px) and (max-width:736px) {
+p {
+   background-color: orange;
+}
+
+span {
+   background-color: green;
+}
+
+li {
+   background-color: pink;
+}
+
+@media only screen and (min-device-width:0px) and (max-device-width:736px) {
    html {
       background-color: yellow;
    }
-
-   p {
-      font-size: 20vw;
-   }
 }
 
-@media only screen and (min-width:737px) and (max-width:1024px) {
+@media only screen and (min-device-width:737px) and (max-device-width:1024px) {
    html {
       background-color: blue;
    }
