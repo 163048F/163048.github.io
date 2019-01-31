@@ -517,8 +517,19 @@ video {
       margin: 4px !important;
    }
 
+   /* Card Flip */
+   .cardFlipDiv {
+      flex-basis: 100%;
+      width: 100%;
+      max-width: 100%;
+   }
+
+   .cardFlipFront {
+      font-size: 56px;
+   }
+   
    .cardFlipBack>p {
-      font-size: 15px !important;
+      font-size: 48px !important;
    }
 
    /*Expand Image*/
@@ -559,7 +570,7 @@ video {
 
    /*** Lesson Plan ***/
    #lessonPlanTemplate {
-      font-size: 64px;
+      font-size: 36px;
    }
 
    #lessonPlanTemplate p, #lessonPlanTemplate li {
@@ -582,6 +593,21 @@ video {
 
    #lessonPlanTemplate .lessonHeader>p {
       margin: 6px !important;
+   }
+
+   /* Card Flip */
+   .cardFlipDiv {
+      flex-basis: 100%;
+      width: 100%;
+      max-width: 100%;
+   }
+
+   .cardFlipFront {
+      font-size: 56px;
+   }
+
+   .cardFlipBack>p {
+      font-size: 56px !important;
    }
 
    /*Expand Image*/
@@ -612,5 +638,6 @@ video {
 
    .vtbegenerated {
       background-color: yellow;
+      padding: 24px;
    }
 }
