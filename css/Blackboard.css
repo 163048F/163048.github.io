@@ -522,7 +522,7 @@ video {
    .cardAnimationDiv {
       height: 800px;
    }
-   
+
    /* Checkbox Customise */
    .checkBoxPageDiv> :first-child {
       margin: 12px;
@@ -531,7 +531,7 @@ video {
    .checkboxContainer {
       height: 100px;
       font-size: 56px;
-      padding-right: 134px;
+      padding: 24px 24px 24px 134px;
    }
 
    .checkboxContainerCheckmark::before {
@@ -565,7 +565,7 @@ video {
    }
 
    .cardFlipBack>p {
-      font-size: 48px !important;
+      font-size: 38px !important;
    }
 
    /*Expand Image*/
@@ -598,7 +598,6 @@ video {
    }
 
    .vtbegenerated {
-      background-color: yellow;
       padding: 24px;
       font-size: 56px;
    }
@@ -650,7 +649,7 @@ video {
    .checkboxContainer {
       height: 100px;
       font-size: 56px;
-      padding-right: 134px;
+      padding: 24px 24px 24px 134px;
    }
 
    .checkboxContainerCheckmark::before {
@@ -724,7 +723,6 @@ video {
    }
 
    .vtbegenerated {
-      background-color: yellow;
       padding: 24px;
       font-size: 56px;
    }
