@@ -23,6 +23,7 @@
    display: flex;
    justify-content: center;
    align-items: center;
+   text-align: center;
 }
 
 .accordion>div:first-child> :first-child, .accordionAlternate>div:first-child> :first-child {
@@ -535,12 +536,14 @@ video {
    }
 
    .checkboxContainerCheckmark::before {
-      height: 100px;
-      width: 100px;
+      top: 33px;
+      height: 85px;
+      width: 85px;
+      border-radius: 12px;
    }
 
    .checkboxContainer .checkboxContainerCheckmark::after {
-      left: 55px;
+      left: 46px;
       top: 36px;
       width: 20px;
       height: 45px;
@@ -590,6 +593,10 @@ video {
       top: 0;
       left: 0;
       background-color: rgba(0, 0, 0, 0.6);
+   }
+
+   .vtbegenerated video {
+      height: unset !important;
    }
 
    .vtbegenerated img:active~span {
@@ -715,6 +722,10 @@ video {
       top: 0;
       left: 0;
       background-color: rgba(0, 0, 0, 0.6);
+   }
+
+   .vtbegenerated video {
+      height: unset !important;
    }
 
    .vtbegenerated img:active~span {
