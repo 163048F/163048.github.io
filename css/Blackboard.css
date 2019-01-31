@@ -532,7 +532,7 @@ video {
    .checkboxContainer {
       height: 100px;
       font-size: 56px;
-      padding: 24px 24px 24px 134px;
+      padding: 24px 24px 24px 154px;
    }
 
    .checkboxContainerCheckmark::before {
@@ -656,12 +656,14 @@ video {
    .checkboxContainer {
       height: 100px;
       font-size: 56px;
-      padding: 24px 24px 24px 134px;
+      padding: 24px 24px 24px 154px;
    }
 
    .checkboxContainerCheckmark::before {
-      height: 100px;
-      width: 100px;
+      top: 33px;
+      height: 85px;
+      width: 85px;
+      border-radius: 12px;
    }
 
    .checkboxContainer .checkboxContainerCheckmark::after {
