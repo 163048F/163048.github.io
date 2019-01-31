@@ -333,8 +333,6 @@
    margin-right: 15px;
 }
 
-@import url('https://fonts.googleapis.com/css?family=Montserrat');
-
 /* Prata */
 .cardFlipMasterDiv {
    display: flex;
@@ -541,11 +539,16 @@ video {
       top: 0;
       left: 0;
       background-color: rgba(0, 0, 0, 0.6);
+      object-fit: contain;
    }
 
    .vtbegenerated img:active~span {
       display: block !important;
       margin: 15vh;
+   }
+
+   .vtbegenerated {
+      background-color: yellow;
    }
 }
 
@@ -555,6 +558,10 @@ video {
    }
 
    /*** Lesson Plan ***/
+   #lessonPlanTemplate {
+      font-size: 64px;
+   }
+
    #lessonPlanTemplate p, #lessonPlanTemplate li {
       font-size: 1em;
       padding: 0;
@@ -595,10 +602,15 @@ video {
       top: 0;
       left: 0;
       background-color: rgba(0, 0, 0, 0.6);
+      object-fit: contain;
    }
 
    .vtbegenerated img:active~span {
       display: block !important;
       margin: 15vh;
+   }
+
+   .vtbegenerated {
+      background-color: yellow;
    }
 }
