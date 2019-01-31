@@ -406,6 +406,7 @@
    transform: rotateY(180deg);
    padding: 24px;
    font-weight: bold;
+   backface-visibility: hidden;
 }
 
 .cardFlipBack>p {
