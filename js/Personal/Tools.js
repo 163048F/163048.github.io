@@ -1473,6 +1473,7 @@ function addLessonSection(addSectionDiv) {
    let lessonSubtitleP = document.createElement("p");
    let lessonSubtitleTextInputDiv = document.createElement("div");
    let lessonSubtitleTextInput = document.createElement("input");
+   let lessonSubtitleColorInput = document.createElement("input");
 
    let contentDivDiv = document.createElement("div");
 
@@ -1543,6 +1544,10 @@ function addLessonSection(addSectionDiv) {
    lessonTitleTextInput.className = "lessonTitleInput form-control";
    lessonSubtitleTextInput.setAttribute("type", "text");
    lessonSubtitleTextInput.className = "lessonSubtitleInput form-control";
+   lessonSubtitleColorInput.className = "form-control showAllInput";
+   lessonSubtitleColorInput.setAttribute("onchange", "setActualValue()");
+   lessonSubtitleColorInput.setAttribute("type", "color");
+   $(lessonSubtitleColorInput).val("#87cefa");
    leftDivColorInput.setAttribute("type", "color");
    page1ContentTitleTextInput.setAttribute("type", "text");
 
@@ -1589,6 +1594,7 @@ function addLessonSection(addSectionDiv) {
    let colourTemplateJson = JSON.parse(colourTemplate);
    $(lessonTitleTextInput).css("display", "none"); // Hiding real input
    $(lessonSubtitleTextInput).css("display", "none"); // Hiding real input
+   $(lessonSubtitleColorInput).css("display", "none"); // Hiding real input
    $(leftDivColorInput).css("display", "none"); // Hiding real input
    leftDivColorInput.value = colourTemplateJson["Lecture"];
    $(page1ContentTitleTextInput).css("display", "none"); // Hiding real input
@@ -1602,6 +1608,7 @@ function addLessonSection(addSectionDiv) {
    lessonSection.appendChild(lessonSubtitleP);
    lessonSection.appendChild(lessonSubtitleTextInputDiv);
    lessonSection.appendChild(lessonSubtitleTextInput);
+   lessonSection.appendChild(lessonSubtitleColorInput);
 
    // Creating options for select (Dropdown)
    let lectureL = document.createElement("option");
@@ -1667,6 +1674,7 @@ function addLessonSection(addSectionDiv) {
    if (!notClicked) {
       $(".inputDiv").next().css("display", "block");
       $("textarea").css("display", "block");
+      $(".showAllInput").css("display", "block");
    }
 
    // Prevent creating div on enter
