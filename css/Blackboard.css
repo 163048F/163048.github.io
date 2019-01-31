@@ -667,7 +667,7 @@ video {
    }
 
    .checkboxContainer .checkboxContainerCheckmark::after {
-      left: 55px;
+      left: 46px;
       top: 36px;
       width: 20px;
       height: 45px;
