@@ -519,6 +519,20 @@ video {
       padding: 32px 0;
    }
 
+   .accordionAlternate>div:first-child::after {
+      top: calc(50% - 34px);
+      right: 16px;
+      font-size: 68px;
+      font-weight: 500;
+   }
+
+   .expand.accordionAlternate>div:first-child::after {
+      content: '_';
+      top: calc(50% - 50px);
+      right: 21px;
+      font-size: 50px;
+   }
+
    /* Card */
    .cardAnimationDiv {
       height: 800px;
@@ -607,6 +621,7 @@ video {
    .vtbegenerated {
       padding: 24px;
       font-size: 56px;
+      background-color: yellow;
    }
 }
 
@@ -641,6 +656,20 @@ video {
    /* Accordion */
    .accordion>div:first-child> :first-child, .accordionAlternate>div:first-child> :first-child {
       padding: 32px 0;
+   }
+
+   .accordionAlternate>div:first-child::after {
+      top: calc(50% - 34px);
+      right: 16px;
+      font-size: 68px;
+      font-weight: 500;
+   }
+
+   .expand.accordionAlternate>div:first-child::after {
+      content: '_';
+      top: calc(50% - 50px);
+      right: 21px;
+      font-size: 50px;
    }
 
    /* Card */
@@ -738,5 +767,6 @@ video {
    .vtbegenerated {
       padding: 24px;
       font-size: 56px;
+      background-color: yellow;
    }
 }
