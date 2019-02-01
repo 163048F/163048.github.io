@@ -491,6 +491,7 @@ video {
 }
 
 @media only screen and (min-width:0px) and (max-width:736px) {
+
    /*** Lesson Plan ***/
    #lessonPlanTemplate p, #lessonPlanTemplate li {
       font-size: 1em;
@@ -590,7 +591,7 @@ video {
       object-fit: contain;
    }
 
-   .vtbegenerated img:active,.contentListRight img:active {
+   .vtbegenerated img:active, .contentListRight img:active {
       /* Set rules to fill background */
       min-height: 100%;
       min-width: 100%;
@@ -598,6 +599,11 @@ video {
       -moz-user-select: none;
       -ms-user-select: none;
       user-select: none;
+      -webkit-user-drag: none;
+      -khtml-user-drag: none;
+      -moz-user-drag: none;
+      -o-user-drag: none;
+      user-drag: none;
       z-index: 9999;
       /* Set up proportionate scaling */
       width: 100%;
@@ -625,6 +631,7 @@ video {
 }
 
 @media only screen and (min-width:737px) and (max-width:1024px) {
+
    /*** Lesson Plan ***/
    #lessonPlanTemplate {
       font-size: 36px;
@@ -735,7 +742,7 @@ video {
       object-fit: contain;
    }
 
-   .vtbegenerated img:active,.contentListRight img:active {
+   .vtbegenerated img:active, .contentListRight img:active {
       /* Set rules to fill background */
       min-height: 100%;
       min-width: 100%;
@@ -743,6 +750,11 @@ video {
       -moz-user-select: none;
       -ms-user-select: none;
       user-select: none;
+      -webkit-user-drag: none;
+      -khtml-user-drag: none;
+      -moz-user-drag: none;
+      -o-user-drag: none;
+      user-drag: none;
       z-index: 9999;
       /* Set up proportionate scaling */
       width: 100%;
