@@ -379,6 +379,9 @@
    flex-direction: column;
    overflow: hidden;
    backface-visibility: hidden;
+   -webkit-backface-visibility: hidden;
+   -moz-backface-visibility: hidden;
+   -ms-backface-visibility: hidden;
 }
 
 .cardFlipFront {
@@ -494,6 +497,7 @@ video {
 }
 
 @media only screen and (min-width:0px) and (max-width:736px) {
+
    /*** Lesson Plan ***/
    #lessonPlanTemplate p, #lessonPlanTemplate li {
       font-size: 1em;
@@ -566,6 +570,7 @@ video {
 }
 
 @media only screen and (min-width:737px) and (max-width:1024px) {
+
    /*** Lesson Plan ***/
    #lessonPlanTemplate {
       font-size: 36px;
