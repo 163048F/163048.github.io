@@ -490,9 +490,10 @@ video {
    height: auto;
 }
 
-@media only screen and (min-width:0px) and (max-width:736px)
-and (-webkit-min-device-pixel-ratio: 1) and (-webkit-min-device-pixel-ratio: 2)
-and (-webkit-min-device-pixel-ratio: 3) and (-webkit-min-device-pixel-ratio: 4) {
+@media only screen and (min-width:0px) and (max-width:736px) and (-webkit-min-device-pixel-ratio: 1),
+only screen and (min-width:737px) and (max-width:1024px) and (-webkit-min-device-pixel-ratio: 2),
+only screen and (min-width:737px) and (max-width:1024px) and (-webkit-min-device-pixel-ratio: 3),
+only screen and (min-width:737px) and (max-width:1024px) and (-webkit-min-device-pixel-ratio: 4) {
    /*** Lesson Plan ***/
    #lessonPlanTemplate p, #lessonPlanTemplate li {
       font-size: 1em;
@@ -565,9 +566,10 @@ and (-webkit-min-device-pixel-ratio: 3) and (-webkit-min-device-pixel-ratio: 4) 
    }
 }
 
-@media only screen and (min-width:737px) and (max-width:1024px)
-and (-webkit-min-device-pixel-ratio: 1) and (-webkit-min-device-pixel-ratio: 2)
-and (-webkit-min-device-pixel-ratio: 3) and (-webkit-min-device-pixel-ratio: 4) {
+@media only screen and (min-width:737px) and (max-width:1024px) and (-webkit-min-device-pixel-ratio: 1),
+only screen and (min-width:737px) and (max-width:1024px) and (-webkit-min-device-pixel-ratio: 2),
+only screen and (min-width:737px) and (max-width:1024px) and (-webkit-min-device-pixel-ratio: 3),
+only screen and (min-width:737px) and (max-width:1024px) and (-webkit-min-device-pixel-ratio: 4) {
    /*** Lesson Plan ***/
    #lessonPlanTemplate {
       font-size: 36px;
