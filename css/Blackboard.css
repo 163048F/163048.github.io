@@ -349,6 +349,7 @@
    width: 300px;
    max-width: 500px;
    height: 240px;
+   -webkit-perspective: 1000px;
    perspective: 1000px;
 }
 
@@ -387,7 +388,6 @@
    color: black;
    word-wrap: break-word;
    text-align: center;
-   backface-visibility: hidden;
 }
 
 .cardFlipFront>*:not(img) {
@@ -406,6 +406,7 @@
    transform: rotateY(180deg);
    padding: 24px;
    font-weight: bold;
+   backface-visibility: hidden;
 }
 
 .cardFlipBack>p {
