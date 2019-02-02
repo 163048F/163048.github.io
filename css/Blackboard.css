@@ -490,8 +490,7 @@ video {
    height: auto;
 }
 
-@media only screen and (min-width:0px) and (max-width:736px) and (orientation: portrait),
-only screen and (min-width:0px) and (max-width:736px) and (orientation: landscape) {
+@media only screen and (min-width:0px) and (max-width:736px) and handheld {
    /*** Lesson Plan ***/
    #lessonPlanTemplate p, #lessonPlanTemplate li {
       font-size: 1em;
@@ -564,8 +563,7 @@ only screen and (min-width:0px) and (max-width:736px) and (orientation: landscap
    }
 }
 
-@media only screen and (min-width:737px) and (max-width:1024px) and (orientation: portrait),
-only screen and (min-width:737px) and (max-width:1024px) and (orientation: landscape) {
+@media only screen and (min-width:737px) and (max-width:1024px) and handheld {
    /*** Lesson Plan ***/
    #lessonPlanTemplate {
       font-size: 36px;
