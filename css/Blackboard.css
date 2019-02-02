@@ -490,7 +490,7 @@ video {
    height: auto;
 }
 
-@media only screen and (min-width:0px) and (max-width:736px) and handheld {
+@media only screen and (min-width:0px) and (max-width:736px) and (-webkit-min-device-pixel-ratio: 1) {
    /*** Lesson Plan ***/
    #lessonPlanTemplate p, #lessonPlanTemplate li {
       font-size: 1em;
@@ -563,7 +563,7 @@ video {
    }
 }
 
-@media only screen and (min-width:737px) and (max-width:1024px) and handheld {
+@media only screen and (min-width:737px) and (max-width:1024px) and (-webkit-min-device-pixel-ratio: 1) {
    /*** Lesson Plan ***/
    #lessonPlanTemplate {
       font-size: 36px;
