@@ -349,8 +349,8 @@
    width: 300px;
    max-width: 500px;
    height: 240px;
-   -webkit-perspective: 1000px;
-   perspective: 1000px;
+   -webkit-perspective: 900000px;
+   perspective: 900000px;
 }
 
 .cardFlipDivDiv {
@@ -523,6 +523,7 @@ video {
       -moz-user-drag: none;
       -o-user-drag: none;
       user-drag: none;
+      max-width: 100vw;
    }
 
    .vtbegenerated img:active, .contentListRight img:active {
@@ -560,7 +561,6 @@ video {
 
    .vtbegenerated {
       padding: 24px;
-      max-width: 100vw;
    }
 }
 
@@ -678,6 +678,7 @@ video {
       -moz-user-drag: none;
       -o-user-drag: none;
       user-drag: none;
+      max-width: 100vw;
    }
 
    .vtbegenerated img:active, .contentListRight img:active {
@@ -716,6 +717,5 @@ video {
    .vtbegenerated {
       padding: 24px;
       font-size: 56px;
-      max-width: 100vw;
    }
 }
