@@ -491,9 +491,9 @@ video {
 }
 
 @media only screen and (min-width:0px) and (max-width:736px) and (-webkit-min-device-pixel-ratio: 1),
-only screen and (min-width:737px) and (max-width:1024px) and (-webkit-min-device-pixel-ratio: 2),
-only screen and (min-width:737px) and (max-width:1024px) and (-webkit-min-device-pixel-ratio: 3),
-only screen and (min-width:737px) and (max-width:1024px) and (-webkit-min-device-pixel-ratio: 4) {
+only screen and (min-width:0px) and (max-width:736px) and (-webkit-min-device-pixel-ratio: 2),
+only screen and (min-width:0px) and (max-width:736px) and (-webkit-min-device-pixel-ratio: 3),
+only screen and (min-width:0px) and (max-width:736px) and (-webkit-min-device-pixel-ratio: 4) {
    /*** Lesson Plan ***/
    #lessonPlanTemplate p, #lessonPlanTemplate li {
       font-size: 1em;
