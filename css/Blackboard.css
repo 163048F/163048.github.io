@@ -377,6 +377,7 @@
    justify-content: center;
    flex-direction: column;
    overflow: hidden;
+   backface-visibility: hidden;
 }
 
 .cardFlipFront {
@@ -406,7 +407,6 @@
    transform: rotateY(180deg);
    padding: 24px;
    font-weight: bold;
-   backface-visibility: hidden;
 }
 
 .cardFlipBack>p {
@@ -523,7 +523,6 @@ video {
       -moz-user-drag: none;
       -o-user-drag: none;
       user-drag: none;
-      max-width: 100vw;
    }
 
    .vtbegenerated img:active, .contentListRight img:active {
@@ -678,7 +677,6 @@ video {
       -moz-user-drag: none;
       -o-user-drag: none;
       user-drag: none;
-      max-width: 100vw;
    }
 
    .vtbegenerated img:active, .contentListRight img:active {
