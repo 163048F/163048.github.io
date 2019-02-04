@@ -543,6 +543,10 @@ p {
    border-color: transparent transparent black transparent;
 }
 
+.tooltipBottom {
+   display: flex;
+}
+
 .tooltipBottom > button {
    float: right;
 }
@@ -552,7 +556,6 @@ p {
    bottom: -2.50em;
    position: relative;
    font-size: 75%;
-   line-height: 0;
    vertical-align: baseline;
 }
 
