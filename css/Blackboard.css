@@ -563,10 +563,6 @@ video {
       display: block !important;
       margin: 15vh;
    }
-
-   .vtbegenerated {
-      padding: 24px;
-   }
 }
 
 @media only screen and (min-width:737px) and (max-width:1024px) {
@@ -635,9 +631,5 @@ video {
    .vtbegenerated img:active~span {
       display: block !important;
       margin: 15vh;
-   }
-
-   .vtbegenerated {
-      padding: 24px;
    }
 }
