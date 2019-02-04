@@ -226,7 +226,7 @@ function addTooltip(textContent, btnText, destinationID, b) {
       tooltipBottomBtn.style.width = "100%";
    } else {
       tooltipBottomBtn.className = "btn btn-light";
-      tooltipBottomBtn.appendChild(document.createTextNode("Skip"));
+      tooltipBottomBtn.appendChild(document.createTextNode("Skip Tutorial"));
       let tooltipBottomText = document.createElement("p");
       tooltipBottomText.appendChild(document.createTextNode("Waiting for input..."));
       tooltipBottom.appendChild(tooltipBottomText);
