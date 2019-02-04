@@ -616,6 +616,7 @@
       user-drag: none;
       width: unset !important;
       height: unset !important;
+      max-width: 100%;
    }
 
    .vtbegenerated img:active, .contentListRight img:active {
