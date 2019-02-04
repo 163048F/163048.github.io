@@ -582,7 +582,6 @@
 }
 
 @media only screen and (min-width:737px) and (max-width:1024px) {
-
    /*** Lesson Plan ***/
    #lessonPlanTemplate p, #lessonPlanTemplate li {
       font-size: 1em;
@@ -607,7 +606,7 @@
    }
 
    /*Expand Image*/
-   .vtbegenerated img {
+   img {
       object-fit: contain;
       -webkit-user-drag: none;
       -khtml-user-drag: none;
@@ -617,7 +616,7 @@
       max-width: 100%;
    }
 
-   .vtbegenerated img:active, .contentListRight img:active {
+   img:active, .contentListRight img:active {
       /* Set rules to fill background */
       min-height: 100%;
       min-width: 100%;
@@ -641,7 +640,7 @@
       background-color: rgba(0, 0, 0, 0.6);
    }
 
-   .vtbegenerated video {
+   video {
       height: unset !important;
    }
 
