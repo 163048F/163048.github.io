@@ -614,7 +614,8 @@
       -moz-user-drag: none;
       -o-user-drag: none;
       user-drag: none;
-      max-width: 100%;
+      width: unset !important;
+      height: unset !important;
    }
 
    .vtbegenerated img:active, .contentListRight img:active {
