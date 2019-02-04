@@ -574,11 +574,6 @@
    .vtbegenerated video {
       height: unset !important;
    }
-
-   .vtbegenerated img:active~span {
-      display: block !important;
-      margin: 15vh;
-   }
 }
 
 @media only screen and (min-width:737px) and (max-width:1024px) {
@@ -614,8 +609,6 @@
       -moz-user-drag: none;
       -o-user-drag: none;
       user-drag: none;
-      width: unset !important;
-      height: unset !important;
       max-width: 100%;
    }
 
@@ -645,5 +638,9 @@
 
    .vtbegenerated video {
       height: unset !important;
+   }
+
+   .vtbegenerated {
+      background-color: yellow;
    }
 }
