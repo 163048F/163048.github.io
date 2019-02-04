@@ -545,6 +545,7 @@
       -moz-user-drag: none;
       -o-user-drag: none;
       user-drag: none;
+      max-width: 100%;
    }
 
    .vtbegenerated img:active, .contentListRight img:active {
@@ -573,6 +574,10 @@
 
    .vtbegenerated video {
       height: unset !important;
+   }
+
+   .vtbegenerated {
+      background-color: yellow;
    }
 }
 
