@@ -423,10 +423,26 @@
    margin-bottom: 0 !important;
 }
 
-video {
+.vtbegenerated video {
    width: 100%;
    max-height: 50vh;
    height: 50vh;
+}
+
+.vtbegenerated span {
+   font-size: large !important;
+}
+
+.vtbegenerated p {
+   font-size: large !important;
+}
+
+.vtbegenerated li {
+   font-size: large !important;
+}
+
+.vtbegenerated img {
+   height: auto;
 }
 
 /* Lesson Plan css */
