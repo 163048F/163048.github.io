@@ -148,7 +148,7 @@ $(function () {
 
    $(document).on("click", "#templateSelectionButton", function () {
       showTemplates();
-   })
+   });
 
    // Rotate first
    rotateDIV(document.getElementById("templateSelectionButton").children[0]);
@@ -395,40 +395,45 @@ function hideImportModal() {
 }
 
 function checkImportTextarea() {
-   let importedText = $("#importTextarea").val();
-   if (importedText) {
-      let tempDiv = $('<div>').append($(importedText).clone());
-      if (tempDiv.find(".accordion").html()) {
-         removeHelp();
-         loadImportedAccordion(tempDiv);
-         return !0;
-      } else if (tempDiv.find(".accordionAlternate").html()) {
-         removeHelp();
-         loadImportedAccordionAlt(tempDiv);
-         return !0;
-      } else if (tempDiv.find(".cardAnimationDiv").html()) {
-         removeHelp();
-         loadImportedCard(tempDiv);
-         return !0;
-      } else if (tempDiv.find(".cardFlipMasterDiv").html()) {
-         removeHelp();
-         loadImportedFlashCardPreset(tempDiv);
-         return !0;
-      } else if (tempDiv.find(".checkBoxPageDiv").html()) {
-         removeHelp();
-         loadImportedChecklistPreset(tempDiv);
-         return !0;
-      } else if (tempDiv.find(".tabComponent").html()) {
-         removeHelp();
-         loadImportedTabsPreset(tempDiv);
-         return !0;
-      } else if (tempDiv.find(".fancyNumbers").html()) {
-         removeHelp();
-         loadImportedNumberListPreset(tempDiv);
-         return !0;
+   try {
+      let importedText = $("#importTextarea").val();
+      if (importedText) {
+         let tempDiv = $('<div>').append($(importedText).clone());
+         if (tempDiv.find(".accordion").html()) {
+            removeHelp();
+            loadImportedAccordion(tempDiv);
+            return !0;
+         } else if (tempDiv.find(".accordionAlternate").html()) {
+            removeHelp();
+            loadImportedAccordionAlt(tempDiv);
+            return !0;
+         } else if (tempDiv.find(".cardAnimationDiv").html()) {
+            removeHelp();
+            loadImportedCard(tempDiv);
+            return !0;
+         } else if (tempDiv.find(".cardFlipMasterDiv").html()) {
+            removeHelp();
+            loadImportedFlashCardPreset(tempDiv);
+            return !0;
+         } else if (tempDiv.find(".checkBoxPageDiv").html()) {
+            removeHelp();
+            loadImportedChecklistPreset(tempDiv);
+            return !0;
+         } else if (tempDiv.find(".tabComponent").html()) {
+            removeHelp();
+            loadImportedTabsPreset(tempDiv);
+            return !0;
+         } else if (tempDiv.find(".fancyNumbers").html()) {
+            removeHelp();
+            loadImportedNumberListPreset(tempDiv);
+            return !0;
+         }
       }
+      alert("Code does not match. Make sure you copied correctly");
+   } catch(err) {
+      alert("Code does not match. Make sure you copied correctly");
+      console.log(err.message);
    }
-   alert("Code does not match. Make sure you copied correctly");
 }
 
 function loadImportedAccordion(tempDiv) {
@@ -1660,7 +1665,7 @@ function setHiddenHTML() {
 function page2Output() {
    if ($("#componentsDiv").html()) {
       removeHelp();
-      $("#page2OutputTextarea").val("");
+      $("#page2OutputTextarea").val("<p><link rel='stylesheet' href='https://mlearnnypsit.github.io/css/Blackboard.min.css' /></p><meta name='viewport' content='width=device-width, initial-scale=1.0' />");
       $("#tempDiv").empty();
       let componentsDiv = $("#componentsDiv").clone();
       switch (isAccordion) {
@@ -1743,7 +1748,7 @@ function page2Output() {
             cardFlipBack.removeAttribute("contenteditable");
             cardFlipBack.removeAttribute("style");
          });
-         $("#page2OutputTextarea")[0].value = componentsDiv.html();
+         $("#page2OutputTextarea")[0].value += componentsDiv.html();
          break;
       case 5: // Checklist
          let checkBoxTitle = componentsDiv.find(".checkBoxPageDiv > :first-child")[0];
@@ -1757,7 +1762,7 @@ function page2Output() {
             // Remove contentEditable
             checkboxLabel.removeAttribute("contenteditable");
          });
-         $("#page2OutputTextarea")[0].value = componentsDiv.html();
+         $("#page2OutputTextarea")[0].value += componentsDiv.html();
          $("#page2OutputTextarea")[0].value += "<script>" + checklistStartup + "</script>";
          break;
       case 6: // Tabs
@@ -1788,7 +1793,7 @@ function page2Output() {
             // Remove contentEditable
             tabComponentContent.removeAttribute("contenteditable");
          });
-         $("#page2OutputTextarea")[0].value = componentsDiv.html();
+         $("#page2OutputTextarea")[0].value += componentsDiv.html();
          break;
       case 7: // Lists
          componentsDiv.find(".fancyNumbers").each(function () {
@@ -1803,7 +1808,7 @@ function page2Output() {
          componentsDiv.find("[type='color']").each(function () {
             $(this).remove();
          })
-         $("#page2OutputTextarea")[0].value = componentsDiv.html();
+         $("#page2OutputTextarea")[0].value += componentsDiv.html();
          break;
       }
 
@@ -2106,7 +2111,7 @@ function hex(x) {
 let checklistStartup = "document.querySelectorAll('.checkboxContainer input').forEach(function(a){'true'===localStorage.getItem(a.id)&&(a.checked=!0)})";
 
 // Tabs functions
-let tabsOnClick = "for(var elementIndex=Array.prototype.indexOf.call(this.parentNode.children,this),a=this.parentElement.nextElementSibling.children,b=0;b<a.length;b++)a[b].className=b===elementIndex?'tabComponentContent tabActiveContent':'tabComponentContent';for(var a$0=this.parentElement.children,b$1=0;b$1<a$0.length;b$1++)a$0[b$1].className='tabComponentLinks';this.className='tabComponentLinks'===this.className?'tabComponentLinks tabComponentActive':'tabComponentLinks'";
+let tabsOnClick = "let elementIndex=Array.prototype.indexOf.call(this.parentNode.children,this);for(a=this.parentElement.nextElementSibling.children,b=0;b<a.length;b++)a[b].className=(b===elementIndex)?'tabComponentContent tabActiveContent':'tabComponentContent';for(a=this.parentElement.children,b=0;b<a.length;b++)a[b].className='tabComponentLinks';this.className=(this.className ==='tabComponentLinks')?'tabComponentLinks tabComponentActive':'tabComponentLinks';";
 
 // Messy stuff
 // CardStartup script

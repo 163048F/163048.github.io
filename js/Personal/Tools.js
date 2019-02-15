@@ -792,11 +792,11 @@ function startProcessingExcel() {
                      c: selectedValue,
                      r: rows
                   });
-                  if (!sheet[cellRef]) {
+                  // Skipping if it is empty & it is one of the merged cell & it is not the first merged cell
+                  if (!sheet[cellRef] && checkIfMerged(sheet, selectedValue, rows).direction === "row" && rows > checkIfMerged(sheet, selectedValue, rows).sR) {
                      continue;
                   }
                   let cell = sheet[cellRef];
-                  let x = String(cell.v);
 
                   // Create Lesson
                   let lesson = document.createElement("div");
@@ -813,17 +813,19 @@ function startProcessingExcel() {
                   lessonSubtitle.className = "em";
 
                   // Checking whether is link
-                  if (cell.l) {
-                     if (!isNaN(cell.v)) {
-                        $(lessonTitle).html("<a href='" + cell.l.Target + "' target='_blank'>Week " + cell.v + "</a>");
+                  if(cell) {
+                     if (cell.l) {
+                        if (!isNaN(cell.v)) {
+                           $(lessonTitle).html("<a href='" + cell.l.Target + "' target='_blank'>Week " + cell.v + "</a>");
+                        } else {
+                           $(lessonTitle).html("<a href='" + cell.l.Target + "' target='_blank'>" + cell.v + "</a>");
+                        }
                      } else {
-                        $(lessonTitle).html("<a href='" + cell.l.Target + "' target='_blank'>" + cell.v + "</a>");
-                     }
-                  } else {
-                     if (!isNaN(cell.v)) {
-                        $(lessonTitle).html("Week " + x);
-                     } else {
-                        $(lessonTitle).html(x);
+                        if (!isNaN(cell.v)) {
+                           $(lessonTitle).html("Week " + cell.v);
+                        } else {
+                           $(lessonTitle).html(cell.v);
+                        }
                      }
                   }
 
@@ -2191,7 +2193,8 @@ function setActualColour(dropdownInput) {
 
 function generateHTML() {
    $("#popupDiv").modal("show");
-   $("#popup .modal-body textarea").val($("#page2").html().trim());
+   let popupOutputHTML = "<p><link rel='stylesheet' href='https://mlearnnypsit.github.io/css/Blackboard.min.css' /></p><meta name='viewport' content='width=device-width, initial-scale=1.0' />" + $("#page2").html().trim();
+   $("#popup .modal-body textarea").val(popupOutputHTML);
 }
 
 function closePopup() {
